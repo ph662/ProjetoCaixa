@@ -1,0 +1,4 @@
+Main-Class: execJava.InsereCSV
+Name: execJava/InsereCSV.class
+Java-Bean: True
+

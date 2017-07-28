@@ -1,0 +1,3 @@
+Main-Class: insert_RO_SIAS_SIES_diaria.InsereRO_SIAS_SIES
+Name: insert_RO_SIAS_SIES_diaria/InsereRO_SIAS_SIES.class
+Java-Bean: True

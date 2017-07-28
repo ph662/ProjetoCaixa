@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
+  <display-name>SisDIRID</display-name>
+  <servlet>
+    <servlet-name>Login</servlet-name>
+    <servlet-class>caixa.dirid.SERVLET.LoginServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Login</servlet-name>
+    <url-pattern>/loginServlet</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>ExecutivaServlet_diaria</servlet-name>
+    <servlet-class>caixa.dirid.SERVLET.VisaoExecutiva_Diaria_Servlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ExecutivaServlet_diaria</servlet-name>
+    <url-pattern>/visaoExecutivaDiaria</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>ExecutivaServlet</servlet-name>
+    <servlet-class>caixa.dirid.SERVLET.VisaoExecutivaServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ExecutivaServlet</servlet-name>
+    <url-pattern>/visaoExecutiva</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>OperacionalServlet</servlet-name>
+    <servlet-class>caixa.dirid.SERVLET.VisaoOperacionalServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>OperacionalServlet</servlet-name>
+    <url-pattern>/visaoOperacional</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>AnaliticaServlet</servlet-name>
+    <servlet-class>caixa.dirid.SERVLET.VisaoAnaliticaServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AnaliticaServlet</servlet-name>
+    <url-pattern>/visaoAnalitica</url-pattern>
+  </servlet-mapping>
+  
+  
+  <servlet>
+    <servlet-name>EuroServlet</servlet-name>
+    <servlet-class>caixa.dirid.SERVLET.EuroServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>EuroServlet</servlet-name>
+    <url-pattern>/euroServlet</url-pattern>
+  </servlet-mapping>
+  
+  
+  <error-page>
+    <error-code>404</error-code>
+    <location>/erro.jsp</location>
+  </error-page>
+  <error-page>
+    <error-code>500</error-code>
+    <location>/erro.jsp</location>
+  </error-page>
+</web-app>

@@ -1,0 +1,64 @@
+======================================
+======  pagiGraficoMes.jsp  ==========
+======================================
+
+Para criar um novo gráfico em uma outra aba é necessário fazer o seguinte:
+
+************************************
+1)Declarar o gráfico seguindo este modelo:
+************************************
+
+	<div id="grafiRepresentacaoCancelados" style="width:1110px;height:260px;margin-left:50px;"></div>
+
+
+
+	plot5 = $.jqplot('grafiRepresentacaoCancelados', [canceladosPorEmitidos2014, canceladosPorEmitidos2015], {
+		animate:true, //gráfico animado
+		animateReplot: true,//gráfico animado
+		seriesDefaults: {
+			renderer:$.jqplot.BarRenderer,
+			pointLabels: { show: true },
+			rendererOptions: {
+				barPadding: 1,
+				barMargin: 10
+			}
+		},
+		title:'<%=request.getAttribute("titulo")%> - Representação Cancelados',
+		seriesColors:['#7094CC','#E9AB74'],
+		rendererOptions: {
+			varyBarColor: true
+		},
+		axes: {
+			xaxis: {
+				renderer: $.jqplot.CategoryAxisRenderer,
+				ticks: ticks
+			},
+			yaxis:{
+				ticks: ticks5,
+				tickOptions: {
+					formatString: "%d\%"
+				}
+			}
+		}
+	}); 
+ 
+
+
+************************************
+2)Fazer a declaração na function jquery próximo as linhas 930~940:
+************************************
+
+	$('#tabs').bind('tabsactivate', function(event, ui) {
+		}else if (ui.newTab.index() === 0 && plot1._drawCount === 0) {
+			plot1.replot();
+		}else if (ui.newTab.index() === 0 && plot2._drawCount === 0) {
+			plot2.replot();
+		}
+		if (ui.newTab.index() === 1 && plot3._drawCount === 0) {
+			plot3.replot();
+		}else if (ui.newTab.index() === 2 && plot4._drawCount === 0) {
+			plot4.replot();
+		}else if (ui.newTab.index() === 3 && plot5._drawCount === 0) {
+			plot5.replot();
+	}); 
+	
