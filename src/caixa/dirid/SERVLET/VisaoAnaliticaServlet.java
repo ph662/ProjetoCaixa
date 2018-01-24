@@ -43,7 +43,7 @@ public class VisaoAnaliticaServlet extends HttpServlet {
 			// utilizado para evitar o erro:
 			// "Motivo: o cabeçalho CORS 'Access-Control-Allow-Origin' não está presente"
 			// gerado quando acesso a aplicação pelo localhost para o ip local
-			// 10.125.7.51
+			// 10.125.7.49
 			resp.setHeader("Access-Control-Allow-Origin", "*");
 
 			req.getRequestDispatcher("ajaxTabelaFatuAnalitico.jsp").forward(

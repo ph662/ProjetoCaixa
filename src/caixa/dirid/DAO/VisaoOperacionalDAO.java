@@ -24,62 +24,42 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 	/*******************************/
 
 	/**
-	 * Retorna uma lista contendo o quantitativo de apolices para analisar.
-	 * Tabela 'renovacao_acompanhamento' do banco.
+	 * Retorna uma lista contendo o quantitativo de apolices para analisar. Tabela
+	 * 'renovacao_acompanhamento' do banco.
 	 * 
 	 * @return List<RenovacaoVO>
 	 * 
-	 * */
+	 */
 
-	public List<RenovacaoVO> selecionaAnaliseRenovacao(String mes, String ano) {
-		Connection con = new Conexao()
-				.getConexaoMySql("VisaoOperacionalDAO - selecionaAnaliseRenovacao");
+	public List<RenovacaoVO> selecionaAnaliseRenovacao(String mes, String ano, String codProduto) {
+		Connection con = new Conexao().getConexaoMySql("VisaoOperacionalDAO - selecionaAnaliseRenovacao");
 		List<RenovacaoVO> fatu = new ArrayList<RenovacaoVO>();
 
 		try {
 			Statement statement = con.createStatement();
 
 			String sqldadosRenovacao = "select 'Vicendos Para Renovar' as Produto, count(Apólice) as TotalGeral from renovacao_acompanhamento ra where Sit_Apolice = 'Emitida' and MONTH(fim_vig) = "
-					+ mes
-					+ " and YEAR(fim_vig) = "
-					+ ano
+					+ mes + " and YEAR(fim_vig) = " + ano + codProduto
 					+ "  UNION select 'Emitidas sem prazo curto do empresarial' as Produto, sum(TotalGeral) as TotalGeral from  ( select 'Empresarial sem prazo curto' as Produto, count(Apólice) as TotalGeral from renovacao_acompanhamento ra where Sit_Apolice = 'Emitida' and produto = '1804' and MONTH(fim_vig) = "
-					+ mes
-					+ " and YEAR(fim_vig) = "
-					+ ano
+					+ mes + " and YEAR(fim_vig) = " + ano
 					+ " and plurianual = '1' union select 'Residencial' as Produto, count(Apólice) as TotalGeral from renovacao_acompanhamento ra where Sit_Apolice = 'Emitida' and MONTH(fim_vig) = "
-					+ mes
-					+ " and YEAR(fim_vig) = "
-					+ ano
+					+ mes + " and YEAR(fim_vig) = " + ano
 					+ " and produto in ('1403','1404') )as EmitidasSemPrazoCurto UNION select 'Cancelamentos' as Produto, count(Apólice) as TotalGeral from renovacao_acompanhamento ra where Sit_Apolice = 'Cancelada' and MONTH(fim_vig) = "
-					+ mes
-					+ " and YEAR(fim_vig) = "
-					+ ano
+					+ mes + " and YEAR(fim_vig) = " + ano + codProduto
 					+ " UNION select 'Canceladas sem prazo curto do empresarial' as Produto, sum(TotalGeral) as TotalGeral from ( select 'Empresarial sem prazo curto' as Produto, count(Apólice) as TotalGeral from renovacao_acompanhamento ra where Sit_Apolice = 'Cancelada' and produto = '1804' and MONTH(fim_vig) = "
-					+ mes
-					+ " and YEAR(fim_vig) = "
-					+ ano
+					+ mes + " and YEAR(fim_vig) = " + ano
 					+ " and plurianual = '1' union select 'Residencial' as Produto, count(Apólice) as TotalGeral from renovacao_acompanhamento ra where Sit_Apolice = 'Cancelada' and MONTH(fim_vig) = "
-					+ mes
-					+ " and YEAR(fim_vig) = "
-					+ ano
+					+ mes + " and YEAR(fim_vig) = " + ano
 					+ " and produto in ('1403','1404') )as EmitidasSemPrazoCurto UNION select 'Propostas Geradas' as Produto, count(Apólice) as TotalGeral from renovacao_acompanhamento ra where Sit_Apolice = 'Emitida' and Renov_Canal in ('Renovação Automática','Renovação Mala Direta') and MONTH(fim_vig) = "
-					+ mes
-					+ " and YEAR(fim_vig) = "
-					+ ano
+					+ mes + " and YEAR(fim_vig) = " + ano + codProduto
 					+ " UNION select 'Propostas não geradas - Analisar no SIES' as Produto, count(Apólice) as TotalGeral from renovacao_acompanhamento ra where Sit_Apolice = 'Emitida' and Renov_Canal NOT in ('Renovação Automática','Renovação Mala Direta') and MONTH(fim_vig) = "
-					+ mes
-					+ " and YEAR(fim_vig) = "
-					+ ano
+					+ mes + " and YEAR(fim_vig) = " + ano + codProduto
 					+ " UNION select 'Emitidos' as Produtos, count(Apólice) as TotalGeral from renovacao_acompanhamento ra where Sit_Apolice = 'Emitida' and Renov_Canal in ('Renovação Automática','Renovação Mala Direta') and Vig_Canal NOT in('') and MONTH(fim_vig) = "
-					+ mes
-					+ " and YEAR(fim_vig) = "
-					+ ano
+					+ mes + " and YEAR(fim_vig) = " + ano + codProduto
 					+ " UNION select 'Não Emitidos' as Produtos, count(Apólice) as TotalGeral from renovacao_acompanhamento ra where Sit_Apolice = 'Emitida' and Renov_Canal in ('Renovação Automática','Renovação Mala Direta') and Vig_Canal in ('') and MONTH(fim_vig) = "
-					+ mes + " and YEAR(fim_vig) = " + ano + ";";
+					+ mes + " and YEAR(fim_vig) = " + ano + codProduto + ";";
 
-			System.err.println("metodo selecionaAnaliseRenovacao: "
-					+ sqldadosRenovacao);
+			// System.err.println("metodo selecionaAnaliseRenovacao: " + sqldadosRenovacao);
 
 			ResultSet rsDadosRenovacao = null;
 
@@ -94,32 +74,28 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaAnaliseRenovacao VisaoOperacionalDAO");
+			System.out.println("ERRO metodo selecionaAnaliseRenovacao VisaoOperacionalDAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo selecionaAnaliseRenovacao VisaoOperacionalDAO");
+				System.out.println("ERRO metodo selecionaAnaliseRenovacao VisaoOperacionalDAO");
 			}
 		}
 		return (List<RenovacaoVO>) fatu;
 	}
 
 	/**
-	 * Retorna uma lista contendo o quantitativo de apolices para analisar
-	 * agrupado pelo codigo de Produto. Tabela 'renovacao_acompanhamento' do
-	 * banco.
+	 * Retorna uma lista contendo o quantitativo de apolices para analisar agrupado
+	 * pelo codigo de Produto. Tabela 'renovacao_acompanhamento' do banco.
 	 * 
 	 * @return List<RenovacaoVO>
 	 * 
-	 * */
+	 */
 
 	public List<RenovacaoVO> selecionaAnaliseRenovacaoPorProduto(String mes) {
-		Connection con = new Conexao()
-				.getConexaoMySql("VisaoOperacionalDAO - selecionaAnaliseRenovacaoPorProduto");
+		Connection con = new Conexao().getConexaoMySql("VisaoOperacionalDAO - selecionaAnaliseRenovacaoPorProduto");
 		List<RenovacaoVO> fatu = new ArrayList<RenovacaoVO>();
 
 		try {
@@ -161,41 +137,35 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaAnaliseRenovacaoPorProduto VisaoOperacionalDAO");
+			System.out.println("ERRO metodo selecionaAnaliseRenovacaoPorProduto VisaoOperacionalDAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo selecionaAnaliseRenovacaoPorProduto VisaoOperacionalDAO");
+				System.out.println("ERRO metodo selecionaAnaliseRenovacaoPorProduto VisaoOperacionalDAO");
 			}
 		}
 		return (List<RenovacaoVO>) fatu;
 	}
 
 	/**
-	 * Retorna uma lista contendo o Canal e a quantidade de apolices das que
-	 * foram geradas e emitidas. Tabela 'renovacao_acompanhamento' do banco.
+	 * Retorna uma lista contendo o Canal e a quantidade de apolices das que foram
+	 * geradas e emitidas. Tabela 'renovacao_acompanhamento' do banco.
 	 * 
 	 * @return List<RenovacaoVO>
 	 * 
-	 * */
+	 */
 
-	public List<RenovacaoVO> selecionaCanalApolicesEmitidas(String mes,
-			String ano) {
-		Connection con = new Conexao()
-				.getConexaoMySql("VisaoOperacionalDAO - selecionaCanalApolicesEmitidas");
+	public List<RenovacaoVO> selecionaCanalApolicesEmitidas(String mes, String ano, String codProduto) {
+		Connection con = new Conexao().getConexaoMySql("VisaoOperacionalDAO - selecionaCanalApolicesEmitidas");
 		List<RenovacaoVO> fatu = new ArrayList<RenovacaoVO>();
 
 		try {
 			Statement statement = con.createStatement();
 
 			String sqldadosRenovacao = "select Vig_Canal, count(Apólice) as TotalGeral from renovacao_acompanhamento ra where Sit_Apolice = 'Emitida' and Renov_Canal in ('Renovação Automática','Renovação Mala Direta') and MONTH(fim_vig) = "
-					+ mes
-					+ " and YEAR(fim_vig) = "
-					+ ano
+					+ mes + " and YEAR(fim_vig) = " + ano + codProduto
 					+ " and Vig_Canal NOT in('') group by Vig_Canal;";
 
 			// System.err.println(sqlConsulta);
@@ -212,15 +182,14 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaCanalApolicesEmitidas VisaoOperacionalDAO");
+			System.err.println("ERRO metodo selecionaCanalApolicesEmitidas VisaoOperacionalDAO");
 		} finally {
+
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo selecionaCanalApolicesEmitidas VisaoOperacionalDAO");
+				System.err.println("ERRO metodo selecionaCanalApolicesEmitidas VisaoOperacionalDAO");
 			}
 		}
 		return (List<RenovacaoVO>) fatu;
@@ -229,42 +198,32 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 	/**
 	 * 
 	 * Teste - Pedido da Dani Retorna uma lista contendo a principio o Canal
-	 * 'Renovação Automática' e logo abaixo o valor separado em outros canais.
-	 * Em seguida retorna o canal 'Renovação Mala Direta' e abaixo o valor
-	 * separado em outros canais. Tabela 'renovacao_acompanhamento' do banco.
+	 * 'Renovação Automática' e logo abaixo o valor separado em outros canais. Em
+	 * seguida retorna o canal 'Renovação Mala Direta' e abaixo o valor separado em
+	 * outros canais. Tabela 'renovacao_acompanhamento' do banco.
 	 * 
 	 * @return List<RenovacaoVO>
 	 * 
-	 * */
+	 */
 
-	public List<RenovacaoVO> selecionaRenovacoesRealizadas(String mes,
-			String ano) {
-		Connection con = new Conexao()
-				.getConexaoMySql("VisaoOperacionalDAO - selecionaRenovacoesRealizadas");
+	public List<RenovacaoVO> selecionaRenovacoesRealizadas(String mes, String ano, String codProduto) {
+		Connection con = new Conexao().getConexaoMySql("VisaoOperacionalDAO - selecionaRenovacoesRealizadas");
 		List<RenovacaoVO> fatu = new ArrayList<RenovacaoVO>();
 
 		try {
 			Statement statement = con.createStatement();
 
 			String sqldadosRenovacao = "/* ***** utiliza CAMPO VIG_SITUAÇÃO **** */select Renov_Canal, count(Apólice) as TotalGeral from renovacao_acompanhamento ra where  Vig_Situação = 'Emitida' and Renov_Canal in ('Renovação Automática') and MONTH(fim_vig) = "
-					+ mes
-					+ " and YEAR(fim_vig) = "
-					+ ano
+					+ mes + " and YEAR(fim_vig) = " + ano + codProduto
 					+ " and Renov_Canal NOT in('') group by Renov_Canal union/* *****automatica***** */select Vig_Canal, count(Apólice) as TotalGeral from renovacao_acompanhamento ra where  Vig_Situação = 'Emitida' and Renov_Canal in ('Renovação Automática') and MONTH(fim_vig) = "
-					+ mes
-					+ " and YEAR(fim_vig) = "
-					+ ano
+					+ mes + " and YEAR(fim_vig) = " + ano + codProduto
 					+ " and Renov_Canal NOT in('') group by Vig_Canal/* ***************************** *//* ********* */UNION/* ***************************** */select Renov_Canal, count(Apólice) as TotalGeral from renovacao_acompanhamento ra where Vig_Situação = 'Emitida' and Renov_Canal in ('Renovação Mala Direta') and MONTH(fim_vig) = "
-					+ mes
-					+ " and YEAR(fim_vig) = "
-					+ ano
+					+ mes + " and YEAR(fim_vig) = " + ano + codProduto
 					+ " and Renov_Canal NOT in('') group by Renov_Canal union/* *****Mala Direta***** */select Vig_Canal, count(Apólice) as TotalGeral from renovacao_acompanhamento ra where Vig_Situação = 'Emitida' and Renov_Canal in ('Renovação Mala Direta') and MONTH(fim_vig) = "
-					+ mes
-					+ " and YEAR(fim_vig) = "
-					+ ano
+					+ mes + " and YEAR(fim_vig) = " + ano + codProduto
 					+ " and Renov_Canal NOT in('') group by Vig_Canal;";
 
-			System.err.println(sqldadosRenovacao);
+			// System.err.println(sqldadosRenovacao);
 			ResultSet rsDadosRenovacao = null;
 
 			rsDadosRenovacao = statement.executeQuery(sqldadosRenovacao);
@@ -278,15 +237,13 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaRenovacoesRealizadas VisaoOperacionalDAO");
+			System.out.println("ERRO metodo selecionaRenovacoesRealizadas VisaoOperacionalDAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo selecionaRenovacoesRealizadas VisaoOperacionalDAO");
+				System.out.println("ERRO metodo selecionaRenovacoesRealizadas VisaoOperacionalDAO");
 			}
 		}
 		return (List<RenovacaoVO>) fatu;
@@ -297,8 +254,8 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 	/************************************************/
 
 	/**
-	 * Retorna uma lista com 2 linhas, a primeira traz o somatório de todo o
-	 * premio, a segunda traz a quantidade de apolices deste premio.
+	 * Retorna uma lista com 2 linhas, a primeira traz o somatório de todo o premio,
+	 * a segunda traz a quantidade de apolices deste premio.
 	 * 
 	 * @return List<SensibilizacaoVO>
 	 * @param String
@@ -309,12 +266,11 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 	 *            mes
 	 * @param String
 	 *            categoria
-	 * */
+	 */
 
-	public List<SensibilizacaoVO> selecionaTotalSensibilizacao(String prod,
-			String ano, String mes, String categoria, String tipoMovimento) {
-		Connection con = new Conexao()
-				.getConexaoMySql("VisaoOperacionalDAO - selecionaTotalSensibilizacao");
+	public List<SensibilizacaoVO> selecionaTotalSensibilizacao(String prod, String ano, String mes, String categoria,
+			String tipoMovimento) {
+		Connection con = new Conexao().getConexaoMySql("VisaoOperacionalDAO - selecionaTotalSensibilizacao");
 		List<SensibilizacaoVO> fatu = new ArrayList<SensibilizacaoVO>();
 
 		try {
@@ -325,20 +281,14 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 			switch (categoria) {
 			case "vendasNovas":
 
-				sqlDadosSensibilizacao = "call prcSensibilizacaoDadosMesDeReferencia_vendasNovas('"
-						+ ano + "','" + mes + "','" + prod + "')";
+				sqlDadosSensibilizacao = "call prcSensibilizacaoDadosMesDeReferencia_vendasNovas('" + ano + "','" + mes
+						+ "','" + prod + "')";
 
 				break;
 			case "fluxoFinanceiro":
 
-				sqlDadosSensibilizacao = "call prcSensibilizacaoDadosMesDeReferencia_fluxoFinanceiro('"
-						+ ano
-						+ "','"
-						+ mes
-						+ "','"
-						+ prod
-						+ "','"
-						+ tipoMovimento + "')";
+				sqlDadosSensibilizacao = "call prcSensibilizacaoDadosMesDeReferencia_fluxoFinanceiro('" + ano + "','"
+						+ mes + "','" + prod + "','" + tipoMovimento + "')";
 
 				break;
 			}
@@ -347,43 +297,39 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 			// sqlDadosSensibilizacao);
 			ResultSet rsDadosSensibilizacao = null;
 
-			rsDadosSensibilizacao = statement
-					.executeQuery(sqlDadosSensibilizacao);
+			rsDadosSensibilizacao = statement.executeQuery(sqlDadosSensibilizacao);
 
 			while (rsDadosSensibilizacao.next()) {
 				SensibilizacaoVO sensibilizacaoVo = new SensibilizacaoVO();
 				sensibilizacaoVo.setProduto(rsDadosSensibilizacao.getString(1));
-				sensibilizacaoVo.setQuantidade(rsDadosSensibilizacao
-						.getString(2));
+				sensibilizacaoVo.setQuantidade(rsDadosSensibilizacao.getString(2));
 				fatu.add(sensibilizacaoVo);
 			}
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaTotalSensibilizacao VisaoOperacionalDAO");
+			System.out.println("ERRO metodo selecionaTotalSensibilizacao VisaoOperacionalDAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo selecionaTotalSensibilizacao VisaoOperacionalDAO");
+				System.out.println("ERRO metodo selecionaTotalSensibilizacao VisaoOperacionalDAO");
 			}
 		}
 		return (List<SensibilizacaoVO>) fatu;
 	}// fim selecionaTotalSensibilizacao
 
 	/**
-	 * Retorna uma lista contendo a Agencia, SR, SUAT, quantidade de propostas e
-	 * o valor dessas proposta.
+	 * Retorna uma lista contendo a Agencia, SR, SUAT, quantidade de propostas e o
+	 * valor dessas proposta.
 	 * 
 	 * @return List<SensibilizacaoVO>
 	 * 
-	 * */
+	 */
 
-	public List<SensibilizacaoVO> selecionaTotalAgrupadoPorAgenciaSensibilizacao(
-			String prod, String ano, String mes, String categoria, int pagina) {
+	public List<SensibilizacaoVO> selecionaTotalAgrupadoPorAgenciaSensibilizacao(String prod, String ano, String mes,
+			String categoria, int pagina) {
 		Connection con = new Conexao()
 				.getConexaoMySql("VisaoOperacionalDAO - selecionaTotalAgrupadoPorAgenciaSensibilizacao");
 		List<SensibilizacaoVO> fatu = new ArrayList<SensibilizacaoVO>();
@@ -392,8 +338,7 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 		if (pagina == 9999) {
 			limit = " ";
 		} else {
-			limit = " LIMIT " + Integer.toString(((pagina - 1) * 1000))
-					+ ",1000";
+			limit = " LIMIT " + Integer.toString(((pagina - 1) * 1000)) + ",1000";
 		}
 
 		try {
@@ -404,65 +349,49 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 			switch (categoria) {
 			case "vendasNovas":
 				sqlDadosSensibilizacao = "select case when em.agenciadevenda is null then 'Vazio' else em.agenciadevenda end as agenciadevenda, case when fi.agencia is null then 'Vazio' else fi.agencia end as agencia, case when em.NumeroProdutoSIGPF is null then 'Vazio' else em.NumeroProdutoSIGPF end as NumeroProdutoSIGPF,case when fi.cod_SR is null then 'Vazio' else fi.cod_SR end as cod_SR, case when fi.SUAT is null then 'Vazio' else fi.SUAT end as SUAT, count(distinct em.NumeroProposta) as Quantidade, round(sum(em.ValorPagoSICOB),2) as Total from movimentacao_emissao em left join agencias_filiais_sr_suat fi on em.AgenciaDeVenda = fi.cod_ag  where em.SituacaoProposta = 'EMT' and (em.NumeroProposta LIKE '8%' OR em.NumeroProposta LIKE '2%' OR em.NumeroProposta LIKE '4%') "
-						+ prod
-						+ " and MONTH(em.dataarquivo) = '"
-						+ mes
-						+ "' and year(em.dataArquivo) = "
-						+ ano
+						+ prod + " and MONTH(em.dataarquivo) = '" + mes + "' and year(em.dataArquivo) = " + ano
 						+ " group by em.agenciadevenda, em.NumeroProdutoSIGPF order by em.agenciadevenda, em.NumeroProdutoSIGPF desc "
 						+ limit + ";";
 				break;
 			case "fluxoFinanceiro":
 				sqlDadosSensibilizacao = "select case when AgenciaDeVenda is null then 'Vazio' else AgenciaDeVenda end as CodAgencia, case when Agencia is null then 'Vazio' else Agencia end as AgenciaDeVenda,  case when codigoProduto is null then 'Vazio' else codigoProduto end as codigoProduto, case when cod_sr is null then 'Vazio' else cod_sr end as SR, case when suat is null then 'Vazio' else suat end as suat, count(distinct numeroApolice) as qtApolice, round( sum( case codigosituacao when '242' then valorparcela * -1 when '251' then valorparcela * -1 when '250' then valorparcela when '235' then valorparcela end ),2 ) as valorPremio   from ( select * from ( select mv.DataArquivo, mv.NumeroApolice, av.AgenciaDeVenda,  fi.AGENCIA, fi.COD_SR, fi.SUAT, av.CodigoProduto, mv.CodigoSituacao, mv.ValorParcela from ( select DataArquivo, numeroproposta as NumeroApolice, CodigoSituacao, ValorParcela from movimentacao_financeira 		/* Traz apenas as Apolices*/ where numeroproposta like '120%' and month(dataArquivo) = "
-						+ mes
-						+ " and year(dataArquivo) = "
-						+ ano
+						+ mes + " and year(dataArquivo) = " + ano
 						+ " ) mv left join agencia_vigentes_apolices av on mv.NumeroApolice = av.NumeroApolice left join agencias_filiais_sr_suat fi on av.AgenciaDeVenda = fi.cod_ag UNION all select mv.DataArquivo, mv.NumeroProposta as NumeroApolice, av.AgenciaDeVenda, fi.AGENCIA, fi.COD_SR, fi.SUAT, av.CodigoProduto, mv.CodigoSituacao, mv.ValorParcela from ( select DataArquivo, numeroproposta as numeroproposta, CodigoSituacao, ValorParcela from movimentacao_financeira /* Traz apenas as Propostas*/ where NumeroProposta not like '120%' and month(dataArquivo) = "
-						+ mes
-						+ " and year(dataArquivo) = "
-						+ ano
+						+ mes + " and year(dataArquivo) = " + ano
 						+ "  				) mv   			left join agencia_vigentes_propostas av on mv.NumeroProposta = av.NumeroProposta 				left join agencias_filiais_sr_suat fi on av.AgenciaDeVenda = fi.cod_ag  		) as filtroProduto "
-						+ prod
-						+ " ) as financeiro group by agenciadevenda,codigoproduto "
-						+ limit + ";";
+						+ prod + " ) as financeiro group by agenciadevenda,codigoproduto " + limit + ";";
 				break;
 			default:
 				sqlDadosSensibilizacao = "select 'nada';";
 				break;
 			}
 
-			System.err.println("Query 2 " + categoria + " "
-					+ sqlDadosSensibilizacao);
+			System.err.println("Query 2 " + categoria + " " + sqlDadosSensibilizacao);
 			ResultSet rsDadosSensibilizacao = null;
 
-			rsDadosSensibilizacao = statement
-					.executeQuery(sqlDadosSensibilizacao);
+			rsDadosSensibilizacao = statement.executeQuery(sqlDadosSensibilizacao);
 
 			while (rsDadosSensibilizacao.next()) {
 				SensibilizacaoVO sensibilizacaoVo = new SensibilizacaoVO();
-				sensibilizacaoVo.setCodAgencia(rsDadosSensibilizacao
-						.getString(1));
+				sensibilizacaoVo.setCodAgencia(rsDadosSensibilizacao.getString(1));
 				sensibilizacaoVo.setAgencia(rsDadosSensibilizacao.getString(2));
 				sensibilizacaoVo.setProduto(rsDadosSensibilizacao.getString(3));
 				sensibilizacaoVo.setSR(rsDadosSensibilizacao.getString(4));
 				sensibilizacaoVo.setSUAT(rsDadosSensibilizacao.getString(5));
-				sensibilizacaoVo.setQuantidade(rsDadosSensibilizacao
-						.getString(6));
+				sensibilizacaoVo.setQuantidade(rsDadosSensibilizacao.getString(6));
 				sensibilizacaoVo.setValor(rsDadosSensibilizacao.getString(7));
 
 				fatu.add(sensibilizacaoVo);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaTotalAgrupadoPorAgenciaSensibilizacao VisaoOperacionalDAO");
+			System.out.println("ERRO metodo selecionaTotalAgrupadoPorAgenciaSensibilizacao VisaoOperacionalDAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo selecionaTotalAgrupadoPorAgenciaSensibilizacao VisaoOperacionalDAO");
+				System.out.println("ERRO metodo selecionaTotalAgrupadoPorAgenciaSensibilizacao VisaoOperacionalDAO");
 			}
 		}
 		return (List<SensibilizacaoVO>) fatu;
@@ -473,12 +402,10 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 	 * 
 	 * @return List<SensibilizacaoVO>
 	 * 
-	 * */
+	 */
 
-	public List<SensibilizacaoVO> selecionaPeriodoSensibilizacao(String ano,
-			String mes, String categoria) {
-		Connection con = new Conexao()
-				.getConexaoMySql("VisaoOperacionalDAO - selecionaPeriodoSensibilizacao");
+	public List<SensibilizacaoVO> selecionaPeriodoSensibilizacao(String ano, String mes, String categoria) {
+		Connection con = new Conexao().getConexaoMySql("VisaoOperacionalDAO - selecionaPeriodoSensibilizacao");
 		List<SensibilizacaoVO> fatu = new ArrayList<SensibilizacaoVO>();
 
 		try {
@@ -512,8 +439,7 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaPeriodoSensibilizacao VisaoOperacionalDAO");
+			System.out.println("ERRO metodo selecionaPeriodoSensibilizacao VisaoOperacionalDAO");
 		}
 
 		try {
@@ -547,15 +473,13 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaPeriodoSensibilizacao VisaoOperacionalDAO");
+			System.out.println("ERRO metodo selecionaPeriodoSensibilizacao VisaoOperacionalDAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo selecionaPeriodoSensibilizacao VisaoOperacionalDAO");
+				System.out.println("ERRO metodo selecionaPeriodoSensibilizacao VisaoOperacionalDAO");
 			}
 		}
 		return (List<SensibilizacaoVO>) fatu;
@@ -567,11 +491,9 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 	 * 
 	 * @return int
 	 * 
-	 * */
-	public int selecionaQuantidadeRegistros(String prod, String ano,
-			String mes, String categoria) {
-		Connection con = new Conexao()
-				.getConexaoMySql("VisaoOperacionalDAO - selecionaQuantidadeRegistros");
+	 */
+	public int selecionaQuantidadeRegistros(String prod, String ano, String mes, String categoria) {
+		Connection con = new Conexao().getConexaoMySql("VisaoOperacionalDAO - selecionaQuantidadeRegistros");
 
 		int count = 0;
 		try {
@@ -583,25 +505,16 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 
 			case "vendasNovas":
 				sqlDadosSensibilizacao = "select em.agenciadevenda,	em.NumeroProdutoSIGPF, fi.cod_SR,fi.SUAT, count(distinct em.NumeroProposta) as Quantidade, round(sum(em.ValorPagoSICOB),2) as Total from movimentacao_emissao em left join agencias_filiais_sr_suat fi on em.AgenciaDeVenda = fi.cod_ag  where em.SituacaoProposta = 'EMT' and (em.NumeroProposta LIKE '8%' OR em.NumeroProposta LIKE '2%' OR em.NumeroProposta LIKE '4%') "
-						+ prod
-						+ " and MONTH(em.dataarquivo) = '"
-						+ mes
-						+ "' and year(em.dataArquivo) = "
-						+ ano
+						+ prod + " and MONTH(em.dataarquivo) = '" + mes + "' and year(em.dataArquivo) = " + ano
 						+ " group by em.agenciadevenda, em.NumeroProdutoSIGPF order by em.agenciadevenda, em.NumeroProdutoSIGPF desc;";
 				break;
 			case "fluxoFinanceiro":
 				sqlDadosSensibilizacao = "select case when AgenciaDeVenda is null then 'Vazio' else AgenciaDeVenda end as AgenciaDeVenda, case when codigoProduto is null then 'Vazio' else codigoProduto end as codigoProduto, case when cod_sr is null then 'Vazio' else cod_sr end as SR, case when suat is null then 'Vazio' else suat end as suat, count(distinct numeroApolice) as qtApolice, round( sum( case codigosituacao when '242' then valorparcela * -1 when '251' then valorparcela * -1 when '250' then valorparcela when '235' then valorparcela end ),2 ) as valorPremio   from ( select * from ( select mv.DataArquivo, mv.NumeroApolice, av.AgenciaDeVenda, fi.COD_SR, fi.SUAT, av.CodigoProduto, mv.CodigoSituacao, mv.ValorParcela from ( select DataArquivo, numeroproposta as NumeroApolice, CodigoSituacao, ValorParcela from movimentacao_financeira 		/* Traz apenas as Apolices*/ where numeroproposta like '120%' and month(dataArquivo) = "
-						+ mes
-						+ " and year(dataArquivo) = "
-						+ ano
+						+ mes + " and year(dataArquivo) = " + ano
 						+ " ) mv left join agencia_vigentes_apolices av on mv.NumeroApolice = av.NumeroApolice left join agencias_filiais_sr_suat fi on av.AgenciaDeVenda = fi.cod_ag UNION all select mv.DataArquivo, mv.NumeroProposta as NumeroApolice, av.AgenciaDeVenda, fi.COD_SR, fi.SUAT, av.CodigoProduto, mv.CodigoSituacao, mv.ValorParcela from ( select DataArquivo, numeroproposta as numeroproposta, CodigoSituacao, ValorParcela from movimentacao_financeira /* Traz apenas as Propostas*/ where NumeroProposta not like '120%' and month(dataArquivo) = "
-						+ mes
-						+ " and year(dataArquivo) = "
-						+ ano
+						+ mes + " and year(dataArquivo) = " + ano
 						+ "  				) mv   			left join agencia_vigentes_propostas av on mv.NumeroProposta = av.NumeroProposta 				left join agencias_filiais_sr_suat fi on av.AgenciaDeVenda = fi.cod_ag  		) as filtroProduto "
-						+ prod
-						+ " ) as financeiro group by agenciadevenda,codigoproduto;";
+						+ prod + " ) as financeiro group by agenciadevenda,codigoproduto;";
 				break;
 			default:
 				break;
@@ -611,23 +524,20 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 			// sqlDadosSensibilizacao);
 			ResultSet rsDadosSensibilizacao = null;
 
-			rsDadosSensibilizacao = statement
-					.executeQuery(sqlDadosSensibilizacao);
+			rsDadosSensibilizacao = statement.executeQuery(sqlDadosSensibilizacao);
 
 			while (rsDadosSensibilizacao.next()) {
 				++count;
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaQuantidadeRegistros VisaoOperacionalDAO");
+			System.out.println("ERRO metodo selecionaQuantidadeRegistros VisaoOperacionalDAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo selecionaQuantidadeRegistros VisaoOperacionalDAO");
+				System.out.println("ERRO metodo selecionaQuantidadeRegistros VisaoOperacionalDAO");
 			}
 		}
 
@@ -639,20 +549,18 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 	 * 
 	 * @return List<SensibilizacaoVO>
 	 * 
-	 * */
+	 */
 
-	public List<SensibilizacaoTotalizadorVO> selecionaSensibilizacaoTotalizadorAcumulado(
-			String ano) {
+	public List<SensibilizacaoTotalizadorVO> selecionaSensibilizacaoTotalizadorAcumulado(String ano) {
 		Connection con = new Conexao()
 				.getConexaoMySql("VisaoOperacionalDAO - selecionaSensibilizacaoTotalizadorAcumulado");
 		List<SensibilizacaoTotalizadorVO> fatu = new ArrayList<SensibilizacaoTotalizadorVO>();
 
 		try {
 			Statement statement = con.createStatement();
-			String sqlTotalizadorAcumulado = "call prcSensibilizacaoTotalizadorAcumulado('"
-					+ uteis.cortaRetornaAno(ano) + "')";
-			ResultSet rsTotalizador = statement
-					.executeQuery(sqlTotalizadorAcumulado);
+			String sqlTotalizadorAcumulado = "call prcSensibilizacaoTotalizadorAcumulado('" + uteis.cortaRetornaAno(ano)
+					+ "')";
+			ResultSet rsTotalizador = statement.executeQuery(sqlTotalizadorAcumulado);
 
 			while (rsTotalizador.next()) {
 				SensibilizacaoTotalizadorVO sensiTotalizadorVo = new SensibilizacaoTotalizadorVO();
@@ -670,15 +578,13 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaSensibilizacaoTotalizadorAcumulado VisaoOperacionalDAO");
+			System.out.println("ERRO metodo selecionaSensibilizacaoTotalizadorAcumulado VisaoOperacionalDAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo selecionaSensibilizacaoTotalizadorAcumulado VisaoOperacionalDAO");
+				System.out.println("ERRO metodo selecionaSensibilizacaoTotalizadorAcumulado VisaoOperacionalDAO");
 			}
 		}
 		return (List<SensibilizacaoTotalizadorVO>) fatu;
@@ -691,10 +597,10 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 	 * 
 	 * @return List<SensibilizacaoVO>
 	 * 
-	 * */
+	 */
 
-	public List<SensibilizacaoTotalizadorVO> selecionaSensibilizacaoTotalizadorMensal(
-			String mes, String tipoMovimento, String anoParam) {
+	public List<SensibilizacaoTotalizadorVO> selecionaSensibilizacaoTotalizadorMensal(String mes, String tipoMovimento,
+			String anoParam) {
 		Connection con = new Conexao()
 				.getConexaoMySql("VisaoOperacionalDAO - selecionaSensibilizacaoTotalizadorMensal");
 		List<SensibilizacaoTotalizadorVO> fatu = new ArrayList<SensibilizacaoTotalizadorVO>();
@@ -703,8 +609,7 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 			tipoMovimento = "*"; // busca todos os movimentos
 		}
 
-		String dataAtual = new SimpleDateFormat("dd/MM/yyyy").format(new Date(
-				System.currentTimeMillis()));
+		String dataAtual = new SimpleDateFormat("dd/MM/yyyy").format(new Date(System.currentTimeMillis()));
 		String dataCut[] = dataAtual.split("/");
 		String anoAtual = dataCut[2];
 
@@ -714,65 +619,48 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 			if (anoParam.equals(anoAtual)) {// se for ano atual
 
 				/*
-				 * aqui verifico se o mes anterior esta vazio, se estiver quer
-				 * dizer que o mes virou e entao deve ser inserido o valor total
-				 * do mes anterior Exemplo: estamos no mes 04, quando virar pro
-				 * mes 05 o mes 04 ficara NULL na tabela
+				 * aqui verifico se o mes anterior esta vazio, se estiver quer dizer que o mes
+				 * virou e entao deve ser inserido o valor total do mes anterior Exemplo:
+				 * estamos no mes 04, quando virar pro mes 05 o mes 04 ficara NULL na tabela
 				 * temp_sensibilizacao_totalizador
 				 */
 				int mesAnterior = Integer.parseInt(mes) - 1;
-
+				int anoAnterior = Integer.parseInt(anoParam);
 				if (mesAnterior == 0) {
 					mesAnterior = 12; // dezembro
+					anoAnterior = Integer.parseInt(anoAtual) - 1;
 				}
 
-				String strMes = uteis.mesesParaConsultas()[mesAnterior - 1]
-						.replace("ç", "c");
-				String sqlVerificaMesAnterior = "select "
-						+ strMes
-						+ " from temp_sensibilizacao_totalizador where tipoMovimento = '"
-						+ tipoMovimento + "' AND Ano = " + anoParam
-						+ " limit 1,1;";
+				String strMes = uteis.mesesParaConsultas()[mesAnterior - 1].replace("ç", "c");
+				String sqlVerificaMesAnterior = "select " + strMes
+						+ " from temp_sensibilizacao_totalizador where tipoMovimento = '" + tipoMovimento
+						+ "' AND Ano = " + anoAnterior + " limit 1,1;";
 
 				// System.out.println(sqlVerificaMesAnterior);
 
-				ResultSet verifica = statement
-						.executeQuery(sqlVerificaMesAnterior);
+				ResultSet verifica = statement.executeQuery(sqlVerificaMesAnterior);
 
 				verifica.next();
 				// se a consulta NAO tiver dados
 				if (verifica.getString(1) == null) {
-					System.out
-							.println("Método selecionaSensibilizacaoTotalizadorMensal DAO - inserindo dados de "
-									+ strMes + anoParam);
+					System.out.println("Método selecionaSensibilizacaoTotalizadorMensal DAO - inserindo dados de "
+							+ strMes + anoAnterior);
 
 					// insere dados na tabela
-					String insereSensibilizacaoMes = "call prcSensibilizacaoInsereDadosMesAnterior('"
-							+ anoParam
-							+ "','"
-							+ strMes
-							+ "','"
-							+ mesAnterior
-							+ "','" + tipoMovimento + "')";
+					String insereSensibilizacaoMes = "call prcSensibilizacaoInsereDadosMesAnterior('" + anoAnterior
+							+ "','" + strMes + "','" + mesAnterior + "','" + tipoMovimento + "')";
 					statement.executeUpdate(insereSensibilizacaoMes);
 
 					// insere dados na tabela
 					String insereSensibilizacaoMesRenovacao = "call prcSensibilizacaoInsereDadosMesAnterior('"
-							+ anoParam
-							+ "','"
-							+ strMes
-							+ "','"
-							+ mesAnterior
-							+ "','renovacao')";
+							+ anoAnterior + "','" + strMes + "','" + mesAnterior + "','renovacao')";
 					statement.executeUpdate(insereSensibilizacaoMesRenovacao);
 				}
-
 			}
-			String sqlTotalizadorMensal = "call prcSensibilizacaoTotalizadorMensal('"
-					+ anoParam + "','" + tipoMovimento + "')";
+			String sqlTotalizadorMensal = "call prcSensibilizacaoTotalizadorMensal('" + anoParam + "','" + tipoMovimento
+					+ "')";
 
-			ResultSet rsTotalizador = statement
-					.executeQuery(sqlTotalizadorMensal);
+			ResultSet rsTotalizador = statement.executeQuery(sqlTotalizadorMensal);
 
 			while (rsTotalizador.next()) {
 				SensibilizacaoTotalizadorVO sensiTotalizadorVo = new SensibilizacaoTotalizadorVO();
@@ -790,15 +678,13 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaSensibilizacaoTotalizadorMensal VisaoOperacionalDAO");
+			System.out.println("ERRO metodo selecionaSensibilizacaoTotalizadorMensal VisaoOperacionalDAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo selecionaSensibilizacaoTotalizadorMensal VisaoOperacionalDAO");
+				System.out.println("ERRO metodo selecionaSensibilizacaoTotalizadorMensal VisaoOperacionalDAO");
 			}
 		}
 		return (List<SensibilizacaoTotalizadorVO>) fatu;
@@ -810,10 +696,10 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 	 * 
 	 * @return List<SensibilizacaoTotalizadorVO>
 	 * 
-	 * */
+	 */
 
-	public List<SensibilizacaoTotalizadorVO> selecionaFluxoFinanceiroTotalizadorMensal(
-			String ano, String tipoMovimento) {
+	public List<SensibilizacaoTotalizadorVO> selecionaFluxoFinanceiroTotalizadorMensal(String ano,
+			String tipoMovimento) {
 		Connection con = new Conexao()
 				.getConexaoMySql("VisaoOperacionalDAO - selecionaFluxoFinanceiroTotalizadorMensal");
 		List<SensibilizacaoTotalizadorVO> fatu = new ArrayList<SensibilizacaoTotalizadorVO>();
@@ -828,8 +714,7 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 			String sqlTotalizadorMensal = "call prcSensibilizacaoFluxoFinanceiroTotalizadorMensal('"
 					+ uteis.cortaRetornaAno(ano) + "','" + tipoMovimento + "')";
 
-			ResultSet rsFluxoFinanceiro = statement
-					.executeQuery(sqlTotalizadorMensal);
+			ResultSet rsFluxoFinanceiro = statement.executeQuery(sqlTotalizadorMensal);
 
 			while (rsFluxoFinanceiro.next()) {
 				SensibilizacaoTotalizadorVO sensiTotalizadorVo = new SensibilizacaoTotalizadorVO();
@@ -848,15 +733,13 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaFluxoFinanceiroTotalizadorMensal VisaoOperacionalDAO");
+			System.out.println("ERRO metodo selecionaFluxoFinanceiroTotalizadorMensal VisaoOperacionalDAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo selecionaFluxoFinanceiroTotalizadorMensal VisaoOperacionalDAO");
+				System.out.println("ERRO metodo selecionaFluxoFinanceiroTotalizadorMensal VisaoOperacionalDAO");
 			}
 		}
 		return (List<SensibilizacaoTotalizadorVO>) fatu;
@@ -870,11 +753,10 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 	 * 
 	 * @return List<CoberturasVO>
 	 * 
-	 * */
+	 */
 
 	public List<CoberturasVO> selecionaCoberturas() {
-		Connection con = new Conexao()
-				.getConexaoMySql("selecionaCoberturas - visaoOperacionalDAO");
+		Connection con = new Conexao().getConexaoMySql("selecionaCoberturas - visaoOperacionalDAO");
 		List<CoberturasVO> cobe = new ArrayList<CoberturasVO>();
 		try {
 			Statement statement = con.createStatement();
@@ -893,15 +775,13 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 
 		} catch (SQLException sqle) {
 			sqle.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaCoberturas VisaoOperacionalDAO");
+			System.out.println("ERRO metodo selecionaCoberturas VisaoOperacionalDAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo selecionaCoberturas VisaoOperacionalDAO");
+				System.out.println("ERRO metodo selecionaCoberturas VisaoOperacionalDAO");
 			}
 		}
 		return (List<CoberturasVO>) cobe;
@@ -912,12 +792,10 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 	 * 
 	 * @return List<CoberturasVO>
 	 * 
-	 * */
+	 */
 
-	public List<RelatorioAceitacaoVO> selecionaRelatoriosSalvos(
-			String numAceitacao) {
-		Connection con = new Conexao()
-				.getConexaoMySql("selecionaRelatoriosSalvos - visaoOperacionalDAO");
+	public List<RelatorioAceitacaoVO> selecionaRelatoriosSalvos(String numAceitacao) {
+		Connection con = new Conexao().getConexaoMySql("selecionaRelatoriosSalvos - visaoOperacionalDAO");
 		List<RelatorioAceitacaoVO> cobe = new ArrayList<RelatorioAceitacaoVO>();
 		try {
 			Statement statement = con.createStatement();
@@ -925,8 +803,7 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 			String query = "";
 			if (numAceitacao != null) {
 				// select para os casos da pag 'relatorioRA.jsp'
-				query = "select * from rra_relatorio_aceitacao where numero_aceitacao = "
-						+ numAceitacao;
+				query = "select * from rra_relatorio_aceitacao where numero_aceitacao = " + numAceitacao;
 			} else {
 				query = "select * from rra_relatorio_aceitacao";
 			}
@@ -959,15 +836,13 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 
 		} catch (SQLException sqle) {
 			sqle.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaRelatoriosSalvos VisaoOperacionalDAO");
+			System.out.println("ERRO metodo selecionaRelatoriosSalvos VisaoOperacionalDAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo selecionaRelatoriosSalvos VisaoOperacionalDAO");
+				System.out.println("ERRO metodo selecionaRelatoriosSalvos VisaoOperacionalDAO");
 			}
 		}
 		return (List<RelatorioAceitacaoVO>) cobe;
@@ -978,12 +853,10 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 	 * 
 	 * @return List<CoberturasVO>
 	 * 
-	 * */
+	 */
 
-	public List<CoberturasVO> selecionaCoberturasRelatoriosSalvos(
-			String numAceitacao) {
-		Connection con = new Conexao()
-				.getConexaoMySql("selecionaCoberturasRelatoriosSalvos - visaoOperacionalDAO");
+	public List<CoberturasVO> selecionaCoberturasRelatoriosSalvos(String numAceitacao) {
+		Connection con = new Conexao().getConexaoMySql("selecionaCoberturasRelatoriosSalvos - visaoOperacionalDAO");
 		List<CoberturasVO> cobe = new ArrayList<CoberturasVO>();
 		try {
 			Statement statement = con.createStatement();
@@ -1011,15 +884,13 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 
 		} catch (SQLException sqle) {
 			sqle.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaCoberturasRelatoriosSalvos VisaoOperacionalDAO");
+			System.out.println("ERRO metodo selecionaCoberturasRelatoriosSalvos VisaoOperacionalDAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo selecionaCoberturasRelatoriosSalvos VisaoOperacionalDAO");
+				System.out.println("ERRO metodo selecionaCoberturasRelatoriosSalvos VisaoOperacionalDAO");
 			}
 		}
 		return (List<CoberturasVO>) cobe;
@@ -1030,18 +901,15 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 	 * 
 	 * @return List<CoberturasVO>
 	 * 
-	 * */
+	 */
 
-	public List<CoberturasVO> atualizaDataStatus(String dado, int numAceit,
-			String coluna) {
-		Connection con = new Conexao()
-				.getConexaoMySql("atualizaDataStatus - visaoOperacionalDAO");
+	public List<CoberturasVO> atualizaDataStatus(String dado, int numAceit, String coluna) {
+		Connection con = new Conexao().getConexaoMySql("atualizaDataStatus - visaoOperacionalDAO");
 		List<CoberturasVO> cobe = new ArrayList<CoberturasVO>();
 		String sql = "";
 		PreparedStatement ps = null;
 		try {
-			sql = "update rra_relatorio_aceitacao set " + coluna
-					+ "= ? where numero_aceitacao = ?";
+			sql = "update rra_relatorio_aceitacao set " + coluna + "= ? where numero_aceitacao = ?";
 			ps = con.prepareStatement(sql);
 			ps.setString(1, dado);
 			ps.setInt(2, numAceit);
@@ -1049,15 +917,13 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 
 		} catch (SQLException sqle) {
 			sqle.printStackTrace();
-			System.out
-					.println("ERRO metodo atualizaDataStatus VisaoOperacionalDAO");
+			System.out.println("ERRO metodo atualizaDataStatus VisaoOperacionalDAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo atualizaDataStatus VisaoOperacionalDAO");
+				System.out.println("ERRO metodo atualizaDataStatus VisaoOperacionalDAO");
 			}
 		}
 		return (List<CoberturasVO>) cobe;
@@ -1068,10 +934,8 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 	 * 
 	 * 
 	 */
-	public String insereDadosRelatorioAceitacao(
-			RelatorioAceitacaoVO relatorioAce) {
-		Connection con = new Conexao()
-				.getConexaoMySql("insereDadosRelatorioAceitacao - visaoOperacionalDAO");
+	public String insereDadosRelatorioAceitacao(RelatorioAceitacaoVO relatorioAce) {
+		Connection con = new Conexao().getConexaoMySql("insereDadosRelatorioAceitacao - visaoOperacionalDAO");
 		List<CoberturasVO> cobe = new ArrayList<CoberturasVO>();
 		PreparedStatement ps = null;
 		PreparedStatement psCobertura = null;
@@ -1093,8 +957,7 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 			ps.setDouble(10, Double.parseDouble(relatorioAce.getPremioNet()));
 			ps.setDouble(11, Double.parseDouble(relatorioAce.getPremioRetido()));
 			ps.setDouble(12, Double.parseDouble(relatorioAce.getPremioCedido()));
-			ps.setDouble(13,
-					Double.parseDouble(relatorioAce.getLimiteSinistro()));
+			ps.setDouble(13, Double.parseDouble(relatorioAce.getLimiteSinistro()));
 			ps.setDouble(14, Double.parseDouble(relatorioAce.getPartResseg()));
 			ps.setDouble(15, Double.parseDouble(relatorioAce.getPartCaixa()));
 			ps.setString(16, relatorioAce.getParecerTecnico());
@@ -1107,15 +970,13 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 				String part[] = relatorioAce.getCobertura().get(i).split(";");
 				insertCobertura = "INSERT INTO rra_relatorio_aceitacao_Coberturas(fk_numero_aceitacao,fk_id_coberturas_aceitacao,valorLMI ) VALUES ("
 						+ idAceitacao + "," + part[0] + "," + part[2] + ")";
-				psCobertura = (PreparedStatement) con
-						.prepareStatement(insertCobertura);
+				psCobertura = (PreparedStatement) con.prepareStatement(insertCobertura);
 				// System.out.println(insertCobertura);
 				psCobertura.execute();
 			}
 		} catch (SQLException sqle) {
 			sqle.printStackTrace();
-			System.out
-					.println("ERRO metodo insereDadosRelatorioAceitacao VisaoOperacionalDAO");
+			System.out.println("ERRO metodo insereDadosRelatorioAceitacao VisaoOperacionalDAO");
 		} finally {
 			try {
 				con.close();
@@ -1123,12 +984,10 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 				psCobertura.close();
 			} catch (SQLException sqle) {
 				sqle.printStackTrace();
-				System.out
-						.println("ERRO metodo insereDadosRelatorioAceitacao VisaoOperacionalDAO");
+				System.out.println("ERRO metodo insereDadosRelatorioAceitacao VisaoOperacionalDAO");
 			} catch (Exception e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo insereDadosRelatorioAceitacao VisaoOperacionalDAO");
+				System.out.println("ERRO metodo insereDadosRelatorioAceitacao VisaoOperacionalDAO");
 			}
 		}
 		return idAceitacao;
@@ -1140,10 +999,8 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 	 * 
 	 * 
 	 */
-	public String alteraDadosRelatorioAceitacao(
-			RelatorioAceitacaoVO relatorioAce) {
-		Connection con = new Conexao()
-				.getConexaoMySql("alteraDadosRelatorioAceitacao - visaoOperacionalDAO");
+	public String alteraDadosRelatorioAceitacao(RelatorioAceitacaoVO relatorioAce) {
+		Connection con = new Conexao().getConexaoMySql("alteraDadosRelatorioAceitacao - visaoOperacionalDAO");
 		List<CoberturasVO> cobe = new ArrayList<CoberturasVO>();
 		PreparedStatement ps = null;
 		PreparedStatement psCobertura = null;
@@ -1166,8 +1023,7 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 			ps.setDouble(10, Double.parseDouble(relatorioAce.getPremioNet()));
 			ps.setDouble(11, Double.parseDouble(relatorioAce.getPremioRetido()));
 			ps.setDouble(12, Double.parseDouble(relatorioAce.getPremioCedido()));
-			ps.setDouble(13,
-					Double.parseDouble(relatorioAce.getLimiteSinistro()));
+			ps.setDouble(13, Double.parseDouble(relatorioAce.getLimiteSinistro()));
 			ps.setDouble(14, Double.parseDouble(relatorioAce.getPartResseg()));
 			ps.setDouble(15, Double.parseDouble(relatorioAce.getPartCaixa()));
 			ps.setString(16, relatorioAce.getParecerTecnico());
@@ -1193,8 +1049,7 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 			}
 		} catch (SQLException sqle) {
 			sqle.printStackTrace();
-			System.out
-					.println("ERRO metodo alteraDadosRelatorioAceitacao VisaoOperacionalDAO");
+			System.out.println("ERRO metodo alteraDadosRelatorioAceitacao VisaoOperacionalDAO");
 		} finally {
 			try {
 				con.close();
@@ -1202,12 +1057,10 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 				psCobertura.close();
 			} catch (SQLException sqle) {
 				sqle.printStackTrace();
-				System.out
-						.println("ERRO metodo alteraDadosRelatorioAceitacao VisaoOperacionalDAO");
+				System.out.println("ERRO metodo alteraDadosRelatorioAceitacao VisaoOperacionalDAO");
 			} catch (Exception e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo alteraDadosRelatorioAceitacao VisaoOperacionalDAO");
+				System.out.println("ERRO metodo alteraDadosRelatorioAceitacao VisaoOperacionalDAO");
 			}
 		}
 		return idAceitacao;
@@ -1218,10 +1071,9 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 	 * 
 	 * @return String
 	 * 
-	 * */
+	 */
 	public String selecionaMaiorNumeroAceitacao() {
-		Connection con = new Conexao()
-				.getConexaoMySql("selecionaMaiorNumeroAceitacao - visaoOperacionalDAO");
+		Connection con = new Conexao().getConexaoMySql("selecionaMaiorNumeroAceitacao - visaoOperacionalDAO");
 		String numeroAceitacao = "";
 		try {
 			Statement statement = con.createStatement();
@@ -1235,15 +1087,13 @@ public class VisaoOperacionalDAO extends VisoesDAO {
 
 		} catch (SQLException sqle) {
 			sqle.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaMaiorNumeroAceitacao VisaoOperacionalDAO");
+			System.out.println("ERRO metodo selecionaMaiorNumeroAceitacao VisaoOperacionalDAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo selecionaMaiorNumeroAceitacao VisaoOperacionalDAO");
+				System.out.println("ERRO metodo selecionaMaiorNumeroAceitacao VisaoOperacionalDAO");
 			}
 		}
 		return numeroAceitacao;

@@ -1,7 +1,7 @@
 <%@ page import="caixa.dirid.VO.RvneVO"%>
 <%@ page import="caixa.dirid.VO.FaturamentoVO"%>
 <%@ page import="caixa.dirid.VO.DadosDiariosVO"%>
-<%@ page import="caixa.dirid.VO.EmissaoPorCanalDeVendaVO"%>
+<%@ page import="caixa.dirid.VO.MovimentoPorCanalDeVendaVO"%>
 <%@ page import="caixa.dirid.VO.SinistroPendente_FaixaVO"%>
 <%@ page import="java.text.DecimalFormat"%>
 <%@ page import="caixa.dirid.UTEIS.*"%>
@@ -46,7 +46,10 @@
 										String anoAtualTexto = (String) request.getAttribute("anoAtualParametro");
 										String anoAnteriorTexto = (String) request.getAttribute("anoAnteriorParametro");
 										
-										List<DadosDiariosVO> dadosDiarios = (List<DadosDiariosVO>) request.getAttribute("dadosDiarios");
+										List<DadosDiariosVO> dadosDiariosAnoAtual = (List<DadosDiariosVO>) request.getAttribute("dadosDiariosAnoAtual");
+										List<DadosDiariosVO> dadosDiariosAnoAnterior = (List<DadosDiariosVO>) request.getAttribute("dadosDiariosAnoAnterior");
+										List<DadosDiariosVO> dadosDiariosFaturamentoAnoAtual = (List<DadosDiariosVO>) request.getAttribute("dadosDiariosFaturamentoAnoAtual");
+										List<DadosDiariosVO> dadosDiariosFaturamentoAnoAnterior = (List<DadosDiariosVO>) request.getAttribute("dadosDiariosFaturamentoAnoAnterior");
 										
 										List<SinistroPendente_FaixaVO> sinistrosPendentes_FaixaValor = (List<SinistroPendente_FaixaVO>) request.getAttribute("sinistrosPendentes_FaixaValor");
 										List<SinistroPendente_FaixaVO> sinistrosPendentes_FaixaTempo = (List<SinistroPendente_FaixaVO>) request.getAttribute("sinistrosPendentes_FaixaTempo");
@@ -318,8 +321,6 @@
 								</tbody>
 							</table>
 						</div><!-- id=tabelaDetalhada -->
-						
-						<br/>
 						<br/>
 						
 						
@@ -327,6 +328,12 @@
 						<div align="center">
 						
 							<input type="button" value="Analítico" onclick="baixarBaseFaturamentoRo()">
+						</div>
+						<br/>
+						<% } %>
+						
+						<%if (!perio.equals(" ")){ %>
+						<div id="grafiFatuAcumulada_diario"  style="width:1010px;height:200px;margin-left:50px;">
 						</div>
 						<% } %>
 						<!-- div id="tabelaAnalitica">
@@ -633,7 +640,7 @@
 											<tbody>
 												<%
 												
-													List<EmissaoPorCanalDeVendaVO> emissaoPorCanalVenda = (List<EmissaoPorCanalDeVendaVO>) request.getAttribute("emissaoPorCanal");
+													List<MovimentoPorCanalDeVendaVO> emissaoPorCanalVenda = (List<MovimentoPorCanalDeVendaVO>) request.getAttribute("emissaoPorCanal");
 												
 													for(int k = 0; k < emissaoPorCanalVenda.size(); k++){
 												%>
@@ -796,6 +803,132 @@
 									</table>
 								</div>
 							</div> <!-- id="cancelados" -->
+							
+							<% if ( (request.getAttribute("titulo").equals("RD Equipamentos") || request.getAttribute("titulo").equals("MR Empresarial") || request.getAttribute("titulo").equals("F&aacute;cil RD")  || request.getAttribute("titulo").equals("RD Correntista") || request.getAttribute("titulo").equals("RD Exclusivo") || request.getAttribute("titulo").equals("RD Correntista") ) ) { %> 
+
+								<hr>
+								<br>
+								<div class="jqplot-target jqplot-title">
+									<b><%=request.getAttribute("titulo")%></b> - Cancelamento por Canal
+								</div>
+						
+								<!-- Cancelamento por Canal -->
+								<table class = "jqplot-target jqplot-axis" align="center" >
+									<thead style="border: 1px solid;color:black;" bgcolor="#8DB4E2">
+										<tr bgcolor="#ffffff">										
+											<th style="text-align: center; border-top: 1px solid #ffffff;border-right: 1px solid #ffffff;border-left: 1px solid #ffffff;border-bottom: 1px solid #000000;" colspan="14">
+												<%=anoAtualTexto%>
+											</th>
+										</tr>
+										<tr>
+											<th style="text-align: center;" WIDTH="100">
+												Canal
+											</th>
+											<th style="text-align: center;">
+												Tipo	
+											</th>
+											<%
+												mesesPagWeb = new Uteis().mesesPaginaWeb();
+												for(int d = 0; d < mesesPagWeb.length; d++){
+											%>
+													<th style="text-align: center;" WIDTH="80">									
+														<%=mesesPagWeb[d]%>
+													</th>
+											<%
+												}
+											%>
+										</tr>
+									</thead>
+									<tbody>
+										<%
+										
+											List<MovimentoPorCanalDeVendaVO> cancelamentoPorCanalVenda = (List<MovimentoPorCanalDeVendaVO>) request.getAttribute("cancelamentoPorCanal");
+										
+											for(int k = 0; k < cancelamentoPorCanalVenda.size(); k++){
+										%>
+												<tr>
+												
+													<%
+														if(k % 4 == 0){
+													%>
+														<td rowspan="4" style="border-left: 1px solid;border-bottom: 1px solid;padding-bottom: 2px" >
+															&nbsp;<%= cancelamentoPorCanalVenda.get(k).getCanalDeVenda() %>&nbsp;
+														</td>
+													<%
+														}
+													%>
+													
+													<%
+														if(cancelamentoPorCanalVenda.get(k).getTipo().equals("Valor")){
+													%>
+														<td style="text-align:right; padding-right: 3px; padding-left: 3px;" nowrap>&nbsp;R$&nbsp;</td>
+													<%
+														} else if(cancelamentoPorCanalVenda.get(k).getTipo().equals("% Valor")){
+													%>
+														<td style="text-align:right; padding-right: 3px; padding-left: 3px;" nowrap>&nbsp;% R$&nbsp;</td>
+													<%
+														} else if(cancelamentoPorCanalVenda.get(k).getTipo().equals("Quantidade")){
+													%>
+														<td style="text-align:right; padding-right: 3px; padding-left: 3px;" nowrap>&nbsp;QTD&nbsp;</td>
+													<%
+														} else if(cancelamentoPorCanalVenda.get(k).getTipo().equals("% Quantidade")){
+													%>
+														<td style="border-bottom: 1px solid; text-align:right; padding-right: 3px; padding-left: 3px;" nowrap>&nbsp;% QTD&nbsp;</td>
+													<%
+														}
+													%>
+						
+													<%
+														for(int f = 0; f < cancelamentoPorCanalVenda.get(k).getMeses().length; f++){
+													%>
+													
+														<%
+															if(k % 4 == 0){
+														%>
+															<td style="border-left: 1px solid; border-right: 1px solid;border-top: 1px solid; text-align:right; padding-right: 3px; padding-left: 3px; padding-bottom: 3px">
+																<%= cancelamentoPorCanalVenda.get(k).getMeses()[f] %>
+															</td>
+														<%
+															} else {
+														%>
+															<td style="border-left: 1px solid; border-right: 1px solid; text-align:right; padding-right: 3px; padding-left: 3px; padding-bottom: 3px">
+																<%= cancelamentoPorCanalVenda.get(k).getMeses()[f] %>
+															</td>
+														<%
+															}
+														%>
+														
+													<%
+														}
+													%>
+													
+												</tr>
+												
+										<%
+											}
+										%>
+												<tr>
+													<td style="border-left: 1px solid; border-right: 1px solid;border-top: 1px solid;"></td>
+													<td style="border-left: 1px solid; border-right: 1px solid;border-top: 1px solid;"></td>
+													<td style="border-left: 1px solid; border-right: 1px solid;border-top: 1px solid;"></td>
+													<td style="border-left: 1px solid; border-right: 1px solid;border-top: 1px solid;"></td>
+													<td style="border-left: 1px solid; border-right: 1px solid;border-top: 1px solid;"></td>
+													<td style="border-left: 1px solid; border-right: 1px solid;border-top: 1px solid;"></td>
+													<td style="border-left: 1px solid; border-right: 1px solid;border-top: 1px solid;"></td>
+													<td style="border-left: 1px solid; border-right: 1px solid;border-top: 1px solid;"></td>
+													<td style="border-left: 1px solid; border-right: 1px solid;border-top: 1px solid;"></td>
+													<td style="border-left: 1px solid; border-right: 1px solid;border-top: 1px solid;"></td>
+													<td style="border-left: 1px solid; border-right: 1px solid;border-top: 1px solid;"></td>
+													<td style="border-left: 1px solid; border-right: 1px solid;border-top: 1px solid;"></td>
+													<td style="border-left: 1px solid; border-right: 1px solid;border-top: 1px solid;"></td>
+													<td style="border-left: 1px solid; border-right: 1px solid;border-top: 1px solid;"></td>
+												<tr>
+									</tbody>
+								</table>
+							<%
+								}
+							%>
+							
 						</div>
 					</div> <!--  id="tabs-4" -->
 					
@@ -874,7 +1007,7 @@
 					%>
 					
 					
-						<% if (!(request.getAttribute("titulo").equals("DIRID") || request.getAttribute("titulo").equals("Autom&oacute;vel") || request.getAttribute("titulo").equals("Auto Tranquilo Correntista") ) ){ %>
+						<% if (!(request.getAttribute("titulo").equals("DIRID") || request.getAttribute("titulo").equals("Autom&oacute;vel")  ) ){ %>
 							<div align="right">
 								<input type="button" value="Analítico Sinistros" onclick="baixarBaseSinistrosCompleta();">
 							</div>
@@ -1541,12 +1674,20 @@
 										</td>
 										<%
 											for(int j = 0; j <= 12; j++){
-										%>
 												
+												if (j == 12) {
+										%>
+												<td style="border-left: 1px solid; border-right: 1px solid; text-align:right; padding-right: 3px; padding-left: 3px;">
+													<%=analiseSinistrosPendentes.get(qtdAnoAnteri).getMeses()[Integer.parseInt(new Uteis().cortaData(perio,2))-1] %>
+												</td>
+										<%
+												} else {
+										%>
 												<td style="border-left: 1px solid; border-right: 1px solid; text-align:right; padding-right: 3px; padding-left: 3px;">
 													<%=analiseSinistrosPendentes.get(qtdAnoAnteri).getMeses()[j] %>
 												</td>
 										<%
+												}
 											}
 										%>
 									</tr>
@@ -1557,16 +1698,23 @@
 										</td>
 										<%
 											for(int j = 0; j <= 12; j++){
-										%>
 												
+												if (j == 12) {
+										%>
+												<td style="border-left: 1px solid; border-right: 1px solid; text-align:right; padding-right: 3px; padding-left: 3px;">
+													<%=analiseSinistrosPendentes.get(qtdAnoAtual).getMeses()[Integer.parseInt(new Uteis().cortaData(perio,2))-1] %>
+												</td>
+										<%
+												} else {
+										%>
 												<td style="border-left: 1px solid; border-right: 1px solid; text-align:right; padding-right: 3px; padding-left: 3px;">
 													<%=analiseSinistrosPendentes.get(qtdAnoAtual).getMeses()[j] %>
 												</td>
 										<%
+												}
 											}
 										%>
 									</tr>
-									
 									
 									<tr>
 										<td style="border-left: 1px solid;" bgcolor="#c0c0c0">
@@ -1577,11 +1725,20 @@
 										</td>
 										<%
 											for(int j = 0; j <= 12; j++){
+												
+												if (j == 12) {
 										%>
 												<td bgcolor="#c0c0c0" style="border-left: 1px solid; border-right: 1px solid; text-align:right;padding-right: 3px; padding-left: 3px;">
+													<%=analiseSinistrosPendentes.get(variQtd).getMeses()[Integer.parseInt(new Uteis().cortaData(perio,2))-1] %>
+												</td>
+										<%
+												} else {
+										%>
+												<td bgcolor="#c0c0c0" style="border-left: 1px solid; border-right: 1px solid; text-align:right; padding-right: 3px; padding-left: 3px;">
 													<%=analiseSinistrosPendentes.get(variQtd).getMeses()[j] %>
 												</td>
 										<%
+												}
 											}
 										%>
 									</tr>
@@ -1597,17 +1754,23 @@
 										</td>
 										<%
 											for(int j = 0; j <= 12; j++){
-										%>
 												
+												if (j == 12) {
+										%>
+												<td style="border-left: 1px solid; border-right: 1px solid; text-align:right; padding-right: 3px; padding-left: 3px;">
+													<%=analiseSinistrosPendentes.get(vlrAnoAnteri).getMeses()[Integer.parseInt(new Uteis().cortaData(perio,2))-1] %>
+												</td>
+										<%
+												} else {
+										%>
 												<td style="border-left: 1px solid; border-right: 1px solid; text-align:right; padding-right: 3px; padding-left: 3px;">
 													<%=analiseSinistrosPendentes.get(vlrAnoAnteri).getMeses()[j] %>
 												</td>
 										<%
+												}
 											}
 										%>
 									</tr>
-									
-									
 									
 									<tr>
 										<td style="border-left: 1px solid;">
@@ -1615,16 +1778,23 @@
 										</td>
 										<%
 											for(int j = 0; j <= 12; j++){
-										%>
 												
+												if (j == 12) {
+										%>
+												<td style="border-left: 1px solid; border-right: 1px solid; text-align:right; padding-right: 3px; padding-left: 3px;">
+													<%=analiseSinistrosPendentes.get(vlrAnoAtual).getMeses()[Integer.parseInt(new Uteis().cortaData(perio,2))-1] %>
+												</td>
+										<%
+												} else {
+										%>
 												<td style="border-left: 1px solid; border-right: 1px solid; text-align:right; padding-right: 3px; padding-left: 3px;">
 													<%=analiseSinistrosPendentes.get(vlrAnoAtual).getMeses()[j] %>
 												</td>
 										<%
+												}
 											}
 										%>
 									</tr>
-									
 									
 									<tr>
 										<td style="border-left: 1px solid;" bgcolor="#c0c0c0">
@@ -1635,12 +1805,20 @@
 										</td>
 										<%
 											for(int j = 0; j <= 12; j++){
-										%>
 												
+												if (j == 12) {
+										%>
 												<td bgcolor="#c0c0c0" style="border-left: 1px solid; border-right: 1px solid; text-align:right;padding-right: 3px; padding-left: 3px;">
+													<%=analiseSinistrosPendentes.get(variVlr).getMeses()[Integer.parseInt(new Uteis().cortaData(perio,2))-1] %>
+												</td>
+										<%
+												} else {
+										%>
+												<td bgcolor="#c0c0c0" style="border-left: 1px solid; border-right: 1px solid; text-align:right; padding-right: 3px; padding-left: 3px;">
 													<%=analiseSinistrosPendentes.get(variVlr).getMeses()[j] %>
 												</td>
 										<%
+												}
 											}
 										%>
 									</tr>
@@ -2037,6 +2215,7 @@
 	
 						<%
 							i = 0;
+						
 							out.print("var bp = [");
 							for(int j = 0; j< 12; j++){			
 								out.print(anoAtual.get(i).getMeses()[j]);
@@ -2258,22 +2437,52 @@
 								}
 							}
 						%>
-						
+
 						<%
-							out.print("var varPremEmitidoDiaria = [");
+							out.print("var varPremEmitidoDiariaAnoAnterior = [");
 							
-							if(dadosDiarios.size() != 0){
+							if(dadosDiariosAnoAnterior.size() != 0){
 								int k = 0;
-								for(int j = 0; j < dadosDiarios.size(); j++){
-									if(dadosDiarios.get(j).getTipo().equalsIgnoreCase("EMITIDO")){
+								for(int j = 0; j < dadosDiariosAnoAnterior.size(); j++){
+									if(dadosDiariosAnoAnterior.get(j).getTipo().equalsIgnoreCase("EMITIDO")){
 										k++;
 									}
 								}
 								int kk = 0;
-								for(int j = 0; j < dadosDiarios.size(); j++){
-									if(dadosDiarios.get(j).getTipo().equalsIgnoreCase("EMITIDO")){
+								for(int j = 0; j < dadosDiariosAnoAnterior.size(); j++){
+									if(dadosDiariosAnoAnterior.get(j).getTipo().equalsIgnoreCase("EMITIDO")){
 										kk++;
-										out.print("[\""+dadosDiarios.get(j).getAnoMesDia().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2")+"\","+dadosDiarios.get(j).getValorDoDia());
+										out.print("[\""+dadosDiariosAnoAnterior.get(j).getAnoMesDia().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2")+"\","+dadosDiariosAnoAnterior.get(j).getValorDoDia());
+										if(kk == k){
+											out.print("]];"); 
+										}else{
+											out.print("],");
+										}
+									}
+								}
+								if (k == 0){
+									out.print("null];");
+								}
+							}else{
+								out.print("null];");
+							}
+						%>
+						
+						<%
+							out.print("var varPremEmitidoDiariaAnoAtual = [");
+							
+							if(dadosDiariosAnoAtual.size() != 0){
+								int k = 0;
+								for(int j = 0; j < dadosDiariosAnoAtual.size(); j++){
+									if(dadosDiariosAnoAtual.get(j).getTipo().equalsIgnoreCase("EMITIDO")){
+										k++;
+									}
+								}
+								int kk = 0;
+								for(int j = 0; j < dadosDiariosAnoAtual.size(); j++){
+									if(dadosDiariosAnoAtual.get(j).getTipo().equalsIgnoreCase("EMITIDO")){
+										kk++;
+										out.print("[\""+dadosDiariosAnoAtual.get(j).getAnoMesDia().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2")+"\","+dadosDiariosAnoAtual.get(j).getValorDoDia());
 										if(kk == k){
 											out.print("]];"); 
 										}else{
@@ -2292,18 +2501,18 @@
 						<%
 							out.print("var varPremCanceladoDiaria = [");
 						
-							if(dadosDiarios.size() != 0){
+							if(dadosDiariosAnoAtual.size() != 0){
 								int k1 = 0;
-								for(int j = 0; j < dadosDiarios.size(); j++){
-									if(dadosDiarios.get(j).getTipo().equalsIgnoreCase("EMITIDOS CANCELADOS")){
+								for(int j = 0; j < dadosDiariosAnoAtual.size(); j++){
+									if(dadosDiariosAnoAtual.get(j).getTipo().equalsIgnoreCase("EMITIDOS CANCELADOS")){
 										k1++;
 									}
 								}
 								int kk1 = 0;
-								for(int j = 0; j < dadosDiarios.size(); j++){
-									if(dadosDiarios.get(j).getTipo().equalsIgnoreCase("EMITIDOS CANCELADOS")){
+								for(int j = 0; j < dadosDiariosAnoAtual.size(); j++){
+									if(dadosDiariosAnoAtual.get(j).getTipo().equalsIgnoreCase("EMITIDOS CANCELADOS")){
 										kk1++;
-										out.print("[\""+dadosDiarios.get(j).getAnoMesDia().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2")+"\","+dadosDiarios.get(j).getValorDoDia());
+										out.print("[\""+dadosDiariosAnoAtual.get(j).getAnoMesDia().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2")+"\","+dadosDiariosAnoAtual.get(j).getValorDoDia());
 										if(kk1 == k1){
 											out.print("]];"); 
 										}else{
@@ -2322,18 +2531,18 @@
 						<%
 							out.print("var varPremRestituidoDiaria = [");
 							
-							if(dadosDiarios.size() != 0){
+							if(dadosDiariosAnoAtual.size() != 0){
 								int k2 = 0;
-								for(int j = 0; j < dadosDiarios.size(); j++){
-									if(dadosDiarios.get(j).getTipo().equalsIgnoreCase("EMITIDOS RESTITUIDOS")){
+								for(int j = 0; j < dadosDiariosAnoAtual.size(); j++){
+									if(dadosDiariosAnoAtual.get(j).getTipo().equalsIgnoreCase("EMITIDOS RESTITUIDOS")){
 										k2++;
 									}
 								}
 								int kk2=0;
-								for(int j = 0; j < dadosDiarios.size(); j++){
-									if(dadosDiarios.get(j).getTipo().equalsIgnoreCase("EMITIDOS RESTITUIDOS")){
+								for(int j = 0; j < dadosDiariosAnoAtual.size(); j++){
+									if(dadosDiariosAnoAtual.get(j).getTipo().equalsIgnoreCase("EMITIDOS RESTITUIDOS")){
 										kk2++;
-										out.print("[\""+dadosDiarios.get(j).getAnoMesDia().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2")+"\","+dadosDiarios.get(j).getValorDoDia());
+										out.print("[\""+dadosDiariosAnoAtual.get(j).getAnoMesDia().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2")+"\","+dadosDiariosAnoAtual.get(j).getValorDoDia());
 										if(kk2 == k2){
 											out.print("]];"); 
 										}else{
@@ -2348,7 +2557,96 @@
 								out.print("null];");
 							}
 						%>
-					
+
+						<%
+							out.print("var varDadosDiariosFaturamentoAnoAtual = [");
+							
+							if(dadosDiariosFaturamentoAnoAtual.size() != 0){
+								int k = 0;
+								for(int j = 0; j < dadosDiariosFaturamentoAnoAtual.size(); j++){
+									if(dadosDiariosFaturamentoAnoAtual.get(j).getTipo().equalsIgnoreCase("FATURAMENTO")){
+										k++;
+									}
+								}
+								int kk = 0;
+								for(int j = 0; j < dadosDiariosFaturamentoAnoAtual.size(); j++){
+									if(dadosDiariosFaturamentoAnoAtual.get(j).getTipo().equalsIgnoreCase("FATURAMENTO")){
+										kk++;
+										out.print("[\""+dadosDiariosFaturamentoAnoAtual.get(j).getAnoMesDia().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2")+"\","+dadosDiariosFaturamentoAnoAtual.get(j).getValorDoDia());
+										if(kk == k){
+											out.print("]];"); 
+										}else{
+											out.print("],");
+										}
+									}
+								}
+								if (k == 0){
+									out.print("null];");
+								}
+							}else{
+								out.print("null];");
+							}
+						%>
+						<%
+							out.print("var varDadosDiariosFaturamentoAnoAnterior = [");
+							
+							if(dadosDiariosFaturamentoAnoAnterior.size() != 0){
+								int k = 0;
+								for(int j = 0; j < dadosDiariosFaturamentoAnoAnterior.size(); j++){
+									if(dadosDiariosFaturamentoAnoAnterior.get(j).getTipo().equalsIgnoreCase("FATURAMENTO")){
+										k++;
+									}
+								}
+								int kk = 0;
+								for(int j = 0; j < dadosDiariosFaturamentoAnoAnterior.size(); j++){
+									if(dadosDiariosFaturamentoAnoAnterior.get(j).getTipo().equalsIgnoreCase("FATURAMENTO")){
+										kk++;
+										out.print("[\""+dadosDiariosFaturamentoAnoAnterior.get(j).getAnoMesDia().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2")+"\","+dadosDiariosFaturamentoAnoAnterior.get(j).getValorDoDia());
+										if(kk == k){
+											out.print("]];"); 
+										}else{
+											out.print("],");
+										}
+									}
+								}
+								if (k == 0){
+									out.print("null];");
+								}
+							}else{
+								out.print("null];");
+							}
+						%>				
+
+						<%
+							out.print("var varDadosDiarios_BP_FaturamentoAnoAtual = [");
+							
+							if(dadosDiariosFaturamentoAnoAtual.size() != 0){
+								int k = 0;
+								for(int j = 0; j < dadosDiariosFaturamentoAnoAtual.size(); j++){
+									if(dadosDiariosFaturamentoAnoAtual.get(j).getTipo().equalsIgnoreCase("BP")){
+										k++;
+									}
+								}
+								int kk = 0;
+								for(int j = 0; j < dadosDiariosFaturamentoAnoAtual.size(); j++){
+									if(dadosDiariosFaturamentoAnoAtual.get(j).getTipo().equalsIgnoreCase("BP")){
+										kk++;
+										out.print("[\""+dadosDiariosFaturamentoAnoAtual.get(j).getAnoMesDia().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2")+"\","+dadosDiariosFaturamentoAnoAtual.get(j).getValorDoDia());
+										if(kk == k){
+											out.print("]];"); 
+										}else{
+											out.print("],");
+										}
+									}
+								}
+								if (k == 0){
+									out.print("null];");
+								}
+							}else{
+								out.print("null];");
+							}
+						%>				
+						
 						
 						var ticks  = ['Jan', 'Fev', 'Mar', 'Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 						
@@ -2357,11 +2655,11 @@
 						switch (titulo){
 
 						  case "Autom&oacute;vel":%>
-						  	var ticks1 = ['0.0','5.0','10.0','15.0','20.0','25.0','30.0','38.0'];
-							var ticks2 = ['0.0','50.0','100.0','150.0','200.0','250.0','300.0','350.0'];
+						  	var ticks1 = ['0.0','10.0','20.0','30.0','45.0'];
+							var ticks2 = ['0.0','100.0','200.0','300.0','400.0'];
 						  	var ticks3 = ['0.0','5.0','10.0','15.0','20.0','25.0','30.0','35.0'];
-							var ticks4 = ['0.0','-0.5','-1.0','-1.5','-2.0','-2.5','-3.0','-5.0'];
-							var ticks5 = ['0','-20'];
+							var ticks4 = ['0.0','-1.0','-2.0','-3.0','-6.0'];
+							var ticks5 = ['0','-15','-30'];
 						<%break;
 							  case "Auto Tranquilo Exclusivo":%>
 							  	var ticks1 = ['0.0','3.0','5.0','7.0','10.0','13.0'];
@@ -2375,11 +2673,11 @@
 								var ticks2 = ['0.0','50.0','100.0','150.0','200.0','245.0'];
 							  	var ticks3 = ['0.0','5.0','10.0','15.0','20.0','25.0','30.0','35.0'];
 								var ticks4 = ['0.0','-0.5','-1.0','-1.5','-2.0','-2.5','-4.0'];
-								var ticks5 = ['0','-25'];
+								var ticks5 = ['0','-15','-30'];
 							<%break;
 							  case "Auto Tranquilo Frota":%>
-							  	var ticks1 = ['0.0','0.1','0.2'];
-								var ticks2 = ['0.0','0.1','0.2','0.3','0.4'];
+							  	var ticks1 = ['0.0','0.1','0.3'];
+								var ticks2 = ['0.0','0.4','0.8'];
 							  	var ticks3 = ['0.0','5.0','10.0','15.0','20.0','25.0','30.0','35.0'];
 								var ticks4 = ['0.0','-1.0'];
 								var ticks5 = ['0','-1100'];
@@ -2413,6 +2711,13 @@
 								var ticks4 = ['0.0','-0.5','-1.0','-1.5','-2.0','-3.0','-5.0'];
 								var ticks5 = ['0','-60'];
 							<%break;
+							  case "Empresarial Prazo Curto":%>
+							  	var ticks1 = ['0.0','5.0','10.0','23.0'];
+								var ticks2 = ['0.0','50.0','100.0','150.0','200.0'];
+							  	var ticks3 = ['0.0','5.0','10.0','15.0','20.0','25.0','30.0','35.0'];
+								var ticks4 = ['0.0','-0.5','-1.0','-1.5','-2.0','-3.0','-5.0'];
+								var ticks5 = ['0','-60'];
+							<%break;
 							  case "MR CCA":%>
 								var ticks1 = ['-0.3','0.0','0.5','1.0','2.0','4.0','6.0'];
 								var ticks2 = ['-0.5','0.0','1.0','5.0','7.0'];
@@ -2429,27 +2734,26 @@
 							<%break;
 
 						  case "RD PF":%>
-						  	var ticks1 = ['0.0','5.0','10.0','15.0','20.0','27.0'];
+						  	var ticks1 = ['0.0','5.0','10.0','15.0','20.0','30.0'];
 							var ticks2 = ['0.0','50.0','100.0','150.0','200.0','230.0','270.0'];
 						  	var ticks3 = ['0.0','5.0','10.0','15.0','20.0','25.0','30.0','35.0'];
-							var ticks4 = ['0.0','-1.5','-3.0','-5.0','-7.0','-10.0'];
+							var ticks4 = ['0.0','-1.5','-3.0','-7.0','-10.0','-15.0'];
 							var ticks5 = ['0','-10','-30','-100'];
  						<%break;
 							  case "RD Correntista":%>
-							  	var ticks1 = ['0.0','5.0','10.0','17.0','25.0'];
+							  	var ticks1 = ['0.0','5.0','10.0','17.0','27.0'];
 								var ticks2 = ['0.0','50.0','100.0','150.0','200.0','270.0'];
 							  	var ticks3 = ['0.0','5.0','10.0','15.0','20.0','25.0','30.0','35.0'];
 								var ticks4 = ['0.0','-2.0','-8.0'];
 								var ticks5 = ['0','-120'];
 							<%break;
 							  case "RD Exclusivo":%>
-							  	var ticks1 = ['0.0','0.5','1.0','1.5'];
-								var ticks2 = ['0.0','3.0','5.0','7.0','10.0'];
+							  	var ticks1 = ['0.0','1.0','2.0','3.0'];
+								var ticks2 = ['0.0','9.0','18.0'];
 							  	var ticks3 = ['0.0','5.0','10.0','15.0','20.0','25.0','30.0','35.0'];
 								var ticks4 = ['0.0','-0.5'];
 								var ticks5 = ['0','-20'];
 							<%break;
-
 							  case "F&aacute;cil RD":%>
 							  	var ticks1 = ['0.0','0.3','0.6','1.0'];
 								var ticks2 = ['0.0','0.8','1.6','2.4','3.2','5.0'];
@@ -2458,13 +2762,27 @@
 								var ticks5 = ['0','-20'];
 							<%break;
 							  case "Lar Mais":%>
-							  	var ticks1 = ['0.0','1.0','2.0'];
-								var ticks2 = ['0.0','10.0','20.0'];
+							  	var ticks1 = ['0.0','1.0','2.5'];
+								var ticks2 = ['0.0','10.0','25.0'];
 							  	var ticks3 = ['0.0','5.0','10.0','15.0','20.0','25.0','30.0','35.0'];
 								var ticks4 = ['0.0','-0.5','-1.0','-1.5','-2.0','-2.5'];
 								var ticks5 = ['0','-100'];
 							<%break;
 							  case "Aporte Caixa":%>
+							  	var ticks1 = ['0.0','1.5','3.0'];
+								var ticks2 = ['0.0','10.0','25.0'];
+							  	var ticks3 = ['0.0','5.0','10.0','15.0','20.0','25.0','30.0','35.0'];
+								var ticks4 = ['0.0','-1.0','-2.0','-3.0','-4.0'];
+								var ticks5 = ['0','-100'];
+							<%break;
+							  case "MCMV Mais Premi&aacute;vel":%>
+							  	var ticks1 = ['0.0','1.5','3.0'];
+								var ticks2 = ['0.0','10.0','25.0'];
+							  	var ticks3 = ['0.0','5.0','10.0','15.0','20.0','25.0','30.0','35.0'];
+								var ticks4 = ['0.0','-1.0','-2.0','-3.0','-4.0'];
+								var ticks5 = ['0','-100'];
+							<%break;
+							  case "Cibrasec Securitizadora":%>
 							  	var ticks1 = ['0.0','1.5','3.0'];
 								var ticks2 = ['0.0','10.0','25.0'];
 							  	var ticks3 = ['0.0','5.0','10.0','15.0','20.0','25.0','30.0','35.0'];
@@ -2483,7 +2801,7 @@
 							var ticks2 = ['0.0','150.0','300.0','500.0','700.0','900.0'];
 						  	var ticks3 = ['0.0','5.0','10.0','15.0','20.0','25.0','30.0','35.0'];
 							var ticks4 = ['0.0','-10.0','-40.0'];
-							var ticks5 = ['0','-100'];
+							var ticks5 = ['0','-75'];
 						<%break;
 						}
 						%>
@@ -2695,6 +3013,7 @@
 							}
 						});
 
+						
 						//plot 3 gráfico pirâmide
 				       
 				        var ticksMesesPiramide = ["Dezembro", "Novembro", "Outubro", "Setembro", "Agosto", "Julho", "Junho", "Maio", "Abril", "Março", "Fevereiro", "Janeiro"];
@@ -2909,8 +3228,122 @@
 				<% if (!perio.equals(" ")){ //usado apenas nos dados diarios%>
 				
 				
-						plotEmissaoDiaria = $.jqplot('premioEmitidoPorDia', [varPremEmitidoDiaria], {
-							seriesColors: ["#3f89b5"],
+						plotFaturamentoAcumulado_Diario = $.jqplot('grafiFatuAcumulada_diario', [varDadosDiariosFaturamentoAnoAnterior,varDadosDiariosFaturamentoAnoAtual, varDadosDiarios_BP_FaturamentoAnoAtual],
+							{
+							seriesColors: ['<%=laranja%>','<%=azul%>','<%=cinza%>'],
+							negativeSeriesColors:['<%=laranja%>','<%=azul%>', '<%=cinza%>'],
+					        title: '<%=request.getAttribute("titulo")%> - Faturamento Diário',
+					        highlighter: {
+					            show: true,
+					            sizeAdjust: 5,
+					            tooltipOffset: 0,
+					            tooltipLocation:'ne',
+					            tooltipAxes: 'y'
+					        },
+					        grid: {
+					            background: '#f4f4f4',
+					            drawBorder: true,
+					            shadow: true,
+					            gridLineColor: '#888',
+					            gridLineWidth: 0.6
+					        },
+					        legend: {
+					            show: false,
+					            placement: 'outside'
+					        },
+					        seriesDefaults: {
+								pointLabels: {
+									show: false
+								},
+					        },
+					        series: [
+					        	 	{
+				                    	renderer: $.jqplot.BarRenderer,
+				                    	label:'<%=anoAnteriorTexto %>',
+				                        pointLabels: {
+				                            show: false
+				                        },
+				                        showHighlight: true,
+				                        rendererOptions: {
+				                        	fillToZero: true,
+				                            // Speed up the animation a little bit.
+				                            // This is a number of milliseconds.  
+				                            // Default for bar series is 3000.  
+				                            animation: {
+				                                speed: 2000
+				                            },
+				                            barWidth: 15,
+				                            barPadding: 1,
+				                            barMargin: 20,
+				                            highlightMouseOver: false
+				                        }
+				                    },						        	
+					        	 	{
+				                    	renderer: $.jqplot.BarRenderer,
+				                    	label:'<%=anoAtualTexto %>',
+				                        pointLabels: {
+				                            show: false
+				                        },
+				                        showHighlight: true,
+				                        rendererOptions: {
+				                        	fillToZero: true,
+				                            // Speed up the animation a little bit.
+				                            // This is a number of milliseconds.  
+				                            // Default for bar series is 3000.  
+				                            animation: {
+				                                speed: 2000
+				                            },
+				                            barWidth: 15,
+				                            barPadding: 1,
+				                            barMargin: 20,
+				                            highlightMouseOver: false
+				                        }
+				                    },
+						            {
+										showMarker: true,
+										label: 'BP'
+						            }
+					        ],
+					        legend: {
+			                    show: true,
+			                    placement: 'outside'
+			                },
+					        axesDefaults: {
+					            rendererOptions: {
+					                baselineWidth: 1.5,
+					                baselineColor: '#444',
+					                drawBaseline: false
+					            }
+					        },
+					        axes: {
+					            xaxis: {
+									renderer: $.jqplot.CategoryAxisRenderer,
+					                drawMajorGridlines: true,
+					                sortMergedLabels: true
+					            },
+					            yaxis: {
+					                pad: 0,
+					                rendererOptions: {
+					                    minorTicks: 1
+					                },
+					                tickOptions: {
+					                    formatString: "R$%'.2f",
+					                    showMark: true
+					                }
+					            }
+					        },
+					        highlighter: {
+								show: true, 
+								showMarker:false,
+								tooltipLocation: 'n',
+								tooltipAxes: 'y',
+							}
+						});
+					
+					
+				
+						plotEmissaoDiaria = $.jqplot('premioEmitidoPorDia', [varPremEmitidoDiariaAnoAnterior, varPremEmitidoDiariaAnoAtual], {
+							seriesColors: ['<%=laranja%>','<%=azul%>'],
 					        title: 'Prêmios Emitidos por dia',
 					        highlighter: {
 					            show: true,
@@ -2941,9 +3374,18 @@
 					        },
 					        series: [
 						            {
-										showMarker: true
+										showMarker: false,
+										label: '<%=anoAnteriorTexto %>'
+						            },
+						            {
+										showMarker: true,
+										label: '<%=anoAtualTexto %>'
 						            }
 					        ],
+					        legend: {
+			                    show: true,
+			                    placement: 'outside'
+			                },
 					        axesDefaults: {
 					            rendererOptions: {
 					                baselineWidth: 1.5,
@@ -2954,13 +3396,15 @@
 					        axes: {
 					            xaxis: {
 									renderer: $.jqplot.CategoryAxisRenderer,
-
-					                drawMajorGridlines: true
+					                drawMajorGridlines: true,
+					                sortMergedLabels: true
 					            },
 					            yaxis: {
 					                pad: 0,
 					                rendererOptions: {
-					                    minorTicks: 1
+					                    minorTicks: 1,
+					                    forceTickAt0: false,
+					                    forceTickAt100: true
 					                },
 					                tickOptions: {
 					                    formatString: "R$%'.2f",
@@ -3140,6 +3584,7 @@
 							if (ui.newTab.index() === 0 && plot1._drawCount === 0) {
 								plot1.replot();
 								plot2.replot();
+								plotFaturamentoAcumulado_Diario.replot();
 							}else if (ui.newTab.index() === 1 && plot3._drawCount === 0) {
 								plot3.replot();
 								plotEmissaoDiaria.replot();

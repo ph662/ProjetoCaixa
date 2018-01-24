@@ -1,12 +1,21 @@
 package caixa.dirid.VO;
 
-public class EmissaoPorCanalDeVendaVO {
+public class MovimentoPorCanalDeVendaVO {
 
+	String movimento;
 	String canalDeVenda;
 	String produto;
 	String tipo;
 	String ano;
 	String[] meses;
+
+	public String getMovimento() {
+		return movimento;
+	}
+
+	public void setMovimento(String movimento) {
+		this.movimento = movimento;
+	}
 
 	public String getCanalDeVenda() {
 		return canalDeVenda;

@@ -5,9 +5,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import caixa.dirid.BO.VisaoExecutiva_Diaria_BO;
 import caixa.dirid.DAO.VisaoExecutiva_Diaria_DAO;
+import caixa.dirid.UTEIS.Uteis;
+import caixa.dirid.VO.DadosDiariosVO;
+import caixa.dirid.VO.MovimentoPorCanalDeVendaVO;
 
 /*Classe utilizada para realizar testes*/
 public class Teste {
@@ -19,7 +23,30 @@ public class Teste {
 		 * VisaoExecutiva_Diaria_BO("MR Empresarial2016");
 		 * bo.validaSelecionaEmissaoPorCanal();
 		 */
-
+		/*String produo = "RDPJ2017";
+		VisaoExecutiva_Diaria_BO bo = new VisaoExecutiva_Diaria_BO(produo);
+		List<DadosDiariosVO> listaBO = bo.validaSelecionaDetalhesDadosDiarios(produo);
+		for (DadosDiariosVO dadosDiariosVO : listaBO) {
+			System.out.print(dadosDiariosVO.getAnoMesDia() + ";");
+			System.out.print(dadosDiariosVO.getProduto() + ";");
+			System.out.print(dadosDiariosVO.getTipo() + ";");
+			System.out.print(dadosDiariosVO.getValorDoDia() + ";");
+			System.out.println();
+		}
+		System.out.println("====================================================");
+		VisaoExecutiva_Diaria_DAO dao = new VisaoExecutiva_Diaria_DAO();
+		List<MovimentoPorCanalDeVendaVO> lista = dao.selecionaMovimentoPorCanal(produo);
+		for (int i = 0; i < lista.size(); i++) {
+			System.out.print(lista.get(i).getCanalDeVenda() + ";");
+			System.out.print(lista.get(i).getMovimento() + ";");
+			System.out.print(lista.get(i).getProduto() + ";");
+			System.out.print(lista.get(i).getTipo() + ";");
+			System.out.println();
+		}
+		*/
+		Uteis u = new Uteis();
+		System.out.println(u.cortaData("22/12/2017", 2));
+		
 	}
 
 	public static Calendar getUltimoDiaUtilDoMes(Calendar calendar) {
@@ -33,8 +60,7 @@ public class Teste {
 		System.out.println("3- " + calendar.getTime());
 		// enquanto for sábado, domingo ou feriado
 		while (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
-				|| calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY
-				|| isFeriado(calendar)) {
+				|| calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY || isFeriado(calendar)) {
 			// decrementa a data em um dia
 			calendar.add(Calendar.DATE, -1);
 		}
@@ -47,8 +73,7 @@ public class Teste {
 
 		// enquanto for sábado, domingo ou feriado
 		while (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
-				|| calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY
-				|| isFeriado(calendar)) {
+				|| calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY || isFeriado(calendar)) {
 			// decrementa a data em um dia
 			calendar.add(Calendar.DATE, 1);
 		}
@@ -103,8 +128,7 @@ public class Teste {
 
 		}
 		for (int i = 0; i < listaFeriados.size(); i++) {
-			if (calendar.get(Calendar.DAY_OF_YEAR) == listaFeriados.get(i).get(
-					Calendar.DAY_OF_YEAR)) {
+			if (calendar.get(Calendar.DAY_OF_YEAR) == listaFeriados.get(i).get(Calendar.DAY_OF_YEAR)) {
 				return true;
 			}
 		}
@@ -119,17 +143,15 @@ public class Teste {
 		int sizeOfFiles = 487360;// 400MB
 		byte[] buffer = new byte[sizeOfFiles];
 
-		try (BufferedInputStream bis = new BufferedInputStream(
-				new FileInputStream(f))) {// try-with-resources to ensure
-											// closing stream
+		try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(f))) {// try-with-resources to ensure
+																							// closing stream
 			String name = f.getName();
 
 			int tmp = 0;
 			while ((tmp = bis.read(buffer)) > 0) {
 				// write each chunk of data into separate file with different
 				// number in name
-				File newFile = new File(f.getParent(), name + "."
-						+ String.format("%03d", partCounter++));
+				File newFile = new File(f.getParent(), name + "." + String.format("%03d", partCounter++));
 				try (FileOutputStream out = new FileOutputStream(newFile)) {
 					out.write(buffer, 0, tmp);// tmp is chunk size
 				}

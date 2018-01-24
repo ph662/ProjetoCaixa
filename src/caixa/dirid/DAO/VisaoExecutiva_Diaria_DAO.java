@@ -9,11 +9,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
-
 import caixa.dirid.CONEXAO.Conexao;
 import caixa.dirid.UTEIS.Uteis;
 import caixa.dirid.VO.DadosDiariosVO;
-import caixa.dirid.VO.EmissaoPorCanalDeVendaVO;
+import caixa.dirid.VO.MovimentoPorCanalDeVendaVO;
 import caixa.dirid.VO.FaturamentoRO_base_VO;
 import caixa.dirid.VO.FaturamentoVO;
 import caixa.dirid.VO.SinistroPendente_FaixaVO;
@@ -28,10 +27,10 @@ import caixa.dirid.VO.Sinistros_base_VO;
 public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 
 	/**
-	 * Retorna lista contendo BP,EMITIDO,EMITIDOS CANCELADOS,EMITIDOS
-	 * RESTITUIDOS, QT APOLICES EMITIDAS,QT SINISTROS AVISADOS,QT SINISTROS
-	 * INDENIZADOS,RVNE SINISTROS AVISADOS,SINISTROS INDENIZADOS. O retorno é
-	 * feito em milhoes e com varias casas decimais.
+	 * Retorna lista contendo BP,EMITIDO,EMITIDOS CANCELADOS,EMITIDOS RESTITUIDOS,
+	 * QT APOLICES EMITIDAS,QT SINISTROS AVISADOS,QT SINISTROS INDENIZADOS,RVNE
+	 * SINISTROS AVISADOS,SINISTROS INDENIZADOS. O retorno é feito em milhoes e com
+	 * varias casas decimais.
 	 * 
 	 * 
 	 * @return List<FaturamentoVO>
@@ -40,8 +39,7 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 	 */
 	public List<FaturamentoVO> selecionaDadosFaturamento(String ano) {
 		Connection con = new Conexao()
-				.getConexaoMySql("selecionaDadosFaturamento - VisaoExecutiva_Diaria_DAO - "
-						+ ano);
+				.getConexaoMySql("selecionaDadosFaturamento - VisaoExecutiva_Diaria_DAO - " + ano);
 		List<FaturamentoVO> fatu = new ArrayList<FaturamentoVO>();
 		try {
 			Statement statement = con.createStatement();
@@ -51,10 +49,7 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 			String anoAtual = uteis.cortaRetornaAno(ano);
 
 			String sqlFinal = "SELECT Tipo,  	CASE WHEN jane IS NULL THEN '0.0'  		ELSE jane END AS jane,     CASE WHEN feve IS NULL THEN '0.0'  		ELSE feve END AS feve, 	CASE WHEN marc IS NULL THEN '0.0' 		ELSE marc END AS marc, 	CASE WHEN abri IS NULL THEN '0.0'  		ELSE abri END AS abri, 	CASE WHEN maio IS NULL THEN '0.0'  		ELSE maiO END AS maio,  	CASE WHEN JUNH IS NULL THEN '0.0' 		ELSE junh END AS junh, 	CASE WHEN julh IS NULL THEN '0.0'  		ELSE julh END AS julh, 	CASE WHEN agos IS NULL THEN '0.0'  		ELSE agos END AS agos, 	CASE WHEN sete IS NULL THEN '0.0'  		ELSE sete END AS sete, 	CASE WHEN outu IS NULL THEN '0.0'  		ELSE outu END AS outu, 	CASE WHEN nove IS NULL THEN '0.0' 		ELSE nove END AS nove,  	CASE WHEN deze IS NULL THEN '0.0' 		ELSE deze END AS deze FROM temp_graficoFaturamento_diaria where Ano = '"
-					+ anoAtual
-					+ "' and Produto like '%"
-					+ tipo
-					+ "%' order by Tipo;";
+					+ anoAtual + "' and Produto like '%" + tipo + "%' order by Tipo;";
 
 			ResultSet rs = null;
 			rs = statement.executeQuery(sqlFinal);
@@ -74,15 +69,13 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 
 		} catch (SQLException SQLe) {
 			SQLe.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaDadosFaturamento VisaoExecutiva_Diaria_DAO");
+			System.out.println("ERRO metodo selecionaDadosFaturamento VisaoExecutiva_Diaria_DAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo selecionaDadosFaturamento VisaoExecutiva_Diaria_DAO");
+				System.out.println("ERRO metodo selecionaDadosFaturamento VisaoExecutiva_Diaria_DAO");
 			}
 		}
 
@@ -94,9 +87,9 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 	/***************************************/
 
 	/**
-	 * Retorna APENAS o Faturamento sem RVNE do ano/produto passado por
-	 * parametro O Retorno eh feito em milhoes e com varias casas
-	 * decimais.Exemplo: '25011566.14000021'.
+	 * Retorna APENAS o Faturamento sem RVNE do ano/produto passado por parametro O
+	 * Retorno eh feito em milhoes e com varias casas decimais.Exemplo:
+	 * '25011566.14000021'.
 	 * 
 	 * @return List<FaturamentoVO>
 	 * 
@@ -106,23 +99,21 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 
 		List<FaturamentoVO> fatu = new ArrayList<FaturamentoVO>();
 		Connection con = new Conexao()
-				.getConexaoMySql("selecionaFaturamentoTotal - VisaoExecutiva_Diaria_DAO - "
-						+ ano);
+				.getConexaoMySql("selecionaFaturamentoTotal - VisaoExecutiva_Diaria_DAO - " + ano);
 
 		try {
 			Statement statement = con.createStatement();
 
 			String anoAtual = uteis.cortaRetornaAno(ano);
 
-			String sqlFinal = "call prcFaturamentoTotal_diaria('" + anoAtual
-					+ "','%" + uteis.cortaRetornaProduto(ano) + "%');";
+			String sqlFinal = "call prcFaturamentoTotal_diaria('" + anoAtual + "','%" + uteis.cortaRetornaProduto(ano)
+					+ "%');";
 
 			List<FaturamentoVO> listaRvne = selecionaRVNE(ano, 2, "0");
 
 			ResultSet rs = null;
 
 			rs = statement.executeQuery(sqlFinal);
-
 			while (rs.next()) {
 				FaturamentoVO fatuVO = new FaturamentoVO();
 				String mesesAno[] = new String[12];
@@ -132,10 +123,8 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 
 				for (int i = 2; i <= 13; i++) {
 
-					mesesAno[i - 2] = Double
-							.toString(Double.parseDouble(rs.getString(i))
-									+ Double.parseDouble(listaRvne.get(0)
-											.getMeses()[i - 2]));
+					mesesAno[i - 2] = Double.toString(Double.parseDouble(rs.getString(i))
+							+ Double.parseDouble(listaRvne.get(0).getMeses()[i - 2]));
 				}
 
 				fatuVO.setMeses(mesesAno);
@@ -144,15 +133,13 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 
 		} catch (SQLException SQLe) {
 			SQLe.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaFaturamentoTotal VisaoExecutiva_Diaria_DAO");
+			System.out.println("ERRO metodo selecionaFaturamentoTotal VisaoExecutiva_Diaria_DAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo selecionaFaturamentoTotal VisaoExecutiva_Diaria_DAO");
+				System.out.println("ERRO metodo selecionaFaturamentoTotal VisaoExecutiva_Diaria_DAO");
 			}
 		}
 
@@ -168,8 +155,7 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 	 * 
 	 * @arguments String
 	 */
-	public List<DadosDiariosVO> selecionaDetalhesDadosDiarios(String ano,
-			String mes) {
+	public List<DadosDiariosVO> selecionaDetalhesDadosDiarios(String ano, String mes) {
 
 		List<DadosDiariosVO> listDados = new ArrayList<DadosDiariosVO>();
 
@@ -215,28 +201,23 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 		}
 		// mesQuery = "jane";
 		Connection con = new Conexao()
-				.getConexaoMySql("selecionaDetalhesDadosDiarios - VisaoExecutiva_Diaria_DAO - "
-						+ ano);
+				.getConexaoMySql("selecionaDetalhesDadosDiarios - VisaoExecutiva_Diaria_DAO - " + ano);
 
 		Calendar data = GregorianCalendar.getInstance();
 		data.set(Integer.parseInt(ano), (Integer.parseInt(mes) - 1), 10);
 		String sql = "select data_registro_historico as data_registro, produto, tipo, valor_do_dia from (select his.data_registro_historico, his.produto, his.tipo, IF (DAY(his.data_registro_historico) = "
-				+ uteis.getPrimeiroDiaUtilDoMes(data, 3)
-				+ ",his."
-				+ mesQuery
+				+ uteis.getPrimeiroDiaUtilDoMes(data, 3) + ",his." + mesQuery
 				+ " , if( (@ultimoDia+INTERVAL 1 DAY = his.data_registro_historico) or (@ultimoDia+INTERVAL 2 DAY = his.data_registro_historico) or (@ultimoDia+INTERVAL 3 DAY = his.data_registro_historico)  or (@ultimoDia+INTERVAL 4 DAY = his.data_registro_historico)  or (@ultimoDia+INTERVAL 5 DAY = his.data_registro_historico)  or (@ultimoDia+INTERVAL 6 DAY = his.data_registro_historico)  or (@ultimoDia+INTERVAL 7 DAY = his.data_registro_historico), his."
 				+ mesQuery
 				+ " - @ultimoValor, 0.00)) as valor_do_dia, @ultimoDia := his.data_registro_historico, @ultimoValor := his."
 				+ mesQuery
 				+ " from historico_graficofaturamento_diaria his, (select @ultimoDia := null, @ultimoValor := null) var where ano = "
-				+ ano
-				+ " AND MONTH(his.data_registro_historico) = "
-				+ mes
+				+ ano + " AND MONTH(his.data_registro_historico) = " + mes
 				+ " order by tipo,produto,data_registro_historico, ano ) as tot WHERE valor_do_dia <> 0 order by produto,tipo,data_registro;";
 		PreparedStatement ps = null;
 		try {
 			ps = con.prepareStatement(sql);
-			System.out.println(sql);
+			// System.out.println(sql);
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
 				DadosDiariosVO voDados = new DadosDiariosVO();
@@ -250,8 +231,7 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			System.out
-					.println("erro no metodo selecionaDetalhesDadosDiarios DAO diario");
+			System.out.println("erro no metodo selecionaDetalhesDadosDiarios DAO diario");
 		} finally {
 			try {
 				con.close();
@@ -275,13 +255,13 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 		String anoAtual = util.dataAtual(1);
 		String mesAtual = util.dataAtual(2);
 		String data = "";
-		Connection con = new Conexao()
-				.getConexaoMySql("selecionaPeriodo - VisaoExecutiva_Diaria_DAO");
+		Connection con = new Conexao().getConexaoMySql("selecionaPeriodo - VisaoExecutiva_Diaria_DAO");
 		String sql = "select max(maior_periodo)as maior_periodo from ( select concat(max(anomes_ref),lpad(max(dia),2,'0')) as maior_periodo from ro_sias_diaria where anomes_ref = ( select max(anomes_ref) as maior_periodo from ro_sias_diaria where anomes_ref like '"
 				+ util.cortaRetornaAno(ano)
 				+ "%')  union select concat( max(anomes_ref),lpad(day(max(dt_emissao)),2,'0')) as maior_periodo   from ro_sies_diaria where anomes_ref = (select max(anomes_ref) as maior_periodo from ro_sies_diaria where anomes_ref like '"
 				+ util.cortaRetornaAno(ano) + "%') ) as t";
 		PreparedStatement ps = null;
+		// System.out.println("data " + sql);
 		try {
 			ps = con.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
@@ -310,27 +290,23 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 
 	/**
 	 * Retorna uma lista em que cada linha possui o nome do produto, a Faixa de
-	 * tempo ou de valor, a qtd Adm de sinistros, o valor Adm de sinist, a qtd
-	 * Jud de sinistros, o valor Jud de sinist, a qtd Total, o valor Total. '.
+	 * tempo ou de valor, a qtd Adm de sinistros, o valor Adm de sinist, a qtd Jud
+	 * de sinistros, o valor Jud de sinist, a qtd Total, o valor Total. '.
 	 * 
 	 * @return List<SinistroPendente_FaixaVO>
 	 * 
 	 * @arguments String String
 	 */
-	public List<SinistroPendente_FaixaVO> selecionaSinistroPendente_Faixa(
-			int tipo, String anoMes) {
+	public List<SinistroPendente_FaixaVO> selecionaSinistroPendente_Faixa(int tipo, String anoMes) {
 
 		List<SinistroPendente_FaixaVO> listaSinistroPendente = new ArrayList<SinistroPendente_FaixaVO>();
-		Connection con = new Conexao()
-				.getConexaoMySql("selecionaSinistroPendente_Faixa - VisaoExecutiva_Diaria_DAO");
+		Connection con = new Conexao().getConexaoMySql("selecionaSinistroPendente_Faixa - VisaoExecutiva_Diaria_DAO");
 
 		String dataAtual = uteis.dataAtual(4);
 		String dataCut[] = dataAtual.split("/");
 		String mes = dataCut[1];
 		String ano = dataCut[2];
-
-		String codigosProd = uteis.selecionaCodigosProduto_sinistros(uteis
-				.cortaRetornaProduto(anoMes));
+		String codigosProd = uteis.selecionaCodigosProduto_sinistros(uteis.cortaRetornaProduto(anoMes));
 
 		try {
 			Statement statement = con.createStatement();
@@ -339,16 +315,13 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 
 			switch (tipo) {
 			case 1:// faixa tempo
-				sqlConsulta = "call prcSinistroPendente_FaixaTempo('"
-						+ codigosProd + "','" + ano + mes + "');";
+				sqlConsulta = "call prcSinistroPendente_FaixaTempo('" + codigosProd + "','" + ano + mes + "');";
 				break;
 			case 2:// faixa valor
-				sqlConsulta = "call prcSinistroPendente_FaixaValor('"
-						+ codigosProd + "','" + ano + mes + "');";
+				sqlConsulta = "call prcSinistroPendente_FaixaValor('" + codigosProd + "','" + ano + mes + "');";
 				break;
 			default:
-				System.out
-						.println("Erro em metodo selecionaSinistroPendente_Faixa - VisaoExecutiva_Diaria_DAO");
+				System.out.println("Erro em metodo selecionaSinistroPendente_Faixa - VisaoExecutiva_Diaria_DAO");
 				throw new SQLException();
 			}
 			// System.out.println(sqlConsulta);
@@ -360,31 +333,24 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 
 				sinistroPendenteVO.setGrupo(rs.getString(1));
 				sinistroPendenteVO.setFaixa(rs.getString(2));
-				sinistroPendenteVO.setNumSinistrosPendentes_Administrativo(rs
-						.getInt(3));
-				sinistroPendenteVO.setValorSinistrosPendentes_Administrativo(rs
-						.getString(4));
-				sinistroPendenteVO.setNumSinistrosPendentes_Judicial(rs
-						.getInt(5));
-				sinistroPendenteVO.setValorSinistrosPendentes_Judicial(rs
-						.getString(6));
+				sinistroPendenteVO.setNumSinistrosPendentes_Administrativo(rs.getInt(3));
+				sinistroPendenteVO.setValorSinistrosPendentes_Administrativo(rs.getString(4));
+				sinistroPendenteVO.setNumSinistrosPendentes_Judicial(rs.getInt(5));
+				sinistroPendenteVO.setValorSinistrosPendentes_Judicial(rs.getString(6));
 				sinistroPendenteVO.setNumSinistrosPendentes_Total(rs.getInt(7));
-				sinistroPendenteVO.setValorSinistrosPendentes_Total(rs
-						.getString(8));
+				sinistroPendenteVO.setValorSinistrosPendentes_Total(rs.getString(8));
 
 				listaSinistroPendente.add(sinistroPendenteVO);
 			}
 		} catch (SQLException SQLe) {
 			SQLe.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaSinistroPendente_Faixa VisaoExecutiva_Diaria_DAO");
+			System.out.println("ERRO metodo selecionaSinistroPendente_Faixa VisaoExecutiva_Diaria_DAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo selecionaSinistroPendente_Faixa VisaoExecutiva_Diaria_DAO");
+				System.out.println("ERRO metodo selecionaSinistroPendente_Faixa VisaoExecutiva_Diaria_DAO");
 			}
 		}
 
@@ -399,8 +365,7 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 	 * 
 	 * @arguments String
 	 */
-	public List<SinistroPendente_base_FaixaVO> seleciona_Base_SinistroPendente_Faixa(
-			String anoMes) {
+	public List<SinistroPendente_base_FaixaVO> seleciona_Base_SinistroPendente_Faixa(String anoMes) {
 
 		List<SinistroPendente_base_FaixaVO> lista_BASE_SinistroPendente = new ArrayList<SinistroPendente_base_FaixaVO>();
 		Connection con = new Conexao()
@@ -410,16 +375,14 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 		String mes = dataCut[1];
 		String ano = dataCut[2];
 
-		String codigosProd = uteis.selecionaCodigosProduto_sinistros(uteis
-				.cortaRetornaProduto(anoMes));
+		String codigosProd = uteis.selecionaCodigosProduto_sinistros(uteis.cortaRetornaProduto(anoMes));
 
 		try {
 			Statement statement = con.createStatement();
 
 			String sqlConsulta = "";
 
-			sqlConsulta = "call prcSinistroPendente_Faixa_Completo('"
-					+ codigosProd + "','" + ano + mes + "');";
+			sqlConsulta = "call prcSinistroPendente_Faixa_Completo('" + codigosProd + "','" + ano + mes + "');";
 
 			ResultSet rs = null;
 			rs = statement.executeQuery(sqlConsulta);
@@ -457,23 +420,20 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 				sinistroPendente_base_VO.setData_aviso(rs.getString(28));
 				sinistroPendente_base_VO.setHoje(rs.getString(29));
 				sinistroPendente_base_VO.setTEMPO_PENDENTE(rs.getString(30));
-				sinistroPendente_base_VO.setFAIXA_TEMPO_PENDENTE(rs
-						.getString(31));
+				sinistroPendente_base_VO.setFAIXA_TEMPO_PENDENTE(rs.getString(31));
 
 				lista_BASE_SinistroPendente.add(sinistroPendente_base_VO);
 			}
 
 		} catch (SQLException SQLe) {
 			SQLe.printStackTrace();
-			System.out
-					.println("ERRO metodo seleciona_Base_SinistroPendente_Faixa VisaoExecutiva_Diaria_DAO");
+			System.out.println("ERRO metodo seleciona_Base_SinistroPendente_Faixa VisaoExecutiva_Diaria_DAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo seleciona_Base_SinistroPendente_Faixa VisaoExecutiva_Diaria_DAO");
+				System.out.println("ERRO metodo seleciona_Base_SinistroPendente_Faixa VisaoExecutiva_Diaria_DAO");
 			}
 		}
 
@@ -488,13 +448,11 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 	 * 
 	 * @arguments String
 	 */
-	public List<FaturamentoRO_base_VO> seleciona_Base_faturamentoRO(
-			String anoMes) {
+	public List<FaturamentoRO_base_VO> seleciona_Base_faturamentoRO(String anoMes) {
 
 		List<FaturamentoRO_base_VO> lista_BASE_faturamentoRO = new ArrayList<FaturamentoRO_base_VO>();
 
-		String codigosProd = uteis.selecionaCodigosProduto(uteis
-				.cortaRetornaProduto(anoMes));
+		String codigosProd = uteis.selecionaCodigosProduto(uteis.cortaRetornaProduto(anoMes));
 
 		try (Connection con = new Conexao()
 				.getConexaoMySql("seleciona_Base_faturamentoRO - VisaoExecutiva_Diaria_DAO");) {
@@ -502,8 +460,8 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 
 			String sqlConsulta = "";
 
-			sqlConsulta = "call prcBaseAnalitica_FaturamentoRO('" + codigosProd
-					+ "','" + uteis.cortaRetornaAno(anoMes) + "');";
+			sqlConsulta = "call prcBaseAnalitica_FaturamentoRO('" + codigosProd + "','" + uteis.cortaRetornaAno(anoMes)
+					+ "');";
 
 			ResultSet rs = null;
 			rs = statement.executeQuery(sqlConsulta);
@@ -559,8 +517,7 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 			rs.close();
 		} catch (SQLException SQLe) {
 			SQLe.printStackTrace();
-			System.out
-					.println("ERRO metodo seleciona_Base_faturamentoRO VisaoExecutiva_Diaria_DAO");
+			System.out.println("ERRO metodo seleciona_Base_faturamentoRO VisaoExecutiva_Diaria_DAO");
 		}
 
 		return (List<FaturamentoRO_base_VO>) lista_BASE_faturamentoRO;
@@ -577,19 +534,17 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 	public List<Sinistros_base_VO> seleciona_Base_sinistroCompleta(String anoMes) {
 
 		List<Sinistros_base_VO> lista_BASE_faturamentoRO = new ArrayList<Sinistros_base_VO>();
-		Connection con = new Conexao()
-				.getConexaoMySql("seleciona_Base_faturamentoRO - VisaoExecutiva_Diaria_DAO");
+		Connection con = new Conexao().getConexaoMySql("seleciona_Base_faturamentoRO - VisaoExecutiva_Diaria_DAO");
 
-		String codigosProd = uteis.selecionaCodigosProduto(uteis
-				.cortaRetornaProduto(anoMes));
+		String codigosProd = uteis.selecionaCodigosProduto(uteis.cortaRetornaProduto(anoMes));
 
 		try {
 			Statement statement = con.createStatement();
 
 			String sqlConsulta = "";
 
-			sqlConsulta = "call prcBaseAnalitica_Sinistros('" + codigosProd
-					+ "','" + uteis.cortaRetornaAno(anoMes) + "');";
+			sqlConsulta = "call prcBaseAnalitica_Sinistros('" + codigosProd + "','" + uteis.cortaRetornaAno(anoMes)
+					+ "');";
 
 			ResultSet rs = null;
 			rs = statement.executeQuery(sqlConsulta);
@@ -627,15 +582,13 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 
 		} catch (SQLException SQLe) {
 			SQLe.printStackTrace();
-			System.out
-					.println("ERRO metodo seleciona_Base_sinistroCompleta VisaoExecutiva_Diaria_DAO");
+			System.out.println("ERRO metodo seleciona_Base_sinistroCompleta VisaoExecutiva_Diaria_DAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo seleciona_Base_sinistroCompleta VisaoExecutiva_Diaria_DAO");
+				System.out.println("ERRO metodo seleciona_Base_sinistroCompleta VisaoExecutiva_Diaria_DAO");
 			}
 		}
 
@@ -661,15 +614,13 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 
 		} catch (SQLException SQLe) {
 			SQLe.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaDadosFaturamento VisaoExecutiva_Diaria_DAO");
+			System.out.println("ERRO metodo selecionaDadosFaturamento VisaoExecutiva_Diaria_DAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo selecionaDadosFaturamento VisaoExecutiva_Diaria_DAO");
+				System.out.println("ERRO metodo selecionaDadosFaturamento VisaoExecutiva_Diaria_DAO");
 			}
 		}
 
@@ -678,67 +629,63 @@ public class VisaoExecutiva_Diaria_DAO extends VisaoExecutivaDAO {
 
 	/**
 	 * 
-	 * Retorna as emissoes agrupadas pelo canal de venda. Retorna duas extracoes
-	 * unidas pelo UNION, as colunas retornadas sao: CANAL_VENDA, Produto, Tipo,
-	 * Ano, e os meses de janeiro a dezembro. O valor das emissoes e a
-	 * quantidade de emissoes esta unida e agrupada por canal de venda
+	 * Retorna as emissoes ou cancelamentos agrupadas pelo canal de venda. Retorna
+	 * duas extracoes unidas pelo UNION, as colunas retornadas sao: CANAL_VENDA,
+	 * Produto, Tipo, Ano, e os meses de janeiro a dezembro. O valor das emissoes e
+	 * a quantidade de emissoes esta unida e agrupada por canal de venda
 	 * 
-	 * @return List<EmissaoPorCanalDeVendaVO>
+	 * @return List<movimentoporcanalDeVendaVO>
 	 * 
 	 * @arguments String
 	 */
-	public List<EmissaoPorCanalDeVendaVO> selecionaEmissaoPorCanal(String ano) {
+	public List<MovimentoPorCanalDeVendaVO> selecionaMovimentoPorCanal(String ano) {
 
-		List<EmissaoPorCanalDeVendaVO> listaEmissaoCanal = new ArrayList<EmissaoPorCanalDeVendaVO>();
+		List<MovimentoPorCanalDeVendaVO> listaMovimentoCanal = new ArrayList<MovimentoPorCanalDeVendaVO>();
 		Connection con = new Conexao()
-				.getConexaoMySql("selecionaFaturamentoTotal - VisaoExecutiva_Diaria_DAO - "
-						+ ano);
+				.getConexaoMySql("selecionaFaturamentoTotal - VisaoExecutiva_Diaria_DAO - " + ano);
 
 		try {
 			Statement statement = con.createStatement();
 
-			String sqlFinal = "select canal_venda, Produto,    Tipo,    Ano,    Jane,    feve,    marc,    abri,    maio,    junh,    julh,    agos,    sete,    outu,    nove,    deze from temp_graficofaturamento_emissaoporcanal where produto = '"
-					+ uteis.cortaRetornaProduto(ano)
-					+ "' and ano = "
-					+ uteis.cortaRetornaAno(ano) + ";";
+			String sqlFinal = "select movimento, canal_venda, Produto,    Tipo,    Ano,    Jane,    feve,    marc,    abri,    maio,    junh,    julh,    agos,    sete,    outu,    nove,    deze from temp_graficofaturamento_movimentoporcanal where produto = '"
+					+ uteis.cortaRetornaProduto(ano) + "' and ano = " + uteis.cortaRetornaAno(ano) + ";";
 
 			ResultSet rs = null;
 			// System.out.println(sqlFinal);
 			rs = statement.executeQuery(sqlFinal);
 
 			while (rs.next()) {
-				EmissaoPorCanalDeVendaVO emissaoVO = new EmissaoPorCanalDeVendaVO();
+				MovimentoPorCanalDeVendaVO movimentoVO = new MovimentoPorCanalDeVendaVO();
 				String mesesAno[] = new String[12];
 
-				emissaoVO.setCanalDeVenda(rs.getString(1));
-				emissaoVO.setProduto(rs.getString(2));
-				emissaoVO.setTipo(rs.getString(3));
-				emissaoVO.setAno(rs.getString(4));
+				movimentoVO.setMovimento(rs.getString(1));
+				movimentoVO.setCanalDeVenda(rs.getString(2));
+				movimentoVO.setProduto(rs.getString(3));
+				movimentoVO.setTipo(rs.getString(4));
+				movimentoVO.setAno(rs.getString(5));
 
-				for (int i = 5; i <= 16; i++) {
+				for (int i = 6; i <= 17; i++) {
 
-					mesesAno[i - 5] = rs.getString(i);
+					mesesAno[i - 6] = rs.getString(i);
 				}
 
-				emissaoVO.setMeses(mesesAno);
-				listaEmissaoCanal.add(emissaoVO);
+				movimentoVO.setMeses(mesesAno);
+				listaMovimentoCanal.add(movimentoVO);
 			}
 
 		} catch (SQLException SQLe) {
 			SQLe.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaEmissaoPorCanal VisaoExecutiva_Diaria_DAO");
+			System.out.println("ERRO metodo selecionamovimentoporcanal VisaoExecutiva_Diaria_DAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo selecionaEmissaoPorCanal VisaoExecutiva_Diaria_DAO");
+				System.out.println("ERRO metodo selecionamovimentoporcanal VisaoExecutiva_Diaria_DAO");
 			}
 		}
 
-		return (List<EmissaoPorCanalDeVendaVO>) listaEmissaoCanal;
+		return (List<MovimentoPorCanalDeVendaVO>) listaMovimentoCanal;
 
 	}
 

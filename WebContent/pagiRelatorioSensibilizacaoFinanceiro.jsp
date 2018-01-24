@@ -176,10 +176,11 @@
 								<div id="comboMeses" align="center" style="margin-left: 280px;">
 									Ano:
 									<select id="tipoAno">
-										<option selected value="zero">Selecionar</option>
+										<option value="zero">Selecionar</option>
 										<option value="2015">2015</option>
 										<option value="2016">2016</option>
 										<option value="2017">2017</option>
+										<option selected value="2018">2018</option>
 									</select>
 								</div><!-- id="comboMeses" -->
 								<br />

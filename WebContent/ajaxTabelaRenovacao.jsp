@@ -19,10 +19,9 @@
 	List<RenovacaoVO> listaPorCanal = (List<RenovacaoVO>) request.getAttribute("listaCanal");
 	List<RenovacaoVO> listaRenovacaoCanal = (List<RenovacaoVO>) request.getAttribute("listaRenovacaoCanal");
 	%>
-	
-		<div id="produto">
+		<!-- div id="produto">
 			Produto - 1403, 1404, 1804
-		</div>
+		</div -->
 		
 		<div id="externo">
 			<div id="um" class="interno">

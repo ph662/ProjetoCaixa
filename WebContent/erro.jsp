@@ -57,7 +57,7 @@
 				<h1 class="texto">Erro interno</h1>
 			</div>
 			<h3 class="texto">
-				Por gentileza tente novamente por este <a href="http://10.125.7.51:8080/ProjetoCaixa/pagiMenuPrincipal.jsp">link</a>.
+				Por gentileza tente novamente por este <a href="http://10.125.7.49:8080/ProjetoCaixa/pagiMenuPrincipal.jsp">link</a>.
 			</h3>
 			<h5>Se o problema permanecer entre em contato com a GERID. Ramal 2370 - Phelipe.</h5>
 			<img id="img" src="imagens/trabalhando.png">

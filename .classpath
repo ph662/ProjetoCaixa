@@ -3,10 +3,10 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
-	<classpathentry kind="lib" path="Y:/DIRETORIA DE RISCOS DIVERSOS/Gerencia Tecnica/PHELIPE/Ferramentas Desenvolvimento/tomc/apache-tomcat-8.0.22/lib/servlet-api.jar"/>
+	<classpathentry kind="lib" path="Y:/DIRETORIA DE RISCOS DIVERSOS/Gerencia Tecnica/PHELIPE/Ferramentas Desenvolvimento/tomc/apache-tomcat-9.0.0/lib/servlet-api.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/mysql-connector-java-5.1.29-bin.jar"/>
-	<classpathentry kind="lib" path="D:/workspace/ProjetoCaixaLocal_1.3/WebContent/WEB-INF/lib/mysql-connector-java-5.1.29-bin.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/TomcatPRODUCAO">
+	<classpathentry kind="lib" path="D:/eclipse-workspace/ProjetoCaixaLocal_1.3/WebContent/WEB-INF/lib/mysql-connector-java-5.1.29-bin.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/PRODUCAO">
 		<attributes>
 			<attribute name="owner.project.facets" value="jst.web"/>
 		</attributes>

@@ -54,6 +54,7 @@
 								[
 									{ icon: "imagens/pj.png", label: "RD Equipamentos",value:"reqFaturamentoRdEquipamentos"},
 									{ icon: "imagens/pj.png", label: "MR Empresarial",value:"reqFaturamentoEmpresarial"},
+									{ icon: "imagens/pj.png", label: "Empresarial Prazo Curto",value:"reqFaturamentoEmpresarialPrazoCurto"},
 									{ icon: "imagens/pj.png", label: "MR CCA",value:"reqFaturamentoCCA"},
 									{ icon: "imagens/pj.png", label: "MR Lotérico",value:"reqFaturamentoLoterico"},
 								]
@@ -65,6 +66,8 @@
 									{ icon: "imagens/pf.png", label: "MR Residencial Exclusivo", value:"reqFaturamentoRdEconomiario"},
 									{ icon: "imagens/pf.png", label: "Lar Mais", value:"reqFaturamentoLarMais"},
 									{ icon: "imagens/pf.png", label: "MR Residencial Aporte Caixa", value:"reqFaturamentoAporte"},
+									{ icon: "imagens/pf.png", label: "MCMV Mais Premiável",value:"reqFaturamentoMCMVMaisPremiavel"},
+									{ icon: "imagens/pf.png", label: "Cibrasec Securitizadora",value:"reqFaturamentoCibrasecSecuritizadora"},
 									{ icon: "imagens/pf.png", label: "RD PF Outros", value:"reqFaturamentoRdPfOutros"}
 								]
 							}
@@ -141,7 +144,8 @@
 							$('#tabelaAjax').html("<div style='margin-top: 30%;'><span style='color:#10CEF0;margin-left: 145px;'>Aguarde...</span>&nbsp;&nbsp;&nbsp;<br /><img style='margin-left: 153px;height: 30px;width: 30px;' src='imagens/loader.gif'/></div>");
 						},
 						success: function(html) {
-							$('#tabelaAjax').html(html);							
+							$('#tabelaAjax').html(html);
+							//setTimeout(alert('teste'),5000);
 						},
 						complete: function(){
 							graficos();
@@ -341,7 +345,8 @@
 					<select id="selectAno" name="ano">
 						<option value="2015">2015</option>
 						<option value="2016">2016</option>
-						<option selected value="2017">2017</option>
+						<option value="2017">2017</option>
+						<option selected value="2018">2018</option>
 					</select>
 				</div>
 				<div id="comboProduto" align="center" style="margin-left: 145px; margin-bottom: 0px; margin-top: -22px;">

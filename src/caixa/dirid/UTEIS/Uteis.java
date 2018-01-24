@@ -2,6 +2,7 @@ package caixa.dirid.UTEIS;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -29,17 +30,15 @@ public class Uteis {
 	}
 
 	public String[] mesesParaConsultas() {
-		String[] meses = { "Janeiro", "Fevereiro", "Março", "Abril", "Maio",
-				"Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro",
-				"Dezembro" };
+		String[] meses = { "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro",
+				"Outubro", "Novembro", "Dezembro" };
 
 		return meses;
 	}
 
 	public String[] mesesPaginaWeb() {
-		String[] meses = { "Janeiro", "Fevereiro", "Mar&ccedil;o", "Abril",
-				"Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro",
-				"Novembro", "Dezembro" };
+		String[] meses = { "Janeiro", "Fevereiro", "Mar&ccedil;o", "Abril", "Maio", "Junho", "Julho", "Agosto",
+				"Setembro", "Outubro", "Novembro", "Dezembro" };
 
 		return meses;
 	}
@@ -58,6 +57,44 @@ public class Uteis {
 		return produto;
 	}
 
+	/**
+	 * Retorna a data do parametro formatada de acordo com os CASE's
+	 * 
+	 */
+	public String cortaData(String dataParam, int tipo) {
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		Calendar cal = Calendar.getInstance();
+		Date date = Calendar.getInstance().getTime();
+		try {
+			if (dataParam != " ") {
+				cal.setTime(sdf.parse(dataParam));
+			}
+		} catch (ParseException e) {
+			e.printStackTrace();
+			System.err.println("Classe UTEIS - metodo dataCortada - Erro na conversao");
+		}
+
+		switch (tipo) {
+		case 1: // retorna apenas o ano
+			DateFormat dateFormat = new SimpleDateFormat("YYYY");
+			return dateFormat.format(date);
+		case 2: // retorna apenas o mês
+			DateFormat dateFormat2 = new SimpleDateFormat("MM");
+			return dateFormat2.format(date);
+		case 3: // retorna apenas o dia
+			DateFormat dateFormat3 = new SimpleDateFormat("dd");
+			return dateFormat3.format(date);
+		case 4: // retorna a data completa
+			DateFormat dateFormat4 = new SimpleDateFormat("dd/MM/YYYY");
+			return dateFormat4.format(date);
+		}
+		return "";
+	}
+
+	/**
+	 * Retorna a data do sistema formatada de acordo com os CASE's
+	 * 
+	 */
 	public String dataAtual(int tipo) {
 		Calendar cal = Calendar.getInstance();
 		Date date = Calendar.getInstance().getTime();
@@ -244,8 +281,7 @@ public class Uteis {
 	public static void main(String[] args) {
 
 		Uteis utei = new Uteis();
-		System.out.println(utei.insereSeparadores("17000.0"));
-		System.out.println(utei.editaData("2015-04-13"));
+		System.out.println("hello");
 	}
 
 	public String selecionaCodigosProduto(String cortaRetornaProduto) {
@@ -267,13 +303,16 @@ public class Uteis {
 			codigosProd = "5302,5303,5304,5388";
 			break;
 		case "RDPJ":
-			codigosProd = "7114,1801,1802,1804,1803,1805";
+			codigosProd = "7114,1801,1802,1804,1803,1805,1809";
 			break;
 		case "Rd Equipamentos":
 			codigosProd = "7114";
 			break;
 		case "MR Empresarial":
 			codigosProd = "1801,1802,1804";
+			break;
+		case "Empresarial Prazo Curto":
+			codigosProd = "1809";
 			break;
 		case "Loterico":
 			codigosProd = "1803";
@@ -282,7 +321,7 @@ public class Uteis {
 			codigosProd = "1805";
 			break;
 		case "RDPF":
-			codigosProd = "1402,1405,1409,1406,1408,1403,1407,1404,1002,1410,1489,4002,7100,7101,7106,7107,7108,7109,7110,7117,7122,7123";
+			codigosProd = "1412,1413,1402,1405,1409,1406,1408,1403,1407,1404,1002,1410,1411,1489,4002,7100,7101,7106,7107,7108,7109,7110,7117,7122,7123";
 			break;
 		case "Facil Residencial":
 			codigosProd = "1402,1405";
@@ -299,11 +338,17 @@ public class Uteis {
 		case "MR Residencial Economiario":
 			codigosProd = "1404";
 			break;
+		case "MCMV Mais Premiavel":// Minha Casa Minha Vida
+			codigosProd = "1412";
+			break;
+		case "Cibrasec Securitizadora":
+			codigosProd = "1413";
+			break;
 		case "Rd Pf Outros":
-			codigosProd = "1002,1410,1489,4002,7100,7101,7106,7107,7108,7109,7110,7117,7122,7123";
+			codigosProd = "1002,1410,1411,1489,4002,7100,7101,7106,7107,7108,7109,7110,7117,7122,7123";
 			break;
 		case "Dirid":
-			codigosProd = "5302,5303,5304,5388,3120,3172,3133,3136,3138,3173,3174,3175,3142,3143,3144,3145,3146,3147,3148,3149,3176,3177,3178,3179,3180,3181,3182,3183,7114,1801,1802,1804,1803,1805,1402,1405,1409,1406,1408,1403,1407,1404,1002,1410,1489,4002,7100,7101,7106,7107,7108,7109,7110,7117,7122,7123";
+			codigosProd = "5302,5303,5304,5388,3120,3172,3133,3136,3138,3173,3174,3175,3142,3143,3144,3145,3146,3147,3148,3149,3176,3177,3178,3179,3180,3181,3182,3183,7114,1801,1802,1804,1803,1805,1809,1412,1413,1402,1405,1409,1406,1408,1403,1407,1404,1002,1410,1411,1489,4002,7100,7101,7106,7107,7108,7109,7110,7117,7122,7123";
 			break;
 		}
 
@@ -329,13 +374,16 @@ public class Uteis {
 			codigosProd = "5302,5303,5304,5388";
 			break;
 		case "RDPJ":
-			codigosProd = "7114,1801,1802,1804,1803,1805";
+			codigosProd = "7114,1801,1802,1804,1803,1805,1809";
 			break;
 		case "Rd Equipamentos":
 			codigosProd = "7114";
 			break;
 		case "MR Empresarial":
 			codigosProd = "1801,1802,1804";
+			break;
+		case "Empresarial Prazo Curto":
+			codigosProd = "1809";
 			break;
 		case "Loterico":
 			codigosProd = "1803";
@@ -344,7 +392,7 @@ public class Uteis {
 			codigosProd = "1805";
 			break;
 		case "RDPF":
-			codigosProd = "1402,1405,1409,1406,1408,1403,1407,1404,1002,1410,1489,4002,7100,7101,7106,7107,7108,7109,7110,7117,7122,7123";
+			codigosProd = "1412,1413,1402,1405,1409,1406,1408,1403,1407,1404,1002,1410,1411,1489,4002,7100,7101,7106,7107,7108,7109,7110,7117,7122,7123";
 			break;
 		case "Facil Residencial":
 			codigosProd = "1402,1405";
@@ -361,21 +409,26 @@ public class Uteis {
 		case "MR Residencial Economiario":
 			codigosProd = "1404";
 			break;
+		case "MCMV Mais Premiavel":// Minha Casa Minha Vida
+			codigosProd = "1412";
+			break;
+		case "Cibrasec Securitizadora":
+			codigosProd = "1413";
+			break;
 		case "Rd Pf Outros":
-			codigosProd = "1002,1410,1489,4002,7100,7101,7106,7107,7108,7109,7110,7117,7122,7123";
+			codigosProd = "1002,1410,1411,1489,4002,7100,7101,7106,7107,7108,7109,7110,7117,7122,7123";
 			break;
 		case "Dirid":
-			codigosProd = "5302,5303,5304,5388,3120,3172,3133,3136,3138,3173,3174,3175,3142,3143,3144,3145,3146,3147,3148,3149,3176,3177,3178,3179,3180,3181,3182,3183,7114,1801,1802,1804,1803,1805,1402,1405,1409,1406,1408,1403,1407,1404,1002,1410,1489,4002,7100,7101,7106,7107,7108,7109,7110,7117,7122,7123";
+			codigosProd = "5302,5303,5304,5388,3120,3172,3133,3136,3138,3173,3174,3175,3142,3143,3144,3145,3146,3147,3148,3149,3176,3177,3178,3179,3180,3181,3182,3183,7114,1801,1802,1804,1803,1805,1809,1412,1413,1402,1405,1409,1406,1408,1403,1407,1404,1002,1410,1411,1489,4002,7100,7101,7106,7107,7108,7109,7110,7117,7122,7123";
 			break;
 		}
 
 		return codigosProd;
 	}
-	
-	
+
 	/**
 	 * Retorna ultimo dia util do mes no formato '28/04/2017'
-	 * */
+	 */
 	public String getUltimoDiaUtilDoMes(Calendar calendar, int tipo) {
 
 		// muda a data da variável para o último dia do mês
@@ -384,8 +437,7 @@ public class Uteis {
 		calendar.add(Calendar.DATE, -1);
 		// enquanto for sábado, domingo ou feriado
 		while (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
-				|| calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY
-				|| isFeriado(calendar)) {
+				|| calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY || isFeriado(calendar)) {
 			// decrementa a data em um dia
 			calendar.add(Calendar.DATE, -1);
 		}
@@ -409,15 +461,14 @@ public class Uteis {
 
 	/**
 	 * Retorna primeiro dia util do mes no formato '03/04/2017'
-	 * */
+	 */
 	public String getPrimeiroDiaUtilDoMes(Calendar calendar, int tipo) {
 		// muda a data da variável para o último dia do mês
 		calendar.set(Calendar.DAY_OF_MONTH, 1);
 
 		// enquanto for sábado, domingo ou feriado
 		while (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
-				|| calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY
-				|| isFeriado(calendar)) {
+				|| calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY || isFeriado(calendar)) {
 			// decrementa a data em um dia
 			calendar.add(Calendar.DATE, 1);
 		}
@@ -439,10 +490,10 @@ public class Uteis {
 	}
 
 	/**
-	 * Método para verificar feriados utilizado nos metodos
-	 * getPrimeiroDiaUtilDoMes e getUltimoDiaUtilDoMes.
+	 * Método para verificar feriados utilizado nos metodos getPrimeiroDiaUtilDoMes
+	 * e getUltimoDiaUtilDoMes e retornaDiasUteisMes
 	 * 
-	 * */
+	 */
 	private boolean isFeriado(Calendar calendar) {
 		ArrayList<Calendar> listaFeriados = new ArrayList<Calendar>();
 
@@ -465,6 +516,31 @@ public class Uteis {
 			feriado.set(calendar.get(Calendar.YEAR), Calendar.JUNE, 15);
 			listaFeriados.add(feriado);
 
+			feriado = Calendar.getInstance();
+			// Independencia
+			feriado.set(calendar.get(Calendar.YEAR), Calendar.SEPTEMBER, 7);
+			listaFeriados.add(feriado);
+
+			feriado = Calendar.getInstance();
+			// Independencia
+			feriado.set(calendar.get(Calendar.YEAR), Calendar.OCTOBER, 12);
+			listaFeriados.add(feriado);
+
+			feriado = Calendar.getInstance();
+			// Finados
+			feriado.set(calendar.get(Calendar.YEAR), Calendar.NOVEMBER, 2);
+			listaFeriados.add(feriado);
+
+			feriado = Calendar.getInstance();
+			// ProclamacaoRepublica
+			feriado.set(calendar.get(Calendar.YEAR), Calendar.NOVEMBER, 15);
+			listaFeriados.add(feriado);
+
+			feriado = Calendar.getInstance();
+			// ProclamacaoRepublica
+			feriado.set(calendar.get(Calendar.YEAR), Calendar.DECEMBER, 25);
+			listaFeriados.add(feriado);
+
 		} else if (calendar.get(Calendar.YEAR) == 2018) {
 
 			feriado = Calendar.getInstance();
@@ -473,7 +549,15 @@ public class Uteis {
 			listaFeriados.add(feriado);
 
 			feriado = Calendar.getInstance();
+			feriado.set(calendar.get(Calendar.YEAR), Calendar.FEBRUARY, 13);
+			listaFeriados.add(feriado);
+
+			feriado = Calendar.getInstance();
 			feriado.set(calendar.get(Calendar.YEAR), Calendar.MARCH, 30);
+			listaFeriados.add(feriado);
+
+			feriado = Calendar.getInstance();
+			feriado.set(calendar.get(Calendar.YEAR), Calendar.APRIL, 21);
 			listaFeriados.add(feriado);
 
 			feriado = Calendar.getInstance();
@@ -484,19 +568,31 @@ public class Uteis {
 			feriado.set(calendar.get(Calendar.YEAR), Calendar.MAY, 30);
 			listaFeriados.add(feriado);
 
-			feriado = Calendar.getInstance();
-			// ano novo
-			feriado.set(calendar.get(Calendar.YEAR), Calendar.JANUARY, 1);
-			listaFeriados.add(feriado);
-
 		}
 		for (int i = 0; i < listaFeriados.size(); i++) {
-			if (calendar.get(Calendar.DAY_OF_YEAR) == listaFeriados.get(i).get(
-					Calendar.DAY_OF_YEAR)) {
+			if (calendar.get(Calendar.DAY_OF_YEAR) == listaFeriados.get(i).get(Calendar.DAY_OF_YEAR)) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	public int retornaDiasUteisMes(int numeroMes) {
+		Calendar calendar = Calendar.getInstance();
+
+		calendar.set(Calendar.MONTH, numeroMes);
+
+		int diasUteis = Integer.parseInt(getUltimoDiaUtilDoMes(calendar, 3));
+
+		for (int i = 1; i <= Integer.parseInt(getUltimoDiaUtilDoMes(calendar, 3)); i++) {
+			calendar.set(Calendar.DAY_OF_MONTH, i);
+			if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
+					|| calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY || isFeriado(calendar)) {
+				diasUteis--;
+			}
+		}
+
+		return diasUteis;
 	}
 
 }

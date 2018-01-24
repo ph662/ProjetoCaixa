@@ -68,13 +68,13 @@
 				padding-left: 184px;
 			}		
 			
+			#filters{
+ 				visibility:hidden;
+ 			}
 		</style>
 		
 		<script language="javascript" type="text/javascript" src="variavel_ip_da_aplicacao.js"></script>
 		<script language="javascript" type="text/javascript" src="AjaxJS/funcoesAjax.js"></script>
-		
-		
-		
 		
 		<script>
 			$(document).ready(function(){
@@ -83,6 +83,7 @@
 					var mes = $(this).val();
 					var ano = $('#tipoAno').val();
 					dadosRenovacao(ano,mes);
+					$('#filters').css("visibility", "visible");
 				});
 				
 				$('#tipoAno').on('change', function(){
@@ -91,6 +92,50 @@
 					dadosRenovacao(ano,mes);
 				});
 				
+				$('.category').on('change', function(){
+					var category_list = [];
+					var mes = $('#tipoMes').val();
+					var ano = $('#tipoAno').val();
+					$('#filters :input:checked').each(function(){
+						var category = $(this).val();
+						//alert(category);
+						category_list.push(category);
+					});
+					
+					if(category_list.length == 0){
+						$('.resultblock').fadeIn();
+					}else {
+				    	//variavel ip_porta vem do arquivo variavel_ip_da_aplicacao.js
+						var url = "http://"+ip_porta+"/ProjetoCaixa/visaoOperacional?tipo=renovacao&mes="+mes+"&ano="+ano;
+						for(var i = 0; i < category_list.length; i++){
+							
+							if(i == 0){
+								url += "&codProd=";
+							}
+							
+							if(category_list.length == 1){
+								url += category_list[i];
+							}else{
+								url += category_list[i]+"p";
+							}
+				    		
+						}
+						//alert(url);
+						$.ajax({
+							url: url,
+							global: false,
+							type: "GET",
+							//data: (dadosTratados),
+							cache: false,
+							beforeSend: function() {
+								$('#tabelaAjax').html("<span class='carregando'>Aguarde...</span><br>&nbsp;&nbsp;&nbsp;<img class='carregando' src='imagens/loader.gif'/>");
+							},
+							success: function(html) {
+								$('#tabelaAjax').html(html);
+							}
+						});
+					}
+				});
 			});
 		</script>
 		
@@ -108,47 +153,80 @@
 					<hr style="margin-top: 0px; margin-bottom: 0px;">
 				</div>
 				
-				<div id="comboMeses" align="center">
-					Ano:
-					<select id="tipoAno">
-						<option selected value="zero">Selecionar</option>
-						<option value="2015">2015</option>
-						<option value="2016">2016</option>
-						<option value="2017">2017</option>
-					</select>
-				</div><!-- id="comboMeses" -->
+				<div style="width: 100%; overflow: hidden;">
 				
-				<br />
-				
-				<div id="comboMeses" align="center">
-					M&ecirc;s:&nbsp;
-					<select id="tipoMes">
-					<!-- select id="tipo" onchange="loadXMLDoc(this.value)"-->
-						<option selected value="zero"> Selecionar</option>
-						<%
-							String[] mesesPagWeb = new Uteis().mesesPaginaWeb();
-							for(int d = 0; d < mesesPagWeb.length; d++){
-						%>
+					<div style="width: 300px; float: left;">
+						<div id="filters" style="margin-left: 60px;">
+							<div class="filterblock">
+								<input id ="check1" type="checkbox" name="check" value="1403" class="category">
+								<label for="check1">1403::Residencial</label>
+							</div>
+							
+							<div class="filterblock" >
+								<input id ="check2" type="checkbox" name="check" value="1404" class="category">
+								<label for="check2">1404::Residencial Excl.</label>
+							</div>
+							
+							<div class="filterblock" >
+								<input id ="check3" type="checkbox" name="check" value="1405" class="category">
+								<label for="check3">1405::F&aacute;cil RD</label>
+							</div>
+							
+							<div class="filterblock">
+								<input id ="check4" type="checkbox" name="check" value="1804" class="category">
+								<label for="check4">1804::Empresarial</label>
+							</div>
+						</div>
+						<br/>		
+					</div>
+					<div style="margin-left: 100px;padding-right: 350px;;">
+						<div id="comboMeses" align="center">
+							Ano:
+							<select id="tipoAno">
+								<!-- option selected value="zero">Selecionar</option-->
+								<option value="2015">2015</option>
+								<option value="2016">2016</option>
+								<option selected value="2017">2017</option>
+								<option value="2018">2018</option>
+							</select>
+						</div><!-- id="comboMeses" -->
 						
-							<%
-								if(d<9){
-							%>
-									<option value="0<%=d+1%>">
-							<%
-								}else{
-							%>								
-									<option value="<%=d+1%>">
-							<%
-								}
-							%>
-								<%=mesesPagWeb[d]%>
-								</option>
-						<%
-							}
-						%>
-					</select>
-				</div><!-- id="comboMeses" -->
-				<br>
+						<br />
+						
+						<div id="comboMeses" align="center">
+							M&ecirc;s:&nbsp;
+							<select id="tipoMes">
+							<!-- select id="tipo" onchange="loadXMLDoc(this.value)"-->
+								<option selected value="zero"> Selecionar</option>
+								<%
+									String[] mesesPagWeb = new Uteis().mesesPaginaWeb();
+									for(int d = 0; d < mesesPagWeb.length; d++){
+								%>
+								
+									<%
+										if(d<9){
+									%>
+											<option value="0<%=d+1%>">
+									<%
+										}else{
+									%>								
+											<option value="<%=d+1%>">
+									<%
+										}
+									%>
+										<%=mesesPagWeb[d]%>
+										</option>
+								<%
+									}
+								%>
+							</select>
+						</div><!-- id="comboMeses" -->
+					</div>
+					<br>
+				
+				</div>
+				
+				
 				<div id="tabelaAjax">
 					<!-- img src= "imagens/loader.gif"-->
 				</div>

@@ -1,5 +1,7 @@
 package caixa.dirid.VO;
 
+import java.util.Comparator;
+
 public class DadosDiariosVO {
 
 	private String anoMesDia;
@@ -38,5 +40,15 @@ public class DadosDiariosVO {
 	public void setValorDoDia(String valorDoDia) {
 		this.valorDoDia = valorDoDia;
 	}
+
+	public static Comparator<DadosDiariosVO> anoMesDiaCoparator = new Comparator<DadosDiariosVO>() {
+		@Override
+		public int compare(DadosDiariosVO d1, DadosDiariosVO d2) {
+			String data1 = d1.getAnoMesDia();
+			String data2 = d2.getAnoMesDia();
+
+			return data1.compareTo(data2);
+		}
+	};
 
 }

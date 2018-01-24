@@ -1,13 +1,10 @@
 package caixa.dirid.SERVLET;
 
 import java.io.IOException;
-import java.io.OutputStream;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import caixa.dirid.BO.VisaoExecutiva_Diaria_BO;
 import caixa.dirid.UTEIS.Uteis;
 
@@ -162,6 +159,24 @@ public class VisaoExecutiva_Diaria_Servlet extends HttpServlet {
 				}		
 			} else {
 				consultaGeral(request,response,"MR Empresarial","MR Empresarial");
+			}
+			
+		} else if (request.getParameter("tipo").equals("reqFaturamentoEmpresarialPrazoCurto")) {
+			
+			if (request.getParameter("categ") != null) {
+				switch (request.getParameter("categ")) {
+					case "baseFaturamentoRO":
+						baixarBaseROFaturamento(request,response,"Empresarial Prazo Curto","Empresarial Prazo Curto");
+					break;
+					case "baseSinistroPendenteFaixa":
+						baixarBaseSinistroPendente(request,response,"Empresarial Prazo Curto","Empresarial Prazo Curto");
+					break;
+					case "baseSinistroCompleta":
+						baixarBaseSinistroCompleta(request,response,"Empresarial Prazo Curto","Empresarial Prazo Curto");
+					break;
+				}
+			} else {
+				consultaGeral(request,response,"Empresarial Prazo Curto","Empresarial Prazo Curto");
 			}
 			
 		} else if (request.getParameter("tipo").equals("reqFaturamentoLoterico")) {
@@ -331,8 +346,51 @@ public class VisaoExecutiva_Diaria_Servlet extends HttpServlet {
 						"Aporte Caixa");
 			}
 
-		} else if (request.getParameter("tipo").equals(
-				"reqFaturamentoRdPfOutros")) {
+		} else if (request.getParameter("tipo").equals("reqFaturamentoMCMVMaisPremiavel")) {
+
+			if (request.getParameter("categ") != null) {
+				switch (request.getParameter("categ")) {
+				case "baseFaturamentoRO":
+					baixarBaseROFaturamento(request, response,
+							"MCMV Mais Premiavel", "MCMV Mais Premi&aacute;vel");
+					break;
+				case "baseSinistroPendenteFaixa":
+					baixarBaseSinistroPendente(request, response,
+							"MCMV Mais Premiavel", "MCMV Mais Premi&aacute;vel");
+					break;
+				case "baseSinistroCompleta":
+					baixarBaseSinistroCompleta(request, response,
+							"MCMV Mais Premiavel", "MCMV Mais Premi&aacute;vel");
+					break;
+				}
+			} else {
+				consultaGeral(request, response, "MCMV Mais Premiavel",
+						"MCMV Mais Premi&aacute;vel");
+			}
+
+		} else if (request.getParameter("tipo").equals("reqFaturamentoCibrasecSecuritizadora")) {
+
+			if (request.getParameter("categ") != null) {
+				switch (request.getParameter("categ")) {
+				case "baseFaturamentoRO":
+					baixarBaseROFaturamento(request, response,
+							"Cibrasec Securitizadora", "Cibrasec Securitizadora");
+					break;
+				case "baseSinistroPendenteFaixa":
+					baixarBaseSinistroPendente(request, response,
+							"Cibrasec Securitizadora", "Cibrasec Securitizadora");
+					break;
+				case "baseSinistroCompleta":
+					baixarBaseSinistroCompleta(request, response,
+							"Cibrasec Securitizadora", "Cibrasec Securitizadora");
+					break;
+				}
+			} else {
+				consultaGeral(request, response, "Cibrasec Securitizadora",
+						"Cibrasec Securitizadora");
+			}
+
+		} else if (request.getParameter("tipo").equals("reqFaturamentoRdPfOutros")) {
 
 			if (request.getParameter("categ") != null) {
 				switch (request.getParameter("categ")) {
@@ -377,89 +435,56 @@ public class VisaoExecutiva_Diaria_Servlet extends HttpServlet {
 
 	}
 
-	private void consultaGeral(HttpServletRequest request,
-			HttpServletResponse response, String produto, String produtoHTML)
-			throws ServletException, IOException {
+	private void consultaGeral(HttpServletRequest request,HttpServletResponse response, String produto, String produtoHTML) throws ServletException, IOException {
 
-		String anoAnterior = Integer.toString(Integer.parseInt(request
-				.getParameter("ano")) - 1);
+		String anoAnterior = Integer.toString(Integer.parseInt(request.getParameter("ano")) - 1);
 		String anoAtual = request.getParameter("ano");
 
-		VisaoExecutiva_Diaria_BO boVisoes = new VisaoExecutiva_Diaria_BO(
-				produto + anoAtual);
+		VisaoExecutiva_Diaria_BO boVisoes = new VisaoExecutiva_Diaria_BO(produto + anoAtual);
 
-		request.setAttribute(
-				"periodo",
-				boVisoes.validaSelecionaPeriodo("teste"
-						+ request.getParameter("ano")));
+		request.setAttribute("periodo",boVisoes.validaSelecionaPeriodo("teste"+ request.getParameter("ano")));
 
-		request.setAttribute("faturamentoAnoAtual", boVisoes
-				.validaSelecionaTotalFaturamento(produto + anoAtual, "atual"));
-		request.setAttribute("faturamentoAnoAnterior", boVisoes
-				.validaSelecionaTotalFaturamento(produto + anoAnterior,
-						"anterior"));
+		request.setAttribute("faturamentoAnoAtual", boVisoes.validaSelecionaTotalFaturamento(produto + anoAtual, "atual"));
+		request.setAttribute("faturamentoAnoAnterior", boVisoes.validaSelecionaTotalFaturamento(produto + anoAnterior,"anterior"));
 
-		request.setAttribute("faturamentoDetalhadoAnoAtual", boVisoes
-				.validaSelecionaFaturamentoDetalhado(produto + anoAtual,
-						"atual"));
-		request.setAttribute(
-				"faturamentoDetalhadoAnoAnterior",
-				boVisoes.validaSelecionaFaturamentoDetalhado(produto
-						+ anoAnterior, "anterior"));
+		request.setAttribute("faturamentoDetalhadoAnoAtual", boVisoes.validaSelecionaFaturamentoDetalhado(produto + anoAtual,"atual"));
+		request.setAttribute("faturamentoDetalhadoAnoAnterior",boVisoes.validaSelecionaFaturamentoDetalhado(produto+ anoAnterior, "anterior"));
 
-		request.setAttribute("canceladosDivididoPorEmitidosAnoAtual", boVisoes
-				.validaCanceladosDividoPorEmitidos(produto + anoAtual, "atual"));
-		request.setAttribute(
-				"canceladosDivididoPorEmitidosAnoAnterior",
-				boVisoes.validaCanceladosDividoPorEmitidos(produto
-						+ anoAnterior, "anterior"));
+		request.setAttribute("canceladosDivididoPorEmitidosAnoAtual", boVisoes.validaCanceladosDividoPorEmitidos(produto + anoAtual, "atual"));
+		request.setAttribute("canceladosDivididoPorEmitidosAnoAnterior",boVisoes.validaCanceladosDividoPorEmitidos(produto+ anoAnterior, "anterior"));
 
-		request.setAttribute(
-				"faturaAnoAtualAcumulado",
-				boVisoes.validaSelecionaTotalFaturamentoAcumulado(produto
-						+ anoAtual, 1, "atual"));
-		request.setAttribute(
-				"faturaAnoAnteriorAcumulado",
-				boVisoes.validaSelecionaTotalFaturamentoAcumulado(produto
-						+ anoAnterior, 1, "anterior"));
+		request.setAttribute("faturaAnoAtualAcumulado",boVisoes.validaSelecionaTotalFaturamentoAcumulado(produto+ anoAtual, 1, "atual"));
+		request.setAttribute("faturaAnoAnteriorAcumulado",boVisoes.validaSelecionaTotalFaturamentoAcumulado(produto+ anoAnterior, 1, "anterior"));
 
-		request.setAttribute("analiseSinistrosAvisados",
-				boVisoes.validaSelecionaSinistros(produto + anoAtual, 1));
-		request.setAttribute("analiseSinistrosIndenizados",
-				boVisoes.validaSelecionaSinistros(produto + anoAtual, 2));
-		request.setAttribute("analiseSinistrosPendentes",
-				boVisoes.validaSelecionaSinistros(produto + anoAtual, 3));
-		request.setAttribute("analiseSinistrosDespesas",
-				boVisoes.validaSelecionaSinistros(produto + anoAtual, 4));
+		request.setAttribute("analiseSinistrosAvisados",boVisoes.validaSelecionaSinistros(produto + anoAtual, 1));
+		request.setAttribute("analiseSinistrosIndenizados",boVisoes.validaSelecionaSinistros(produto + anoAtual, 2));
+		request.setAttribute("analiseSinistrosPendentes",boVisoes.validaSelecionaSinistros(produto + anoAtual, 3));
+		request.setAttribute("analiseSinistrosDespesas",boVisoes.validaSelecionaSinistros(produto + anoAtual, 4));
 
-		request.setAttribute("sinistrosPendentes_FaixaValor",
-				boVisoes.validaSelecionaSinistroPendente_Faixa(2));
-		request.setAttribute("sinistrosPendentes_FaixaTempo",
-				boVisoes.validaSelecionaSinistroPendente_Faixa(1));
-		request.setAttribute("dadosDiarios", boVisoes
-				.validaSelecionaDetalhesDadosDiarios(produto + anoAtual));
+		request.setAttribute("sinistrosPendentes_FaixaValor",boVisoes.validaSelecionaSinistroPendente_Faixa(2));
+		request.setAttribute("sinistrosPendentes_FaixaTempo",boVisoes.validaSelecionaSinistroPendente_Faixa(1));
+		
+		request.setAttribute("dadosDiariosAnoAtual", boVisoes.validaSelecionaDetalhesDadosDiarios(produto + anoAtual));
+		request.setAttribute("dadosDiariosAnoAnterior", boVisoes.validaSelecionaDetalhesDadosDiarios(produto + anoAnterior));
+		
+		request.setAttribute("dadosDiariosFaturamentoAnoAtual", boVisoes.validaSelecionaAcumuladoDadosDiarios(produto + anoAtual));
+		request.setAttribute("dadosDiariosFaturamentoAnoAnterior", boVisoes.validaSelecionaAcumuladoDadosDiarios(produto + anoAnterior));
+		
+		request.setAttribute("emissaoPorCanal",boVisoes.validaSelecionaEmissaoPorCanal("Emissão"));
+		request.setAttribute("cancelamentoPorCanal",boVisoes.validaSelecionaEmissaoPorCanal("Cancelamento"));
 
-		request.setAttribute("emissaoPorCanal",
-				boVisoes.validaSelecionaEmissaoPorCanal());
+		request.setAttribute("anoAtualDivididoPorAnteriorAcumulado",boVisoes.validaAnoAtualDividoPorAnoAnteriorAcumulado(produto+ anoAtual));
 
-		request.setAttribute(
-				"anoAtualDivididoPorAnteriorAcumulado",
-				boVisoes.validaAnoAtualDividoPorAnoAnteriorAcumulado(produto
-						+ anoAtual));
-
-		request.setAttribute("anoAtualDivididoPorAnterior",
-				boVisoes.validaAnoAtualDividoPorAnoAnterior(produto + anoAtual));
+		request.setAttribute("anoAtualDivididoPorAnterior",boVisoes.validaAnoAtualDividoPorAnoAnterior(produto + anoAtual));
 		request.setAttribute("anoAtualParametro", anoAtual);
 		request.setAttribute("anoAnteriorParametro", anoAnterior);
+		System.out.println();
 
 		request.setAttribute("titulo", produtoHTML);
-		request.getRequestDispatcher("ajaxPagGraficoDiario.jsp").forward(
-				request, response);
+		request.getRequestDispatcher("ajaxPagGraficoDiario.jsp").forward(request, response);
 	}
 
-	private void baixarBaseSinistroPendente(HttpServletRequest request,
-			HttpServletResponse response, String produto, String produtoHTML)
-			throws ServletException, IOException {
+	private void baixarBaseSinistroPendente(HttpServletRequest request,HttpServletResponse response, String produto, String produtoHTML)throws ServletException, IOException {
 		Uteis uteis = new Uteis();
 		String dataAtual = uteis.dataAtual(4);
 		String dataCut[] = dataAtual.split("/");
@@ -476,6 +501,7 @@ public class VisaoExecutiva_Diaria_Servlet extends HttpServlet {
 				"attachment; filename=baseAnaliticaSinPendentes_" + dia_SO
 						+ "-" + mes_SO + "-" + anoAtual + ".csv");
 
+		System.out.println(produto + anoAtual);
 		boVisoes.validaSeleciona_Base_SinistroPendente_Faixa(
 				produto + anoAtual, response);
 	}

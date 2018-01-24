@@ -114,14 +114,14 @@
 					if(novaSenha == novaSenhaRepeat){
 						
 						$.ajax({
-							url: "http://10.125.7.51:8080/ProjetoCaixa/euroServlet?tipo=alterarSenha&novaSenha="+novaSenhaRepeat+"&id="+idUser,
+							url: "http://10.125.7.49:8080/ProjetoCaixa/euroServlet?tipo=alterarSenha&novaSenha="+novaSenhaRepeat+"&id="+idUser,
 							global: false,
 							type: "POST",
 							cache: false
 						});
 						
 						alert('Senha alterada com sucesso!');
-						window.location.href = "http://10.125.7.51:8080/ProjetoCaixa/euro_arquivos/euro_menu.htm";
+						window.location.href = "http://10.125.7.49:8080/ProjetoCaixa/euro_arquivos/euro_menu.htm";
 						//$('#senhaAtual').val(''); 
 						//$('#novaSenha').val('');
 						//$('#novaSenhaRepeat').val('');
@@ -150,7 +150,7 @@
 		<%if(usuario.getPermissaoBean() == 1){%>
 		
 				function gravaValoresAdmin(){
-					var url="http://10.125.7.51:8080/ProjetoCaixa/euroServlet";
+					var url="http://10.125.7.49:8080/ProjetoCaixa/euroServlet";
 					var value="id="+<%=usuario.getIdBean()%>;
 					
 					var input, index;
@@ -184,7 +184,7 @@
 					request.send(value);
 					
 					alert('Valores gravados com sucesso, o resultado final foi calculado!');
-					//window.location.href = "http://10.125.7.51:8080/ProjetoCaixa/euro_arquivos/euro_menu.htm";
+					//window.location.href = "http://10.125.7.49:8080/ProjetoCaixa/euro_arquivos/euro_menu.htm";
 				}
 				
 				function abrirTelaCriacao(){
@@ -201,7 +201,7 @@
 					
 					var num = "";
 	    			sessionStorage.setItem("numeroAceitacao", num); 
-	    			window.open('http://10.125.7.51:8080/ProjetoCaixa/euroServlet?tipo=verTodasApostas','_blank','scrollbars=yes,resizable=yes,top=100,left=70,width=1000,height=500');
+	    			window.open('http://10.125.7.49:8080/ProjetoCaixa/euroServlet?tipo=verTodasApostas','_blank','scrollbars=yes,resizable=yes,top=100,left=70,width=1000,height=500');
 					
 				}
 				
@@ -217,7 +217,7 @@
 					}else{
 						
 						$.ajax({
-							url: "http://10.125.7.51:8080/ProjetoCaixa/euroServlet?tipo=cadastrarUsuario&nLoginAdmin="+login+"&nNomeAdmin="+nome+"&nSenhaAdmin="+senha,
+							url: "http://10.125.7.49:8080/ProjetoCaixa/euroServlet?tipo=cadastrarUsuario&nLoginAdmin="+login+"&nNomeAdmin="+nome+"&nSenhaAdmin="+senha,
 							global: false,
 							type: "POST",
 							cache: false
@@ -238,7 +238,7 @@
 				
 		<%}else{%>
 				function gravaValores(){
-					var url="http://10.125.7.51:8080/ProjetoCaixa/euroServlet";
+					var url="http://10.125.7.49:8080/ProjetoCaixa/euroServlet";
 					var value="id="+<%=usuario.getIdBean()%>;
 					
 					var input, index;
@@ -273,7 +273,7 @@
 					request.send(value);
 					
 					alert('Valores gravados com sucesso!');
-					window.location.href = "http://10.125.7.51:8080/ProjetoCaixa/euro_arquivos/euro_menu.htm";
+					window.location.href = "http://10.125.7.49:8080/ProjetoCaixa/euro_arquivos/euro_menu.htm";
 				}
 	<%}%>
 	</script>
@@ -1954,7 +1954,7 @@
 			<%}%>
 			<br><br><br><br>
 			<div style="margin-left: 70px;">
-				<input type="button"  value ="Voltar ao menu" onClick='window.location.href = "http://10.125.7.51:8080/ProjetoCaixa/euro_arquivos/euro_menu.htm";'>
+				<input type="button"  value ="Voltar ao menu" onClick='window.location.href = "http://10.125.7.49:8080/ProjetoCaixa/euro_arquivos/euro_menu.htm";'>
 			</div>
 			<br>
 			<div style="margin-left: 70px;">

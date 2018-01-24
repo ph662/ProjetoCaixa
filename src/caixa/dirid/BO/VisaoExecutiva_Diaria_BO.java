@@ -6,17 +6,18 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import javax.imageio.stream.IIOByteBuffer;
 import javax.servlet.http.HttpServletResponse;
-
 import caixa.dirid.DAO.VisaoExecutiva_Diaria_DAO;
 import caixa.dirid.UTEIS.Uteis;
 import caixa.dirid.VO.DadosDiariosVO;
-import caixa.dirid.VO.EmissaoPorCanalDeVendaVO;
 import caixa.dirid.VO.FaturamentoRO_base_VO;
 import caixa.dirid.VO.FaturamentoVO;
+import caixa.dirid.VO.MovimentoPorCanalDeVendaVO;
 import caixa.dirid.VO.SinistroPendente_FaixaVO;
 import caixa.dirid.VO.SinistroPendente_base_FaixaVO;
 import caixa.dirid.VO.Sinistros_base_VO;
@@ -40,55 +41,46 @@ public class VisaoExecutiva_Diaria_BO {
 	private List<SinistroPendente_FaixaVO> listaSinistroPendenteValor;
 	private List<SinistroPendente_FaixaVO> listaSinistroPendenteTempo;
 
-	private List<EmissaoPorCanalDeVendaVO> listaEmissaoPorCanal;
+	private List<MovimentoPorCanalDeVendaVO> listaEmissaoPorCanal;
 
 	Uteis uteis;
 
 	public VisaoExecutiva_Diaria_BO(String ano) {
 		this.uteis = new Uteis();
 		VisaoExecutiva_Diaria_DAO dao = new VisaoExecutiva_Diaria_DAO();
-		String anoAnterior = Integer.toString((Integer.parseInt(uteis
-				.cortaRetornaAno(ano)) - 1));
+		String anoAnterior = Integer.toString((Integer.parseInt(uteis.cortaRetornaAno(ano)) - 1));
 
 		this.dadosFaturamentoDetalhado = dao.selecionaDadosFaturamento(ano);
 		this.dadosFaturamentoDetalhadoAnoAnterior = dao
-				.selecionaDadosFaturamento(uteis.cortaRetornaProduto(ano)
-						+ anoAnterior);
+				.selecionaDadosFaturamento(uteis.cortaRetornaProduto(ano) + anoAnterior);
 
 		this.dadosFaturamentoTotal = dao.selecionaFaturamentoTotal(ano);
 		this.dadosFaturamentoTotalAnoAnterior = dao
-				.selecionaFaturamentoTotal(uteis.cortaRetornaProduto(ano)
-						+ anoAnterior);
+				.selecionaFaturamentoTotal(uteis.cortaRetornaProduto(ano) + anoAnterior);
 
-		this.listaEmissaoPorCanal = dao.selecionaEmissaoPorCanal(ano);
+		this.listaEmissaoPorCanal = dao.selecionaMovimentoPorCanal(ano);
 
 		this.rvneTipo2 = dao.selecionaRVNE(ano, 2, "0");
-		this.rvneTipo2AnoAnterior = dao.selecionaRVNE(
-				uteis.cortaRetornaProduto(ano) + anoAnterior, 2, "0");
+		this.rvneTipo2AnoAnterior = dao.selecionaRVNE(uteis.cortaRetornaProduto(ano) + anoAnterior, 2, "0");
 
-		this.listaSinistroPendenteTempo = dao.selecionaSinistroPendente_Faixa(
-				1, ano);
-		this.listaSinistroPendenteValor = dao.selecionaSinistroPendente_Faixa(
-				2, ano);
+		this.listaSinistroPendenteTempo = dao.selecionaSinistroPendente_Faixa(1, ano);
+		this.listaSinistroPendenteValor = dao.selecionaSinistroPendente_Faixa(2, ano);
 	}
 
 	public VisaoExecutiva_Diaria_BO(String ano, String categConstrutor) {
-		System.out
-				.println("VisaoExecutiva_Diaria_BO - Download de Analitico - "
-						+ categConstrutor);
+		System.out.println("VisaoExecutiva_Diaria_BO - Download de Analitico - " + categConstrutor);
 
 	}
 
 	/**
-	 * Retorna uma lista contendo na primeira linha o BP e na segunda o
-	 * Faturamento. Os dados ficam no formato '21.5'.
+	 * Retorna uma lista contendo na primeira linha o BP e na segunda o Faturamento.
+	 * Os dados ficam no formato '21.5'.
 	 * 
 	 * @arguments String
 	 * 
 	 * @return List<RvneVO>
 	 */
-	public List<FaturamentoVO> validaSelecionaTotalFaturamento(String ano,
-			String anoTexto) {
+	public List<FaturamentoVO> validaSelecionaTotalFaturamento(String ano, String anoTexto) {
 		DecimalFormat roundForm = new DecimalFormat("0.0");
 
 		List<FaturamentoVO> listaTratada = new ArrayList<FaturamentoVO>();
@@ -115,9 +107,8 @@ public class VisaoExecutiva_Diaria_BO {
 		String mesesTotalBP[] = new String[12];
 
 		for (int k = 0; k < 12; k++) {
-			mesesTotalBP[k] = roundForm.format(
-					Double.parseDouble(lista.get(i).getMeses()[k]) / 1000000)
-					.replace(",", ".");
+			mesesTotalBP[k] = roundForm.format(Double.parseDouble(lista.get(i).getMeses()[k]) / 1000000).replace(",",
+					".");
 		}
 
 		faturamentoVObp.setMeses(mesesTotalBP);
@@ -132,26 +123,20 @@ public class VisaoExecutiva_Diaria_BO {
 			int c = 0;
 			while (c < lista.size()) {
 				if (lista.get(c).getProduto().equalsIgnoreCase("EMITIDO")
-						|| lista.get(c).getProduto()
-								.equalsIgnoreCase("EMITIDOS CANCELADOS")
-						|| lista.get(c).getProduto()
-								.equalsIgnoreCase("EMITIDOS RESTITUIDOS")) {
+						|| lista.get(c).getProduto().equalsIgnoreCase("EMITIDOS CANCELADOS")
+						|| lista.get(c).getProduto().equalsIgnoreCase("EMITIDOS RESTITUIDOS")) {
 
-					totalMes = totalMes.add(new BigDecimal(lista.get(c)
-							.getMeses()[j]));
+					totalMes = totalMes.add(new BigDecimal(lista.get(c).getMeses()[j]));
 				}
 				c++;
 			}
 			// RVNE trazido direto da tabela do banco
 			if (listaRvne.get(0).getMeses()[j] != null) {
-				totalMes = totalMes.add(new BigDecimal(listaRvne.get(0)
-						.getMeses()[j]));
+				totalMes = totalMes.add(new BigDecimal(listaRvne.get(0).getMeses()[j]));
 			} else {
 				totalMes = new BigDecimal(0.0);
 			}
-			mesesTotal[j] = roundForm.format(
-					Double.parseDouble(totalMes.toString()) / 1000000).replace(
-					",", ".");
+			mesesTotal[j] = roundForm.format(Double.parseDouble(totalMes.toString()) / 1000000).replace(",", ".");
 			totalMes = new BigDecimal(0.0D);
 		}
 		faturamentoVOtratado.setMeses(mesesTotal);
@@ -170,8 +155,7 @@ public class VisaoExecutiva_Diaria_BO {
 	 * @argument String
 	 */
 
-	public List<FaturamentoVO> validaSelecionaTotalFaturamentoAcumulado(
-			String ano, int retorno, String anoTexto) {
+	public List<FaturamentoVO> validaSelecionaTotalFaturamentoAcumulado(String ano, int retorno, String anoTexto) {
 		Uteis uteis = new Uteis();
 		DecimalFormat roundForm = new DecimalFormat("0.0");
 		List<FaturamentoVO> listaTratada = new ArrayList<FaturamentoVO>();
@@ -210,31 +194,25 @@ public class VisaoExecutiva_Diaria_BO {
 		faturamentoVOBP.setProduto("BP - " + uteis.cortaRetornaAno(ano));
 		for (int j = 0; j < 12; j++) {
 			if (j == 0) {
-				mesesTotalBP[j] = roundForm
-						.format(Double.parseDouble(listaBP.get(varBP)
-								.getMeses()[j]) / 1000000).replace(",", ".");
+				mesesTotalBP[j] = roundForm.format(Double.parseDouble(listaBP.get(varBP).getMeses()[j]) / 1000000)
+						.replace(",", ".");
 			} else {
 				double somaBP = 0.0D;
 				if (j >= 2) {
-					somaBP = Double
-							.parseDouble(listaBP.get(varBP).getMeses()[j])
-							+ somaAnteriorBP;
+					somaBP = Double.parseDouble(listaBP.get(varBP).getMeses()[j]) + somaAnteriorBP;
 				} else {
 					// j na posicao 1
-					somaBP = Double
-							.parseDouble(listaBP.get(varBP).getMeses()[j])
+					somaBP = Double.parseDouble(listaBP.get(varBP).getMeses()[j])
 							+ Double.parseDouble(listaBP.get(varBP).getMeses()[j - 1]);
 				}
 				somaAnteriorBP = somaBP;
-				mesesTotalBP[j] = roundForm.format(somaAnteriorBP / 1000000)
-						.replace(",", ".");
+				mesesTotalBP[j] = roundForm.format(somaAnteriorBP / 1000000).replace(",", ".");
 			}
 		}
 		faturamentoVOBP.setMeses(mesesTotalBP);
 		listaTratada.add(faturamentoVOBP);
 
-		faturamentoVOtratado.setProduto("Faturamento Acumulado - "
-				+ uteis.cortaRetornaAno(ano));
+		faturamentoVOtratado.setProduto("Faturamento Acumulado - " + uteis.cortaRetornaAno(ano));
 
 		// retorno == 1 retorna no formato: '0.0'
 		if (retorno == 1) {
@@ -246,8 +224,7 @@ public class VisaoExecutiva_Diaria_BO {
 				// aqui faço a criação do faturamento, junto à RVNE
 				faturamento = Double.parseDouble(lista.get(i).getMeses()[j]);
 				if (j == 0) {
-					mesesTotal[j] = roundForm.format(faturamento / 1000000)
-							.replace(",", ".");
+					mesesTotal[j] = roundForm.format(faturamento / 1000000).replace(",", ".");
 					fatuAnterior = faturamento;
 					somaAnterior = faturamento;
 				} else {
@@ -259,9 +236,7 @@ public class VisaoExecutiva_Diaria_BO {
 					// serve para completar os outros meses com 0
 					if (soma != somaAnterior) {
 						somaAnterior = soma;
-						mesesTotal[j] = roundForm
-								.format(somaAnterior / 1000000).replace(",",
-										".");
+						mesesTotal[j] = roundForm.format(somaAnterior / 1000000).replace(",", ".");
 					} else {
 						mesesTotal[j] = "0.0";
 					}
@@ -312,19 +287,17 @@ public class VisaoExecutiva_Diaria_BO {
 	}// fim validaSelecionaTotalFaturamentoAcumulado
 
 	/**
-	 * Retorna uma lista contendo os Tipos: BP(para ano atual), Emitido,
-	 * Emitidos Cancelados, Emitidos Restituidos, RVNE e o Total. O Total se
-	 * trata da soma entre todos os citados com exceção do BP. No caso do ano
-	 * passado por parâmetro ser o ano atual, irá retornar na primeira linha o
-	 * BP. O Retorno é feito em milhões com 2 casas decimais. Exemplo:
-	 * "2.000.000,00"
+	 * Retorna uma lista contendo os Tipos: BP(para ano atual), Emitido, Emitidos
+	 * Cancelados, Emitidos Restituidos, RVNE e o Total. O Total se trata da soma
+	 * entre todos os citados com exceção do BP. No caso do ano passado por
+	 * parâmetro ser o ano atual, irá retornar na primeira linha o BP. O Retorno é
+	 * feito em milhões com 2 casas decimais. Exemplo: "2.000.000,00"
 	 * 
 	 * @arguments String
 	 * 
 	 * @return List<RvneVO>
 	 */
-	public List<FaturamentoVO> validaSelecionaFaturamentoDetalhado(String ano,
-			String anoTexto) {
+	public List<FaturamentoVO> validaSelecionaFaturamentoDetalhado(String ano, String anoTexto) {
 		DecimalFormat roundForm = new DecimalFormat("0.00");
 		Uteis uteis = new Uteis();
 		List<FaturamentoVO> listaTratada = new ArrayList<FaturamentoVO>();
@@ -356,8 +329,7 @@ public class VisaoExecutiva_Diaria_BO {
 				for (int k = 0; k <= 12; k++) {
 
 					if (k != 12) {
-						somaTotal += Integer
-								.parseInt(lista.get(i).getMeses()[k]);
+						somaTotal += Integer.parseInt(lista.get(i).getMeses()[k]);
 
 						mesesTratado[k] = lista.get(i).getMeses()[k];
 
@@ -382,11 +354,9 @@ public class VisaoExecutiva_Diaria_BO {
 				for (int k = 0; k <= 12; k++) {
 
 					if (k != 12) {
-						somaTotal += Double
-								.parseDouble(lista.get(i).getMeses()[k]);
+						somaTotal += Double.parseDouble(lista.get(i).getMeses()[k]);
 
-						String tratada = roundForm.format(Double
-								.parseDouble(lista.get(i).getMeses()[k]));
+						String tratada = roundForm.format(Double.parseDouble(lista.get(i).getMeses()[k]));
 
 						mesesTratado[k] = uteis.insereSeparadores(tratada);
 
@@ -415,8 +385,7 @@ public class VisaoExecutiva_Diaria_BO {
 
 					String tratada = "";
 					if (listaRvne.get(i).getMeses()[k] != null) {
-						tratada = roundForm.format(Double.parseDouble(listaRvne
-								.get(i).getMeses()[k]));
+						tratada = roundForm.format(Double.parseDouble(listaRvne.get(i).getMeses()[k]));
 					} else {
 						tratada = roundForm.format(Double.parseDouble("0.0"));
 					}
@@ -445,12 +414,10 @@ public class VisaoExecutiva_Diaria_BO {
 
 			while (k < listaTratada.size()) {
 				if (listaTratada.get(k).getProduto().toString().contains("BP")
-						|| listaTratada.get(k).getProduto().toString()
-								.contains("QT")) {
+						|| listaTratada.get(k).getProduto().toString().contains("QT")) {
 					k++;
 				}
-				total1 += Double.parseDouble(listaTratada.get(k).getMeses()[j]
-						.replace(".", "").replace(",", "."));
+				total1 += Double.parseDouble(listaTratada.get(k).getMeses()[j].replace(".", "").replace(",", "."));
 				k++;
 			}
 			mesesTotal[j] = uteis.insereSeparadores(roundForm.format(total1));
@@ -469,8 +436,7 @@ public class VisaoExecutiva_Diaria_BO {
 	 * @arguments String
 	 * 
 	 */
-	public List<FaturamentoVO> validaCanceladosDividoPorEmitidos(String ano,
-			String anoTexto) {
+	public List<FaturamentoVO> validaCanceladosDividoPorEmitidos(String ano, String anoTexto) {
 		DecimalFormat percentForm = new DecimalFormat("0%");
 		List<FaturamentoVO> listaTratada = new ArrayList<FaturamentoVO>();
 		List<FaturamentoVO> lista = null;
@@ -492,13 +458,11 @@ public class VisaoExecutiva_Diaria_BO {
 			double total = 0.0D;
 
 			int j = 1;
-			BigDecimal bigAnoAtual = new BigDecimal(
-					lista.get(j + 1).getMeses()[i]);
+			BigDecimal bigAnoAtual = new BigDecimal(lista.get(j + 1).getMeses()[i]);
 			try {
-				total = Double
-						.parseDouble((bigAnoAtual.divide(new BigDecimal(lista
-								.get(j).getMeses()[i]), 4,
-								RoundingMode.HALF_DOWN)).toString());
+				total = Double.parseDouble(
+						(bigAnoAtual.divide(new BigDecimal(lista.get(j).getMeses()[i]), 4, RoundingMode.HALF_DOWN))
+								.toString());
 			} catch (Exception e) {
 				total = 0D;
 			}
@@ -517,8 +481,7 @@ public class VisaoExecutiva_Diaria_BO {
 	 * 
 	 * @return List<FaturamentoVO>
 	 */
-	public List<FaturamentoVO> validaAnoAtualDividoPorAnoAnteriorAcumulado(
-			String ano) {
+	public List<FaturamentoVO> validaAnoAtualDividoPorAnoAnteriorAcumulado(String ano) {
 		DecimalFormat percentForm = new DecimalFormat("0%");
 		List<FaturamentoVO> listaTratada = new ArrayList<FaturamentoVO>();
 		Uteis uteis = new Uteis();
@@ -526,27 +489,24 @@ public class VisaoExecutiva_Diaria_BO {
 		String anoAtual = uteis.cortaRetornaAno(ano);
 		String anoAnterior = Integer.toString((Integer.parseInt(anoAtual) - 1));
 
-		List<FaturamentoVO> listaAnoAtual = validaSelecionaTotalFaturamentoAcumulado(
-				tipo + anoAtual, 2, "atual");
-		List<FaturamentoVO> listaAnoAnterior = validaSelecionaTotalFaturamentoAcumulado(
-				tipo + anoAnterior, 2, "anterior");
+		List<FaturamentoVO> listaAnoAtual = validaSelecionaTotalFaturamentoAcumulado(tipo + anoAtual, 2, "atual");
+		List<FaturamentoVO> listaAnoAnterior = validaSelecionaTotalFaturamentoAcumulado(tipo + anoAnterior, 2,
+				"anterior");
 		FaturamentoVO faturamentoVO = new FaturamentoVO();
 		String mesesTotal[] = new String[12];
 
 		faturamentoVO.setProduto("anoAtual/anoAnterior % ");
 
 		for (int i = 0; i < 12; i++) {
-			BigDecimal bigAnoAtual = new BigDecimal(listaAnoAtual.get(1)
-					.getMeses()[i]);
+			BigDecimal bigAnoAtual = new BigDecimal(listaAnoAtual.get(1).getMeses()[i]);
 			double total = 0.0D;
 
 			/*
-			 * total = (Double.parseDouble(listaAnoAtual.get(1).getMeses()[i]) /
-			 * Double .parseDouble(listaAnoAnterior.get(1).getMeses()[i])) - 1;
+			 * total = (Double.parseDouble(listaAnoAtual.get(1).getMeses()[i]) / Double
+			 * .parseDouble(listaAnoAnterior.get(1).getMeses()[i])) - 1;
 			 */
 			try {
-				total = Double.parseDouble((bigAnoAtual.divide(new BigDecimal(
-						listaAnoAnterior.get(1).getMeses()[i]), 4,
+				total = Double.parseDouble((bigAnoAtual.divide(new BigDecimal(listaAnoAnterior.get(1).getMeses()[i]), 4,
 						RoundingMode.HALF_DOWN)).toString()) - 1;
 			} catch (Exception e) {
 				total = 0D;
@@ -576,13 +536,11 @@ public class VisaoExecutiva_Diaria_BO {
 		faturamentoVO.setProduto("atual/anterior % ");
 		for (int i = 0; i < 12; i++) {
 
-			BigDecimal bigAnoAtual = new BigDecimal(listaAnoAtual.get(0)
-					.getMeses()[i]);
+			BigDecimal bigAnoAtual = new BigDecimal(listaAnoAtual.get(0).getMeses()[i]);
 			double total = 0.0D;
 
 			try {
-				total = Double.parseDouble((bigAnoAtual.divide(new BigDecimal(
-						listaAnoAnterior.get(0).getMeses()[i]), 4,
+				total = Double.parseDouble((bigAnoAtual.divide(new BigDecimal(listaAnoAnterior.get(0).getMeses()[i]), 4,
 						RoundingMode.HALF_DOWN)).toString()) - 1;
 			} catch (Exception e) {
 				total = 0D;
@@ -598,9 +556,8 @@ public class VisaoExecutiva_Diaria_BO {
 	/**
 	 * Retorna uma lista contendo os seguintes itens: Qtd. Sinistros Avisados
 	 * AnoParam | Valor Sinistros Avisados AnoParam | Qtd. Sinistros Avisados
-	 * AnoAnterior | Valor Sinistros Avisados Ano Anterior | Variacao Qtd |
-	 * Variacao Valor | Aviso Medio AnoParam | Aviso Medio AnoAnterior |
-	 * Variacao Aviso Medio
+	 * AnoAnterior | Valor Sinistros Avisados Ano Anterior | Variacao Qtd | Variacao
+	 * Valor | Aviso Medio AnoParam | Aviso Medio AnoAnterior | Variacao Aviso Medio
 	 * 
 	 * 
 	 * @return List<FaturamentoVO>
@@ -611,8 +568,7 @@ public class VisaoExecutiva_Diaria_BO {
 		DecimalFormat percentForm = new DecimalFormat("0%");
 
 		Uteis uteis = new Uteis();
-		String anoAnterior = Integer.toString((Integer.parseInt(uteis
-				.cortaRetornaAno(ano)) - 1));
+		String anoAnterior = Integer.toString((Integer.parseInt(uteis.cortaRetornaAno(ano)) - 1));
 
 		List<FaturamentoVO> listaTratada = new ArrayList<FaturamentoVO>();
 
@@ -653,8 +609,7 @@ public class VisaoExecutiva_Diaria_BO {
 		}
 
 		for (int i = 0; i < listaAnoParam.size(); i++) {
-			if (listaAnoParam.get(i).getProduto()
-					.equals(quantidadeTextoBancoDados)) {
+			if (listaAnoParam.get(i).getProduto().equals(quantidadeTextoBancoDados)) {
 
 				FaturamentoVO sinistroVOtratado = new FaturamentoVO();
 				String mesesTratado[] = new String[13];
@@ -666,24 +621,20 @@ public class VisaoExecutiva_Diaria_BO {
 				for (int k = 0; k <= 12; k++) {
 
 					if (k != 12) {
-						somaTotal += Integer.parseInt(listaAnoParam.get(i)
-								.getMeses()[k]);
+						somaTotal += Integer.parseInt(listaAnoParam.get(i).getMeses()[k]);
 
-						mesesTratado[k] = uteis.insereSeparadores(listaAnoParam
-								.get(i).getMeses()[k]);
+						mesesTratado[k] = uteis.insereSeparadores(listaAnoParam.get(i).getMeses()[k]);
 
 					} else { // total
 
-						mesesTratado[k] = uteis.insereSeparadores(String
-								.valueOf(somaTotal));
+						mesesTratado[k] = uteis.insereSeparadores(String.valueOf(somaTotal));
 
 					}
 					sinistroVOtratado.setMeses(mesesTratado);
 				}
 				listaTratada.add(sinistroVOtratado);
 
-			} else if (listaAnoParam.get(i).getProduto()
-					.equals(valorTextoBancoDados)) {
+			} else if (listaAnoParam.get(i).getProduto().equals(valorTextoBancoDados)) {
 
 				FaturamentoVO faturamentoVOtratado = new FaturamentoVO();
 				String mesesTratado[] = new String[13];
@@ -696,12 +647,9 @@ public class VisaoExecutiva_Diaria_BO {
 
 					if (k != 12) {
 
-						somaTotal += Double.parseDouble(listaAnoParam.get(i)
-								.getMeses()[k]);
+						somaTotal += Double.parseDouble(listaAnoParam.get(i).getMeses()[k]);
 
-						String tratada = roundForm
-								.format(Double.parseDouble(listaAnoParam.get(i)
-										.getMeses()[k]));
+						String tratada = roundForm.format(Double.parseDouble(listaAnoParam.get(i).getMeses()[k]));
 
 						mesesTratado[k] = uteis.insereSeparadores(tratada);
 
@@ -718,11 +666,10 @@ public class VisaoExecutiva_Diaria_BO {
 				listaTratada.add(faturamentoVOtratado);
 
 			}
-		}// for anoParam
+		} // for anoParam
 
 		for (int i = 0; i < listaAnoAnterior.size(); i++) {
-			if (listaAnoAnterior.get(i).getProduto()
-					.equals(quantidadeTextoBancoDados)) {
+			if (listaAnoAnterior.get(i).getProduto().equals(quantidadeTextoBancoDados)) {
 
 				FaturamentoVO sinistroVOtratado = new FaturamentoVO();
 				String mesesTratado[] = new String[13];
@@ -735,17 +682,13 @@ public class VisaoExecutiva_Diaria_BO {
 
 					if (k != 12) {
 
-						somaTotal += Integer.parseInt(listaAnoAnterior.get(i)
-								.getMeses()[k]);
+						somaTotal += Integer.parseInt(listaAnoAnterior.get(i).getMeses()[k]);
 
-						mesesTratado[k] = uteis
-								.insereSeparadores(listaAnoAnterior.get(i)
-										.getMeses()[k]);
+						mesesTratado[k] = uteis.insereSeparadores(listaAnoAnterior.get(i).getMeses()[k]);
 
 					} else { // total
 
-						mesesTratado[k] = uteis.insereSeparadores(String
-								.valueOf(somaTotal));
+						mesesTratado[k] = uteis.insereSeparadores(String.valueOf(somaTotal));
 
 					}
 					sinistroVOtratado.setMeses(mesesTratado);
@@ -753,8 +696,7 @@ public class VisaoExecutiva_Diaria_BO {
 				}
 				listaTratada.add(sinistroVOtratado);
 
-			} else if (listaAnoAnterior.get(i).getProduto()
-					.equals(valorTextoBancoDados)) {
+			} else if (listaAnoAnterior.get(i).getProduto().equals(valorTextoBancoDados)) {
 				FaturamentoVO faturamentoVOtratado = new FaturamentoVO();
 				String mesesTratado[] = new String[13];
 
@@ -766,12 +708,9 @@ public class VisaoExecutiva_Diaria_BO {
 
 					if (k != 12) {
 
-						somaTotal += Double.parseDouble(listaAnoAnterior.get(i)
-								.getMeses()[k]);
+						somaTotal += Double.parseDouble(listaAnoAnterior.get(i).getMeses()[k]);
 
-						String tratada = roundForm
-								.format(Double.parseDouble(listaAnoAnterior
-										.get(i).getMeses()[k]));
+						String tratada = roundForm.format(Double.parseDouble(listaAnoAnterior.get(i).getMeses()[k]));
 
 						mesesTratado[k] = uteis.insereSeparadores(tratada);
 
@@ -788,7 +727,7 @@ public class VisaoExecutiva_Diaria_BO {
 				listaTratada.add(faturamentoVOtratado);
 
 			}
-		}// for anoAnterior
+		} // for anoAnterior
 
 		byte qtdAnoParam = 0;
 		byte qtdAnoAnterior = 2;
@@ -805,13 +744,11 @@ public class VisaoExecutiva_Diaria_BO {
 
 		for (int j = 0; j <= 12; j++) {
 			BigDecimal bigQtdAnoParam = new BigDecimal(
-					Double.parseDouble(listaTratada.get(qtdAnoParam).getMeses()[j]
-							.replace(".", "")));
+					Double.parseDouble(listaTratada.get(qtdAnoParam).getMeses()[j].replace(".", "")));
 
 			try {
 				totalQtd = Double.parseDouble((bigQtdAnoParam.divide(
-						new BigDecimal(listaTratada.get(qtdAnoAnterior)
-								.getMeses()[j].replace(".", "")), 4,
+						new BigDecimal(listaTratada.get(qtdAnoAnterior).getMeses()[j].replace(".", "")), 4,
 						RoundingMode.HALF_DOWN)).toString()) - 1;
 			} catch (Exception e) {
 				totalQtd = 0D;
@@ -834,14 +771,13 @@ public class VisaoExecutiva_Diaria_BO {
 		for (int j = 0; j <= 12; j++) {
 
 			BigDecimal bigVlrAnoParam = new BigDecimal(
-					Double.parseDouble(listaTratada.get(vlrAnoParam).getMeses()[j]
-							.replace(".", "").replace(",", ".")));
+					Double.parseDouble(listaTratada.get(vlrAnoParam).getMeses()[j].replace(".", "").replace(",", ".")));
 
 			try {
 				totalVlr = Double.parseDouble((bigVlrAnoParam.divide(
-						new BigDecimal(listaTratada.get(vlrAnoAnterior)
-								.getMeses()[j].replace(".", "").replace(",",
-								".")), 4, RoundingMode.HALF_DOWN)).toString()) - 1;
+						new BigDecimal(
+								listaTratada.get(vlrAnoAnterior).getMeses()[j].replace(".", "").replace(",", ".")),
+						4, RoundingMode.HALF_DOWN)).toString()) - 1;
 			} catch (Exception e) {
 				totalVlr = 0D;
 			}
@@ -863,20 +799,16 @@ public class VisaoExecutiva_Diaria_BO {
 		for (int j = 0; j <= 12; j++) {
 
 			BigDecimal bigVlrAnoParam = new BigDecimal(
-					Double.parseDouble(listaTratada.get(vlrAnoParam).getMeses()[j]
-							.replace(".", "").replace(",", ".")));
+					Double.parseDouble(listaTratada.get(vlrAnoParam).getMeses()[j].replace(".", "").replace(",", ".")));
 
 			try {
-				totalAvisoMedioAnoParam = Double.parseDouble((bigVlrAnoParam
-						.divide(new BigDecimal(listaTratada.get(qtdAnoParam)
-								.getMeses()[j].replace(".", "").replace(",",
-								".")), 2, RoundingMode.HALF_DOWN)).toString());
+				totalAvisoMedioAnoParam = Double.parseDouble((bigVlrAnoParam.divide(
+						new BigDecimal(listaTratada.get(qtdAnoParam).getMeses()[j].replace(".", "").replace(",", ".")),
+						2, RoundingMode.HALF_DOWN)).toString());
 			} catch (Exception e) {
 				totalAvisoMedioAnoParam = 0D;
 			}
-			mesesAvisoMedioAnoParamTratado[j] = uteis
-					.insereSeparadoresMoeda(roundForm
-							.format(totalAvisoMedioAnoParam));
+			mesesAvisoMedioAnoParamTratado[j] = uteis.insereSeparadoresMoeda(roundForm.format(totalAvisoMedioAnoParam));
 
 		}
 		variacaoAvisoMedioAnoParamVO.setAno(uteis.cortaRetornaAno(ano));
@@ -893,28 +825,23 @@ public class VisaoExecutiva_Diaria_BO {
 
 		for (int j = 0; j <= 12; j++) {
 
-			BigDecimal bigVlrAnoAnterior = new BigDecimal(
-					Double.parseDouble(listaTratada.get(vlrAnoAnterior)
-							.getMeses()[j].replace(".", "").replace(",", ".")));
+			BigDecimal bigVlrAnoAnterior = new BigDecimal(Double
+					.parseDouble(listaTratada.get(vlrAnoAnterior).getMeses()[j].replace(".", "").replace(",", ".")));
 
 			try {
-				totalAvisoMedioAnoAnterior = Double
-						.parseDouble((bigVlrAnoAnterior.divide(
-								new BigDecimal(listaTratada.get(qtdAnoAnterior)
-										.getMeses()[j].replace(".", "")), 2,
-								RoundingMode.HALF_DOWN)).toString());
+				totalAvisoMedioAnoAnterior = Double.parseDouble((bigVlrAnoAnterior.divide(
+						new BigDecimal(listaTratada.get(qtdAnoAnterior).getMeses()[j].replace(".", "")), 2,
+						RoundingMode.HALF_DOWN)).toString());
 			} catch (Exception e) {
 				totalAvisoMedioAnoAnterior = 0D;
 			}
 			mesesAvisoMedioAnoAnteriorTratado[j] = uteis
-					.insereSeparadoresMoeda(roundForm
-							.format(totalAvisoMedioAnoAnterior));
+					.insereSeparadoresMoeda(roundForm.format(totalAvisoMedioAnoAnterior));
 
 		}
 		variacaoAvisoMedioAnoAnteriorVO.setAno(anoAnterior);
 		variacaoAvisoMedioAnoAnteriorVO.setProduto("Aviso M&eacute;dio");
-		variacaoAvisoMedioAnoAnteriorVO
-				.setMeses(mesesAvisoMedioAnoAnteriorTratado);
+		variacaoAvisoMedioAnoAnteriorVO.setMeses(mesesAvisoMedioAnoAnteriorTratado);
 		listaTratada.add(variacaoAvisoMedioAnoAnteriorVO);
 
 		// *******************************************
@@ -929,15 +856,15 @@ public class VisaoExecutiva_Diaria_BO {
 
 		for (int j = 0; j <= 12; j++) {
 
-			BigDecimal big_AM_AnoParam = new BigDecimal(
-					Double.parseDouble(listaTratada.get(avisoMedioAnoParam)
-							.getMeses()[j].replace(".", "").replace(",", ".")));
+			BigDecimal big_AM_AnoParam = new BigDecimal(Double.parseDouble(
+					listaTratada.get(avisoMedioAnoParam).getMeses()[j].replace(".", "").replace(",", ".")));
 
 			try {
-				total_AM = Double.parseDouble((big_AM_AnoParam.divide(
-						new BigDecimal(listaTratada.get(avisoMedioAnoAnterior)
-								.getMeses()[j].replace(".", "").replace(",",
-								".")), 4, RoundingMode.HALF_DOWN)).toString()) - 1;
+				total_AM = Double
+						.parseDouble((big_AM_AnoParam
+								.divide(new BigDecimal(listaTratada.get(avisoMedioAnoAnterior).getMeses()[j]
+										.replace(".", "").replace(",", ".")), 4, RoundingMode.HALF_DOWN)).toString())
+						- 1;
 			} catch (Exception e) {
 				total_AM = 0D;
 			}
@@ -953,16 +880,15 @@ public class VisaoExecutiva_Diaria_BO {
 	}// fim validaSelecionaSinistrosAvisados
 
 	/**
-	 * Retorna uma lista contendo as colunas: GRUPO(nome do produto);
-	 * FAIXA(faixa Tempo ou Valor); QTD Administrativo;Porcentagem QTD Admin;
-	 * Valor Administrativo; Porcentagem Valor Admin; QTD Judicial;Porcentagem
-	 * QTD Judic; Valor Judicial; Porcentagem Valor Judici; QTD
-	 * Total;Porcentagem QTD Total; Valor Total; Porcentagem Valor Total;
+	 * Retorna uma lista contendo as colunas: GRUPO(nome do produto); FAIXA(faixa
+	 * Tempo ou Valor); QTD Administrativo;Porcentagem QTD Admin; Valor
+	 * Administrativo; Porcentagem Valor Admin; QTD Judicial;Porcentagem QTD Judic;
+	 * Valor Judicial; Porcentagem Valor Judici; QTD Total;Porcentagem QTD Total;
+	 * Valor Total; Porcentagem Valor Total;
 	 * 
 	 * @return List<FaturamentoVO>
 	 */
-	public List<SinistroPendente_FaixaVO> validaSelecionaSinistroPendente_Faixa(
-			int tipo) {
+	public List<SinistroPendente_FaixaVO> validaSelecionaSinistroPendente_Faixa(int tipo) {
 
 		DecimalFormat percentForm = new DecimalFormat("0.00%");
 		DecimalFormat roundForm = new DecimalFormat("0.00");
@@ -984,8 +910,7 @@ public class VisaoExecutiva_Diaria_BO {
 		int totalNumSinistrosPendentes_Judicial = 0;
 		int totalNumSinistrosPendentes_Total = 0;
 
-		BigDecimal totalValorSinistrosPendentes_Administrativo = new BigDecimal(
-				"0");
+		BigDecimal totalValorSinistrosPendentes_Administrativo = new BigDecimal("0");
 		BigDecimal totalValorSinistrosPendentes_Judicial = new BigDecimal("0");
 		BigDecimal totalValorSinistrosPendentes_Total = new BigDecimal("0");
 
@@ -1004,57 +929,43 @@ public class VisaoExecutiva_Diaria_BO {
 
 				textoGrupoAnterior = listaSinistroPendente.get(i).getGrupo();
 
-				totalNumSinistrosPendentes_Administrativo += listaSinistroPendente
-						.get(i).getNumSinistrosPendentes_Administrativo();
-				totalNumSinistrosPendentes_Judicial += listaSinistroPendente
-						.get(i).getNumSinistrosPendentes_Judicial();
-				totalNumSinistrosPendentes_Total += listaSinistroPendente
-						.get(i).getNumSinistrosPendentes_Total();
+				totalNumSinistrosPendentes_Administrativo += listaSinistroPendente.get(i)
+						.getNumSinistrosPendentes_Administrativo();
+				totalNumSinistrosPendentes_Judicial += listaSinistroPendente.get(i).getNumSinistrosPendentes_Judicial();
+				totalNumSinistrosPendentes_Total += listaSinistroPendente.get(i).getNumSinistrosPendentes_Total();
 
 				totalValorSinistrosPendentes_Administrativo = totalValorSinistrosPendentes_Administrativo
-						.add(new BigDecimal(listaSinistroPendente.get(i)
-								.getValorSinistrosPendentes_Administrativo()));
+						.add(new BigDecimal(listaSinistroPendente.get(i).getValorSinistrosPendentes_Administrativo()));
 				totalValorSinistrosPendentes_Judicial = totalValorSinistrosPendentes_Judicial
-						.add(new BigDecimal(listaSinistroPendente.get(i)
-								.getValorSinistrosPendentes_Judicial()));
+						.add(new BigDecimal(listaSinistroPendente.get(i).getValorSinistrosPendentes_Judicial()));
 				totalValorSinistrosPendentes_Total = totalValorSinistrosPendentes_Total
-						.add(new BigDecimal(listaSinistroPendente.get(i)
-								.getValorSinistrosPendentes_Total()));
+						.add(new BigDecimal(listaSinistroPendente.get(i).getValorSinistrosPendentes_Total()));
 
-			} else if (listaSinistroPendente.get(i).getGrupo()
-					.equals(textoGrupoAnterior)) {
+			} else if (listaSinistroPendente.get(i).getGrupo().equals(textoGrupoAnterior)) {
 
 				textoGrupoAnterior = listaSinistroPendente.get(i).getGrupo();
 
-				totalNumSinistrosPendentes_Administrativo += listaSinistroPendente
-						.get(i).getNumSinistrosPendentes_Administrativo();
-				totalNumSinistrosPendentes_Judicial += listaSinistroPendente
-						.get(i).getNumSinistrosPendentes_Judicial();
-				totalNumSinistrosPendentes_Total += listaSinistroPendente
-						.get(i).getNumSinistrosPendentes_Total();
+				totalNumSinistrosPendentes_Administrativo += listaSinistroPendente.get(i)
+						.getNumSinistrosPendentes_Administrativo();
+				totalNumSinistrosPendentes_Judicial += listaSinistroPendente.get(i).getNumSinistrosPendentes_Judicial();
+				totalNumSinistrosPendentes_Total += listaSinistroPendente.get(i).getNumSinistrosPendentes_Total();
 
 				totalValorSinistrosPendentes_Administrativo = totalValorSinistrosPendentes_Administrativo
-						.add(new BigDecimal(listaSinistroPendente.get(i)
-								.getValorSinistrosPendentes_Administrativo()));
+						.add(new BigDecimal(listaSinistroPendente.get(i).getValorSinistrosPendentes_Administrativo()));
 				totalValorSinistrosPendentes_Judicial = totalValorSinistrosPendentes_Judicial
-						.add(new BigDecimal(listaSinistroPendente.get(i)
-								.getValorSinistrosPendentes_Judicial()));
+						.add(new BigDecimal(listaSinistroPendente.get(i).getValorSinistrosPendentes_Judicial()));
 				totalValorSinistrosPendentes_Total = totalValorSinistrosPendentes_Total
-						.add(new BigDecimal(listaSinistroPendente.get(i)
-								.getValorSinistrosPendentes_Total()));
+						.add(new BigDecimal(listaSinistroPendente.get(i).getValorSinistrosPendentes_Total()));
 
-			} else if (!(listaSinistroPendente.get(i).getGrupo()
-					.equals(textoGrupoAnterior))) {
+			} else if (!(listaSinistroPendente.get(i).getGrupo().equals(textoGrupoAnterior))) {
 
 				SinistroPendente_FaixaVO totalVO = new SinistroPendente_FaixaVO();
 				totalVO.setGrupo(textoGrupoAnterior);
 				totalVO.setFaixa("Total");
-				totalVO.setValorSinistrosPendentes_Administrativo(totalValorSinistrosPendentes_Administrativo
-						.toString());
-				totalVO.setValorSinistrosPendentes_Judicial(totalValorSinistrosPendentes_Judicial
-						.toString());
-				totalVO.setValorSinistrosPendentes_Total(totalValorSinistrosPendentes_Total
-						.toString());
+				totalVO.setValorSinistrosPendentes_Administrativo(
+						totalValorSinistrosPendentes_Administrativo.toString());
+				totalVO.setValorSinistrosPendentes_Judicial(totalValorSinistrosPendentes_Judicial.toString());
+				totalVO.setValorSinistrosPendentes_Total(totalValorSinistrosPendentes_Total.toString());
 				totalVO.setNumSinistrosPendentes_Administrativo(totalNumSinistrosPendentes_Administrativo);
 				totalVO.setNumSinistrosPendentes_Judicial(totalNumSinistrosPendentes_Judicial);
 				totalVO.setNumSinistrosPendentes_Total(totalNumSinistrosPendentes_Total);
@@ -1062,41 +973,34 @@ public class VisaoExecutiva_Diaria_BO {
 
 				textoGrupoAnterior = listaSinistroPendente.get(i).getGrupo();
 
-				totalValorSinistrosPendentes_Administrativo = new BigDecimal(
-						"0");
+				totalValorSinistrosPendentes_Administrativo = new BigDecimal("0");
 				totalValorSinistrosPendentes_Administrativo = totalValorSinistrosPendentes_Administrativo
-						.add(new BigDecimal(listaSinistroPendente.get(i)
-								.getValorSinistrosPendentes_Administrativo()));
+						.add(new BigDecimal(listaSinistroPendente.get(i).getValorSinistrosPendentes_Administrativo()));
 
 				totalValorSinistrosPendentes_Judicial = new BigDecimal("0");
 				totalValorSinistrosPendentes_Judicial = totalValorSinistrosPendentes_Judicial
-						.add(new BigDecimal(listaSinistroPendente.get(i)
-								.getValorSinistrosPendentes_Judicial()));
+						.add(new BigDecimal(listaSinistroPendente.get(i).getValorSinistrosPendentes_Judicial()));
 
 				totalValorSinistrosPendentes_Total = new BigDecimal("0");
 				totalValorSinistrosPendentes_Total = totalValorSinistrosPendentes_Total
-						.add(new BigDecimal(listaSinistroPendente.get(i)
-								.getValorSinistrosPendentes_Total()));
+						.add(new BigDecimal(listaSinistroPendente.get(i).getValorSinistrosPendentes_Total()));
 
 				totalNumSinistrosPendentes_Administrativo = 0;
-				totalNumSinistrosPendentes_Administrativo += listaSinistroPendente
-						.get(i).getNumSinistrosPendentes_Administrativo();
+				totalNumSinistrosPendentes_Administrativo += listaSinistroPendente.get(i)
+						.getNumSinistrosPendentes_Administrativo();
 
 				totalNumSinistrosPendentes_Judicial = 0;
-				totalNumSinistrosPendentes_Judicial += listaSinistroPendente
-						.get(i).getNumSinistrosPendentes_Judicial();
+				totalNumSinistrosPendentes_Judicial += listaSinistroPendente.get(i).getNumSinistrosPendentes_Judicial();
 
 				totalNumSinistrosPendentes_Total = 0;
-				totalNumSinistrosPendentes_Total += listaSinistroPendente
-						.get(i).getNumSinistrosPendentes_Total();
+				totalNumSinistrosPendentes_Total += listaSinistroPendente.get(i).getNumSinistrosPendentes_Total();
 
 			}
 
 		}
 		boolean insere = false;
 		for (int i = 0; i < listaTratadaTotais.size(); i++) {
-			if (listaTratadaTotais.get(i).getGrupo()
-					.equalsIgnoreCase(textoGrupoAnterior)) {
+			if (listaTratadaTotais.get(i).getGrupo().equalsIgnoreCase(textoGrupoAnterior)) {
 				insere = false;
 				break;
 			} else {
@@ -1107,12 +1011,9 @@ public class VisaoExecutiva_Diaria_BO {
 			SinistroPendente_FaixaVO totaVO = new SinistroPendente_FaixaVO();
 			totaVO.setGrupo(textoGrupoAnterior);
 			totaVO.setFaixa("Total");
-			totaVO.setValorSinistrosPendentes_Administrativo(totalValorSinistrosPendentes_Administrativo
-					.toString());
-			totaVO.setValorSinistrosPendentes_Judicial(totalValorSinistrosPendentes_Judicial
-					.toString());
-			totaVO.setValorSinistrosPendentes_Total(totalValorSinistrosPendentes_Total
-					.toString());
+			totaVO.setValorSinistrosPendentes_Administrativo(totalValorSinistrosPendentes_Administrativo.toString());
+			totaVO.setValorSinistrosPendentes_Judicial(totalValorSinistrosPendentes_Judicial.toString());
+			totaVO.setValorSinistrosPendentes_Total(totalValorSinistrosPendentes_Total.toString());
 
 			totaVO.setNumSinistrosPendentes_Administrativo(totalNumSinistrosPendentes_Administrativo);
 			totaVO.setNumSinistrosPendentes_Judicial(totalNumSinistrosPendentes_Judicial);
@@ -1133,8 +1034,7 @@ public class VisaoExecutiva_Diaria_BO {
 		int tamLista = listaSinistroPendente.size();
 		for (int i = 0; i < tamLista; i++) {
 			for (int j = 0; j < listaTratadaTotais.size(); j++) {
-				if (listaSinistroPendente.get(i).getGrupo()
-						.equalsIgnoreCase(listaTratadaTotais.get(j).getGrupo())) {
+				if (listaSinistroPendente.get(i).getGrupo().equalsIgnoreCase(listaTratadaTotais.get(j).getGrupo())) {
 					// Exemplo: Na listaSinistroPendente na posicao i=5 o
 					// produto eh "Auto Correntista". Na listaTratadaTotais
 					// esse produto "Auto Correntista" eh j=1. Entao assim
@@ -1156,10 +1056,8 @@ public class VisaoExecutiva_Diaria_BO {
 				inseriu = 0;
 			}
 			if (inseriu == 0) {
-				listaFinal.add(listaTratadaTotais.get(listaSinistroPendente
-						.get(j).getIndiceListaTotais()));
-				ultimoIndice = listaSinistroPendente.get(j)
-						.getIndiceListaTotais();
+				listaFinal.add(listaTratadaTotais.get(listaSinistroPendente.get(j).getIndiceListaTotais()));
+				ultimoIndice = listaSinistroPendente.get(j).getIndiceListaTotais();
 				inseriu = 1;
 			}
 
@@ -1172,123 +1070,63 @@ public class VisaoExecutiva_Diaria_BO {
 
 				int indice = listaFinal.get(i).getIndiceListaTotais();
 				try {
-					listaFinal
-							.get(i)
-							.setNumPercentSinistrosPendentes_Administrativo(
-									percentForm.format((double) (listaFinal
-											.get(i)
-											.getNumSinistrosPendentes_Administrativo())
-											/ (listaTratadaTotais.get(indice)
-													.getNumSinistrosPendentes_Administrativo())));
-					listaFinal
-							.get(i)
-							.setValorPercentSinistrosPendentes_Administrativo(
-									percentForm
-											.format(new BigDecimal(
-													listaFinal
-															.get(i)
-															.getValorSinistrosPendentes_Administrativo())
-													.divide(new BigDecimal(
-															listaTratadaTotais
-																	.get(indice)
-																	.getValorSinistrosPendentes_Administrativo()),
-															6,
-															RoundingMode.HALF_DOWN)));
+					listaFinal.get(i).setNumPercentSinistrosPendentes_Administrativo(
+							percentForm.format((double) (listaFinal.get(i).getNumSinistrosPendentes_Administrativo())
+									/ (listaTratadaTotais.get(indice).getNumSinistrosPendentes_Administrativo())));
+					listaFinal.get(i).setValorPercentSinistrosPendentes_Administrativo(percentForm.format(
+							new BigDecimal(listaFinal.get(i).getValorSinistrosPendentes_Administrativo()).divide(
+									new BigDecimal(
+											listaTratadaTotais.get(indice).getValorSinistrosPendentes_Administrativo()),
+									6, RoundingMode.HALF_DOWN)));
 
 				} catch (ArithmeticException ae) {
-					listaFinal.get(i)
-							.setNumPercentSinistrosPendentes_Administrativo(
-									"0%");
-					listaFinal.get(i)
-							.setValorPercentSinistrosPendentes_Administrativo(
-									"0%");
+					listaFinal.get(i).setNumPercentSinistrosPendentes_Administrativo("0%");
+					listaFinal.get(i).setValorPercentSinistrosPendentes_Administrativo("0%");
 
 				}
 
 				try {
-					listaFinal
-							.get(i)
-							.setNumPercentSinistrosPendentes_Judicial(
-									percentForm.format((double) (listaFinal
-											.get(i)
-											.getNumSinistrosPendentes_Judicial())
-											/ (listaTratadaTotais.get(indice)
-													.getNumSinistrosPendentes_Judicial())));
-
-					listaFinal
-							.get(i)
-							.setValorPercentSinistrosPendentes_Judicial(
-									percentForm
-											.format(new BigDecimal(
-													listaFinal
-															.get(i)
-															.getValorSinistrosPendentes_Judicial())
-													.divide(new BigDecimal(
-															listaTratadaTotais
-																	.get(indice)
-																	.getValorSinistrosPendentes_Judicial()),
-															6,
-															RoundingMode.HALF_DOWN)));
-
-				} catch (ArithmeticException ae) {
 					listaFinal.get(i).setNumPercentSinistrosPendentes_Judicial(
-							"0%");
-					listaFinal.get(i)
-							.setValorPercentSinistrosPendentes_Judicial("0%");
+							percentForm.format((double) (listaFinal.get(i).getNumSinistrosPendentes_Judicial())
+									/ (listaTratadaTotais.get(indice).getNumSinistrosPendentes_Judicial())));
+
+					listaFinal.get(i).setValorPercentSinistrosPendentes_Judicial(percentForm
+							.format(new BigDecimal(listaFinal.get(i).getValorSinistrosPendentes_Judicial()).divide(
+									new BigDecimal(
+											listaTratadaTotais.get(indice).getValorSinistrosPendentes_Judicial()),
+									6, RoundingMode.HALF_DOWN)));
+
+				} catch (ArithmeticException ae) {
+					listaFinal.get(i).setNumPercentSinistrosPendentes_Judicial("0%");
+					listaFinal.get(i).setValorPercentSinistrosPendentes_Judicial("0%");
 				}
 
 				try {
-					listaFinal
-							.get(i)
-							.setNumPercentSinistrosPendentes_Total(
-									percentForm.format((double) (listaFinal
-											.get(i)
-											.getNumSinistrosPendentes_Total())
-											/ (listaTratadaTotais.get(indice)
-													.getNumSinistrosPendentes_Total())));
+					listaFinal.get(i).setNumPercentSinistrosPendentes_Total(
+							percentForm.format((double) (listaFinal.get(i).getNumSinistrosPendentes_Total())
+									/ (listaTratadaTotais.get(indice).getNumSinistrosPendentes_Total())));
 
-					listaFinal
-							.get(i)
-							.setValorPercentSinistrosPendentes_Total(
-									percentForm
-											.format(new BigDecimal(
-													listaFinal
-															.get(i)
-															.getValorSinistrosPendentes_Total())
-													.divide(new BigDecimal(
-															listaTratadaTotais
-																	.get(indice)
-																	.getValorSinistrosPendentes_Total()),
-															6,
-															RoundingMode.HALF_DOWN)));
+					listaFinal.get(i).setValorPercentSinistrosPendentes_Total(percentForm
+							.format(new BigDecimal(listaFinal.get(i).getValorSinistrosPendentes_Total()).divide(
+									new BigDecimal(listaTratadaTotais.get(indice).getValorSinistrosPendentes_Total()),
+									6, RoundingMode.HALF_DOWN)));
 
 				} catch (ArithmeticException ae) {
-					listaFinal.get(i).setNumPercentSinistrosPendentes_Total(
-							"0%");
-					listaFinal.get(i).setValorPercentSinistrosPendentes_Total(
-							"0%");
+					listaFinal.get(i).setNumPercentSinistrosPendentes_Total("0%");
+					listaFinal.get(i).setValorPercentSinistrosPendentes_Total("0%");
 				}
 
-			}// if
-		}// for
+			} // if
+		} // for
 
 		for (int i = 0; i < listaFinal.size(); i++) {
 
-			listaFinal
-					.get(i)
-					.setValorSinistrosPendentes_Administrativo(
-							uteis.insereSeparadoresMoeda(roundForm.format(Double
-									.parseDouble(listaFinal
-											.get(i)
-											.getValorSinistrosPendentes_Administrativo()))));
-			listaFinal.get(i).setValorSinistrosPendentes_Judicial(
-					uteis.insereSeparadoresMoeda(roundForm.format(Double
-							.parseDouble(listaFinal.get(i)
-									.getValorSinistrosPendentes_Judicial()))));
-			listaFinal.get(i).setValorSinistrosPendentes_Total(
-					uteis.insereSeparadoresMoeda(roundForm.format(Double
-							.parseDouble(listaFinal.get(i)
-									.getValorSinistrosPendentes_Total()))));
+			listaFinal.get(i).setValorSinistrosPendentes_Administrativo(uteis.insereSeparadoresMoeda(roundForm
+					.format(Double.parseDouble(listaFinal.get(i).getValorSinistrosPendentes_Administrativo()))));
+			listaFinal.get(i).setValorSinistrosPendentes_Judicial(uteis.insereSeparadoresMoeda(
+					roundForm.format(Double.parseDouble(listaFinal.get(i).getValorSinistrosPendentes_Judicial()))));
+			listaFinal.get(i).setValorSinistrosPendentes_Total(uteis.insereSeparadoresMoeda(
+					roundForm.format(Double.parseDouble(listaFinal.get(i).getValorSinistrosPendentes_Total()))));
 
 		}
 
@@ -1300,12 +1138,10 @@ public class VisaoExecutiva_Diaria_BO {
 	 * 
 	 * @return List<SinistroPendente_base_FaixaVO>
 	 */
-	public void validaSeleciona_Base_SinistroPendente_Faixa(String ano,
-			HttpServletResponse response) {
+	public void validaSeleciona_Base_SinistroPendente_Faixa(String ano, HttpServletResponse response) {
 
 		VisaoExecutiva_Diaria_DAO dao = new VisaoExecutiva_Diaria_DAO();
-		List<SinistroPendente_base_FaixaVO> lista = dao
-				.seleciona_Base_SinistroPendente_Faixa(ano);
+		List<SinistroPendente_base_FaixaVO> lista = dao.seleciona_Base_SinistroPendente_Faixa(ano);
 		try {
 			// Write the header line
 			OutputStream out = response.getOutputStream();
@@ -1314,35 +1150,19 @@ public class VisaoExecutiva_Diaria_BO {
 			// Write the content
 			for (int i = 0; i < lista.size(); i++) {
 
-				String line = new String(lista.get(i).getLEGADO() + ";"
-						+ lista.get(i).getANOMES_REF() + ";"
-						+ lista.get(i).getORG() + ";"
-						+ lista.get(i).getMOVIMENTO() + ";"
-						+ lista.get(i).getRAMO() + ";" + lista.get(i).getPROD()
-						+ ";" + lista.get(i).getDIA() + ";"
-						+ lista.get(i).getSINISTRO() + ";"
-						+ lista.get(i).getAPOLICE() + ";"
-						+ lista.get(i).getCOMUNICADO() + ";"
-						+ lista.get(i).getOCORRENCIA() + ";"
-						+ lista.get(i).getFAVORECIDO() + ";"
-						+ lista.get(i).getVL_LIDER() + ";"
-						+ lista.get(i).getVL_COSSEGURO() + ";"
-						+ lista.get(i).getVL_RESSEGURO() + ";"
-						+ lista.get(i).getVL_TOTAL() + ";"
-						+ lista.get(i).getCOD_OPERACAO() + ";"
-						+ lista.get(i).getOPERACAO() + ";"
-						+ lista.get(i).getFTE_PREM() + ";"
-						+ lista.get(i).getFTE_AVIS() + ";"
-						+ lista.get(i).getAVISO() + ";"
-						+ lista.get(i).getSEGURADO() + ";"
-						+ lista.get(i).getCAUSA() + ";"
-						+ lista.get(i).getGRUPO_CAUSA() + ";"
-						+ lista.get(i).getGRUPO() + ";"
-						+ lista.get(i).getTIPO() + ";"
-						+ lista.get(i).getFAIXA_DE_VALOR() + ";"
-						+ lista.get(i).getData_aviso() + ";"
-						+ lista.get(i).getHoje() + ";"
-						+ lista.get(i).getTEMPO_PENDENTE() + ";"
+				String line = new String(lista.get(i).getLEGADO() + ";" + lista.get(i).getANOMES_REF() + ";"
+						+ lista.get(i).getORG() + ";" + lista.get(i).getMOVIMENTO() + ";" + lista.get(i).getRAMO() + ";"
+						+ lista.get(i).getPROD() + ";" + lista.get(i).getDIA() + ";" + lista.get(i).getSINISTRO() + ";"
+						+ lista.get(i).getAPOLICE() + ";" + lista.get(i).getCOMUNICADO() + ";"
+						+ lista.get(i).getOCORRENCIA() + ";" + lista.get(i).getFAVORECIDO() + ";"
+						+ lista.get(i).getVL_LIDER() + ";" + lista.get(i).getVL_COSSEGURO() + ";"
+						+ lista.get(i).getVL_RESSEGURO() + ";" + lista.get(i).getVL_TOTAL() + ";"
+						+ lista.get(i).getCOD_OPERACAO() + ";" + lista.get(i).getOPERACAO() + ";"
+						+ lista.get(i).getFTE_PREM() + ";" + lista.get(i).getFTE_AVIS() + ";" + lista.get(i).getAVISO()
+						+ ";" + lista.get(i).getSEGURADO() + ";" + lista.get(i).getCAUSA() + ";"
+						+ lista.get(i).getGRUPO_CAUSA() + ";" + lista.get(i).getGRUPO() + ";" + lista.get(i).getTIPO()
+						+ ";" + lista.get(i).getFAIXA_DE_VALOR() + ";" + lista.get(i).getData_aviso() + ";"
+						+ lista.get(i).getHoje() + ";" + lista.get(i).getTEMPO_PENDENTE() + ";"
 						+ lista.get(i).getFAIXA_TEMPO_PENDENTE() + ";\n");
 				out.write(line.toString().getBytes());
 
@@ -1361,12 +1181,12 @@ public class VisaoExecutiva_Diaria_BO {
 	 * 
 	 * @return List<SinistroPendente_base_FaixaVO>
 	 */
-	public void validaSeleciona_Base_faturamentoRO(String ano,
-			HttpServletResponse response, String params) {
+	public void validaSeleciona_Base_faturamentoRO(String ano, HttpServletResponse response, String params) {
 
 		String[] cortado = params.split("_");
 		response.setContentType("text/csv");
-		response.setHeader("Content-Disposition","attachment; filename=baseAnalitica_RO_" + cortado[0] + "-"+ cortado[1] + "-" + cortado[2] + "_" + cortado[3]+ ".csv");
+		response.setHeader("Content-Disposition", "attachment; filename=baseAnalitica_RO_" + cortado[0] + "-"
+				+ cortado[1] + "-" + cortado[2] + "_" + cortado[3] + ".csv");
 
 		VisaoExecutiva_Diaria_DAO dao = new VisaoExecutiva_Diaria_DAO();
 
@@ -1380,45 +1200,25 @@ public class VisaoExecutiva_Diaria_BO {
 			// Write the content
 			for (int i = 0; i < lista.size(); i++) {
 
-				String line = new String(lista.get(i).getLEGADO() + ";"
-						+ lista.get(i).getANOMES_REF() + ";"
-						+ lista.get(i).getORG() + ";" + lista.get(i).getRAMO()
-						+ ";" + lista.get(i).getPROD() + ";"
-						+ lista.get(i).getMOVIMENTO() + ";"
-						+ lista.get(i).getCANAL_VENDA() + ";"
-						+ lista.get(i).getUF() + ";" + lista.get(i).getDIA()
-						+ ";" + lista.get(i).getFONTE() + ";"
-						+ lista.get(i).getPONTO_VENDA() + ";"
-						+ lista.get(i).getAPOLICE() + ";"
-						+ lista.get(i).getENDOSSO() + ";"
-						+ lista.get(i).getENDS_CANC() + ";"
-						+ lista.get(i).getDT_EMISSAO() + ";"
-						+ lista.get(i).getINIC_VIG() + ";"
-						+ lista.get(i).getTERM_VIG() + ";"
-						+ lista.get(i).getCPF_CNPJ() + ";"
-						+ lista.get(i).getSEGURADO() + ";"
-						+ lista.get(i).getIMP_SEG() + ";"
-						+ lista.get(i).getIS_COS() + ";"
-						+ lista.get(i).getIS_RES() + ";"
-						+ lista.get(i).getPREM_TARIFARIO() + ";"
-						+ lista.get(i).getPREM_TARIFARIO_COS() + ";"
-						+ lista.get(i).getPREM_TARIFARIO_RES() + ";"
-						+ lista.get(i).getDESCONTO() + ";"
-						+ lista.get(i).getDESCONTO_COS() + ";"
-						+ lista.get(i).getDESCONTO_RES() + ";"
-						+ lista.get(i).getPREM_LIQUIDO() + ";"
-						+ lista.get(i).getPREM_LIQUIDO_COS() + ";"
-						+ lista.get(i).getPREM_LIQUIDO_RES() + ";"
-						+ lista.get(i).getADICIONAL() + ";"
-						+ lista.get(i).getADICIONAL_COS() + ";"
-						+ lista.get(i).getADICIONAL_RES() + ";"
-						+ lista.get(i).getCUSTO() + ";" + lista.get(i).getIOF()
-						+ ";" + lista.get(i).getLIDER_COMISSAO() + ";"
-						+ lista.get(i).getVLR_COMISS_COSSG() + ";"
-						+ lista.get(i).getVLR_COMISS_RESSG() + ";"
-						+ lista.get(i).getPREM_TOT() + ";"
-						+ lista.get(i).getCOSS_PREMIO_TOTAL() + ";"
-						+ lista.get(i).getRESS_PREMIO_TOTAL() + ";\n");
+				String line = new String(lista.get(i).getLEGADO() + ";" + lista.get(i).getANOMES_REF() + ";"
+						+ lista.get(i).getORG() + ";" + lista.get(i).getRAMO() + ";" + lista.get(i).getPROD() + ";"
+						+ lista.get(i).getMOVIMENTO() + ";" + lista.get(i).getCANAL_VENDA() + ";" + lista.get(i).getUF()
+						+ ";" + lista.get(i).getDIA() + ";" + lista.get(i).getFONTE() + ";"
+						+ lista.get(i).getPONTO_VENDA() + ";" + lista.get(i).getAPOLICE() + ";"
+						+ lista.get(i).getENDOSSO() + ";" + lista.get(i).getENDS_CANC() + ";"
+						+ lista.get(i).getDT_EMISSAO() + ";" + lista.get(i).getINIC_VIG() + ";"
+						+ lista.get(i).getTERM_VIG() + ";" + lista.get(i).getCPF_CNPJ() + ";"
+						+ lista.get(i).getSEGURADO() + ";" + lista.get(i).getIMP_SEG() + ";" + lista.get(i).getIS_COS()
+						+ ";" + lista.get(i).getIS_RES() + ";" + lista.get(i).getPREM_TARIFARIO() + ";"
+						+ lista.get(i).getPREM_TARIFARIO_COS() + ";" + lista.get(i).getPREM_TARIFARIO_RES() + ";"
+						+ lista.get(i).getDESCONTO() + ";" + lista.get(i).getDESCONTO_COS() + ";"
+						+ lista.get(i).getDESCONTO_RES() + ";" + lista.get(i).getPREM_LIQUIDO() + ";"
+						+ lista.get(i).getPREM_LIQUIDO_COS() + ";" + lista.get(i).getPREM_LIQUIDO_RES() + ";"
+						+ lista.get(i).getADICIONAL() + ";" + lista.get(i).getADICIONAL_COS() + ";"
+						+ lista.get(i).getADICIONAL_RES() + ";" + lista.get(i).getCUSTO() + ";" + lista.get(i).getIOF()
+						+ ";" + lista.get(i).getLIDER_COMISSAO() + ";" + lista.get(i).getVLR_COMISS_COSSG() + ";"
+						+ lista.get(i).getVLR_COMISS_RESSG() + ";" + lista.get(i).getPREM_TOT() + ";"
+						+ lista.get(i).getCOSS_PREMIO_TOTAL() + ";" + lista.get(i).getRESS_PREMIO_TOTAL() + ";\n");
 				out.write(line.getBytes());
 			}
 			out.flush();
@@ -1434,13 +1234,11 @@ public class VisaoExecutiva_Diaria_BO {
 	 * 
 	 * @return List<Sinistros_base_VO>
 	 */
-	public void validaSeleciona_Base_SinistrosCompleta(String ano,
-			HttpServletResponse response) {
+	public void validaSeleciona_Base_SinistrosCompleta(String ano, HttpServletResponse response) {
 
 		VisaoExecutiva_Diaria_DAO dao = new VisaoExecutiva_Diaria_DAO();
 
-		List<Sinistros_base_VO> lista = dao
-				.seleciona_Base_sinistroCompleta(ano);
+		List<Sinistros_base_VO> lista = dao.seleciona_Base_sinistroCompleta(ano);
 		try {
 			// Write the header line
 			OutputStream out = response.getOutputStream();
@@ -1449,28 +1247,16 @@ public class VisaoExecutiva_Diaria_BO {
 			// Write the content
 			for (int i = 0; i < lista.size(); i++) {
 
-				String line = new String(lista.get(i).getLEGADO() + ";"
-						+ lista.get(i).getANOMES_REF() + ";"
-						+ lista.get(i).getORG() + ";"
-						+ lista.get(i).getMOVIMENTO() + ";"
-						+ lista.get(i).getRAMO() + ";" + lista.get(i).getPROD()
-						+ ";" + lista.get(i).getDIA() + ";"
-						+ lista.get(i).getSINISTRO() + ";"
-						+ lista.get(i).getAPOLICE() + ";"
-						+ lista.get(i).getCOMUNICADO() + ";"
-						+ lista.get(i).getOCORRENCIA() + ";"
-						+ lista.get(i).getFAVORECIDO() + ";"
-						+ lista.get(i).getVL_LIDER() + ";"
-						+ lista.get(i).getVL_COSSEGURO() + ";"
-						+ lista.get(i).getVL_RESSEGURO() + ";"
-						+ lista.get(i).getVL_TOTAL() + ";"
-						+ lista.get(i).getCOD_OPERACAO() + ";"
-						+ lista.get(i).getOPERACAO() + ";"
-						+ lista.get(i).getFTE_PREM() + ";"
-						+ lista.get(i).getFTE_AVIS() + ";"
-						+ lista.get(i).getAVISO() + ";"
-						+ lista.get(i).getSEGURADO() + ";"
-						+ lista.get(i).getCAUSA() + ";"
+				String line = new String(lista.get(i).getLEGADO() + ";" + lista.get(i).getANOMES_REF() + ";"
+						+ lista.get(i).getORG() + ";" + lista.get(i).getMOVIMENTO() + ";" + lista.get(i).getRAMO() + ";"
+						+ lista.get(i).getPROD() + ";" + lista.get(i).getDIA() + ";" + lista.get(i).getSINISTRO() + ";"
+						+ lista.get(i).getAPOLICE() + ";" + lista.get(i).getCOMUNICADO() + ";"
+						+ lista.get(i).getOCORRENCIA() + ";" + lista.get(i).getFAVORECIDO() + ";"
+						+ lista.get(i).getVL_LIDER() + ";" + lista.get(i).getVL_COSSEGURO() + ";"
+						+ lista.get(i).getVL_RESSEGURO() + ";" + lista.get(i).getVL_TOTAL() + ";"
+						+ lista.get(i).getCOD_OPERACAO() + ";" + lista.get(i).getOPERACAO() + ";"
+						+ lista.get(i).getFTE_PREM() + ";" + lista.get(i).getFTE_AVIS() + ";" + lista.get(i).getAVISO()
+						+ ";" + lista.get(i).getSEGURADO() + ";" + lista.get(i).getCAUSA() + ";"
 						+ lista.get(i).getGRUPO_CAUSA() + ";\n");
 				out.write(line.toString().getBytes());
 
@@ -1490,36 +1276,30 @@ public class VisaoExecutiva_Diaria_BO {
 	 */
 	public List<DadosDiariosVO> validaSelecionaDetalhesDadosDiarios(String ano) {
 		Uteis uteis = new Uteis();
-		String dataAtual = new SimpleDateFormat("dd/MM/yyyy").format(new Date(
-				System.currentTimeMillis()));
+		String dataAtual = new SimpleDateFormat("dd/MM/yyyy").format(new Date(System.currentTimeMillis()));
 		String dataCut[] = dataAtual.split("/");
 		String ano_SO, mes_SO;
-		ano_SO = dataCut[2];
+		// ano_SO = dataCut[2];
+		ano_SO = uteis.cortaRetornaAno(ano);
 		mes_SO = dataCut[1];
 
 		List<DadosDiariosVO> listaFinalDadosDiarios = new ArrayList<DadosDiariosVO>();
 
 		VisaoExecutiva_Diaria_DAO dao = new VisaoExecutiva_Diaria_DAO();
-		List<DadosDiariosVO> listaCompletaDadosDiarios = dao
-				.selecionaDetalhesDadosDiarios(ano_SO, mes_SO);
+		List<DadosDiariosVO> listaCompletaDadosDiarios = dao.selecionaDetalhesDadosDiarios(ano_SO, mes_SO);
 
 		for (int i = 0; i < listaCompletaDadosDiarios.size(); i++) {
 
-			if (listaCompletaDadosDiarios.get(i).getProduto()
-					.equalsIgnoreCase(uteis.cortaRetornaProduto(ano))
-					&& (listaCompletaDadosDiarios.get(i).getTipo()
-							.equals("EMITIDO")
-							|| listaCompletaDadosDiarios.get(i).getTipo()
-									.equals("EMITIDOS CANCELADOS") || listaCompletaDadosDiarios
-							.get(i).getTipo().equals("EMITIDOS RESTITUIDOS"))) {
+			if (listaCompletaDadosDiarios.get(i).getProduto().equalsIgnoreCase(uteis.cortaRetornaProduto(ano))
+					&& (listaCompletaDadosDiarios.get(i).getTipo().equals("EMITIDO")
+							|| listaCompletaDadosDiarios.get(i).getTipo().equals("EMITIDOS CANCELADOS")
+							|| listaCompletaDadosDiarios.get(i).getTipo().equals("EMITIDOS RESTITUIDOS"))) {
 				DadosDiariosVO dados = new DadosDiariosVO();
 
-				dados.setAnoMesDia(listaCompletaDadosDiarios.get(i)
-						.getAnoMesDia());
+				dados.setAnoMesDia(listaCompletaDadosDiarios.get(i).getAnoMesDia());
 				dados.setProduto(listaCompletaDadosDiarios.get(i).getProduto());
 				dados.setTipo(listaCompletaDadosDiarios.get(i).getTipo());
-				dados.setValorDoDia(listaCompletaDadosDiarios.get(i)
-						.getValorDoDia());
+				dados.setValorDoDia(listaCompletaDadosDiarios.get(i).getValorDoDia());
 
 				listaFinalDadosDiarios.add(dados);
 
@@ -1527,6 +1307,184 @@ public class VisaoExecutiva_Diaria_BO {
 		}
 
 		return listaFinalDadosDiarios;
+	}
+
+	/**
+	 * Constroi a visao de faturamento diario
+	 * 
+	 * @return List<DadosDiariosVO>
+	 */
+	public List<DadosDiariosVO> validaSelecionaAcumuladoDadosDiarios(String ano) {
+
+		List<DadosDiariosVO> listaDadosDiarios = validaSelecionaDetalhesDadosDiarios(ano);
+
+		List<DadosDiariosVO> listaFiltradaDadosDiarios = new ArrayList<DadosDiariosVO>();
+		List<DadosDiariosVO> listaFaturamentoDiario = new ArrayList<DadosDiariosVO>();
+		List<DadosDiariosVO> listaFaturamentoAcumulado = new ArrayList<DadosDiariosVO>();
+
+		/* Ordena a lista em EMITIDOS;EMITIDOS CANCELADOS;EMITIDOS RESTITUIDOS */
+
+		for (int i = 0; i < listaDadosDiarios.size(); i++) {
+			String dataParaComparacao = listaDadosDiarios.get(i).getAnoMesDia();
+
+			for (int j = 0; j < listaDadosDiarios.size(); j++) {
+
+				if (dataParaComparacao.equals(listaDadosDiarios.get(j).getAnoMesDia())) {
+					DadosDiariosVO dados = new DadosDiariosVO();
+					dados.setAnoMesDia(listaDadosDiarios.get(j).getAnoMesDia());
+					dados.setProduto(listaDadosDiarios.get(j).getProduto());
+					dados.setTipo(listaDadosDiarios.get(j).getTipo());
+					dados.setValorDoDia(listaDadosDiarios.get(j).getValorDoDia());
+
+					listaFiltradaDadosDiarios.add(dados);
+				}
+			}
+		}
+
+		outer: for (int i = listaFiltradaDadosDiarios.size() - 1; i >= 0; i--) {
+			for (int j = 0; j < listaFiltradaDadosDiarios.size(); j++) {
+				if (listaFiltradaDadosDiarios.get(i).getAnoMesDia()
+						.equalsIgnoreCase(listaFiltradaDadosDiarios.get(j).getAnoMesDia())
+						&& listaFiltradaDadosDiarios.get(i).getProduto()
+								.equalsIgnoreCase(listaFiltradaDadosDiarios.get(j).getProduto())
+						&& listaFiltradaDadosDiarios.get(i).getTipo()
+								.equalsIgnoreCase(listaFiltradaDadosDiarios.get(j).getTipo())
+						&& listaFiltradaDadosDiarios.get(i).getValorDoDia()
+								.equalsIgnoreCase(listaFiltradaDadosDiarios.get(j).getValorDoDia())) {
+					if (i != j) {
+
+						listaFiltradaDadosDiarios.remove(i);
+						continue outer;
+					}
+				}
+			}
+		}
+
+		/* Ordena por data */
+		Collections.sort(listaFiltradaDadosDiarios, DadosDiariosVO.anoMesDiaCoparator);
+
+		String dataTemp = "";
+		BigDecimal somaAcumulada = new BigDecimal("0.0");
+
+		/* abaixo a visao da faturamento de cada dia */
+		DadosDiariosVO faturamentoDiario = new DadosDiariosVO();
+
+		try {
+
+			for (int i = 0; i <= listaFiltradaDadosDiarios.size(); i++) {
+
+				if (i == 0) {
+					dataTemp = listaFiltradaDadosDiarios.get(i).getAnoMesDia();
+
+					faturamentoDiario.setAnoMesDia(listaFiltradaDadosDiarios.get(i).getAnoMesDia());
+					faturamentoDiario.setProduto(listaFiltradaDadosDiarios.get(i).getProduto());
+					faturamentoDiario.setTipo("FATURAMENTO");
+				}
+
+				if ((i != listaFiltradaDadosDiarios.size())
+						&& dataTemp.equals(listaFiltradaDadosDiarios.get(i).getAnoMesDia())) {
+
+					somaAcumulada = new BigDecimal(listaFiltradaDadosDiarios.get(i).getValorDoDia()).add(somaAcumulada);
+
+				} else {
+					if (listaFiltradaDadosDiarios.size() == i) {
+						faturamentoDiario.setValorDoDia(somaAcumulada.toString());
+						listaFaturamentoDiario.add(faturamentoDiario);
+						break;
+					} else {
+						faturamentoDiario.setValorDoDia(somaAcumulada.toString());
+						listaFaturamentoDiario.add(faturamentoDiario);
+					}
+
+					dataTemp = listaFiltradaDadosDiarios.get(i).getAnoMesDia();
+					somaAcumulada = new BigDecimal(listaFiltradaDadosDiarios.get(i).getValorDoDia());
+
+					faturamentoDiario = new DadosDiariosVO();
+					faturamentoDiario.setAnoMesDia(listaFiltradaDadosDiarios.get(i).getAnoMesDia());
+					faturamentoDiario.setProduto(listaFiltradaDadosDiarios.get(i).getProduto());
+					faturamentoDiario.setTipo("FATURAMENTO");
+				}
+			}
+		} catch (IndexOutOfBoundsException ioobe) {
+			System.err.println(
+					"VisãoExecutiva_Diaria_BO - método validaSelecionaAcumuladoDadosDiarios - adicionando dados fictícios...");
+			DadosDiariosVO dados = new DadosDiariosVO();
+			dados.setAnoMesDia("2015-10-02");
+			dados.setProduto("TESTE");
+			dados.setTipo("FATURAMENTO");
+			dados.setValorDoDia("0.0");
+			listaFaturamentoDiario.add(dados);
+			System.err.println("... dados inseridos");
+		}
+
+		/* abaixo construimos a visao acumulada */
+		BigDecimal somaAnterior = new BigDecimal("0.0");
+		int quantidadeDias = 0;
+		for (int i = 0; i < listaFaturamentoDiario.size(); i++) {
+
+			DadosDiariosVO faturamentoDiarioAcumulado = new DadosDiariosVO();
+			if (i == 0) {
+				faturamentoDiarioAcumulado.setAnoMesDia(listaFaturamentoDiario.get(i).getAnoMesDia());
+				faturamentoDiarioAcumulado.setProduto(listaFaturamentoDiario.get(i).getProduto());
+				faturamentoDiarioAcumulado.setTipo(listaFaturamentoDiario.get(i).getTipo());
+				faturamentoDiarioAcumulado.setValorDoDia(listaFaturamentoDiario.get(i).getValorDoDia());
+
+				somaAnterior = somaAnterior.add(new BigDecimal(listaFaturamentoDiario.get(i).getValorDoDia()));
+				quantidadeDias++;
+				listaFaturamentoAcumulado.add(faturamentoDiarioAcumulado);
+
+			} else {
+				faturamentoDiarioAcumulado.setAnoMesDia(listaFaturamentoDiario.get(i).getAnoMesDia());
+				faturamentoDiarioAcumulado.setProduto(listaFaturamentoDiario.get(i).getProduto());
+				faturamentoDiarioAcumulado.setTipo(listaFaturamentoDiario.get(i).getTipo());
+				faturamentoDiarioAcumulado.setValorDoDia(
+						somaAnterior.add(new BigDecimal(listaFaturamentoDiario.get(i).getValorDoDia())).toString());
+
+				somaAnterior = somaAnterior.add(new BigDecimal(listaFaturamentoDiario.get(i).getValorDoDia()));
+				quantidadeDias++;
+				listaFaturamentoAcumulado.add(faturamentoDiarioAcumulado);
+			}
+		}
+
+		Uteis uteis = new Uteis();
+		String dataAtualSistema = new SimpleDateFormat("dd/MM/yyyy").format(new Date(System.currentTimeMillis()));
+		String dataCut[] = dataAtualSistema.split("/");
+		String mes_SO;
+		mes_SO = dataCut[1];
+
+		/* BP */
+		List<FaturamentoVO> listaBP = dadosFaturamentoDetalhado;
+		int mes_SO_int = Integer.parseInt(mes_SO);
+		String bpMes = listaBP.get(0).getMeses()[mes_SO_int - 1];
+		int diasUteis = uteis.retornaDiasUteisMes(mes_SO_int - 1);
+		BigDecimal bpPorDia = new BigDecimal(bpMes).divide(new BigDecimal(diasUteis), 6, RoundingMode.HALF_DOWN);
+
+		BigDecimal somaAnteriorBp = new BigDecimal("0.0");
+		for (int i = 0; i < quantidadeDias; i++) {
+			DadosDiariosVO faturamentoDiarioAcumulado = new DadosDiariosVO();
+			if (i == 0) {
+				faturamentoDiarioAcumulado.setAnoMesDia(listaFaturamentoAcumulado.get(i).getAnoMesDia());
+				faturamentoDiarioAcumulado.setProduto(listaFaturamentoAcumulado.get(i).getProduto());
+				faturamentoDiarioAcumulado.setTipo("BP");
+				faturamentoDiarioAcumulado.setValorDoDia(bpPorDia.toString());
+
+				somaAnteriorBp = somaAnteriorBp.add(bpPorDia);
+				listaFaturamentoAcumulado.add(faturamentoDiarioAcumulado);
+
+			} else {
+				faturamentoDiarioAcumulado.setAnoMesDia(listaFaturamentoAcumulado.get(i).getAnoMesDia());
+				faturamentoDiarioAcumulado.setProduto(listaFaturamentoAcumulado.get(i).getProduto());
+				faturamentoDiarioAcumulado.setTipo("BP");
+
+				somaAnteriorBp = somaAnteriorBp.add(bpPorDia);
+
+				faturamentoDiarioAcumulado.setValorDoDia(somaAnteriorBp.toString());
+
+				listaFaturamentoAcumulado.add(faturamentoDiarioAcumulado);
+			}
+		}
+
+		return listaFaturamentoAcumulado;
 	}
 
 	/**
@@ -1555,25 +1513,24 @@ public class VisaoExecutiva_Diaria_BO {
 
 	/**
 	 * Retorna uma lista com canal de venda da emissao; Retorna a quantidade de
-	 * emitidos e o valor e a suas respectivas porcentagens sobre o total
-	 * agrupadas por canal de venda.
+	 * emitidos e o valor e a suas respectivas porcentagens sobre o total agrupadas
+	 * por canal de venda.
 	 * 
 	 * @return
 	 * 
 	 * @return String
 	 */
 
-	public List<EmissaoPorCanalDeVendaVO> validaSelecionaEmissaoPorCanal() {
+	public List<MovimentoPorCanalDeVendaVO> validaSelecionaEmissaoPorCanal(String movimento) {
 
-		List<EmissaoPorCanalDeVendaVO> list = listaEmissaoPorCanal;
+		List<MovimentoPorCanalDeVendaVO> list = new ArrayList<MovimentoPorCanalDeVendaVO>(listaEmissaoPorCanal);
 
-		List<EmissaoPorCanalDeVendaVO> listTotal = new ArrayList<EmissaoPorCanalDeVendaVO>();
+		List<MovimentoPorCanalDeVendaVO> listTotal = new ArrayList<MovimentoPorCanalDeVendaVO>();
 
-		String[] mesesTotaisValor = { "0.0", "0.0", "0.0", "0.0", "0.0", "0.0",
-				"0.0", "0.0", "0.0", "0.0", "0.0", "0.0" };
+		String[] mesesTotaisValor = { "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0",
+				"0.0" };
 
-		String[] mesesTotaisQuantidade = { "0", "0", "0", "0", "0", "0", "0",
-				"0", "0", "0", "0", "0" };
+		String[] mesesTotaisQuantidade = { "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0" };
 
 		String anoTotal = null;
 		String produtoTotal = null;
@@ -1581,10 +1538,17 @@ public class VisaoExecutiva_Diaria_BO {
 		int qtdQuantidade = 0;
 		int qtdValor = 0;
 
-		for (EmissaoPorCanalDeVendaVO haha : list) {
-			if (haha.getTipo().equalsIgnoreCase("Valor")) {
+		for (int i = 0; i < list.size(); i++) {
+			if (!(list.get(i).getMovimento().trim().equalsIgnoreCase(movimento.trim()))) {
+				list.remove(i);
+				i--;
+			}
+		}
+
+		for (MovimentoPorCanalDeVendaVO objLista : list) {
+			if (objLista.getTipo().equalsIgnoreCase("Valor")) {
 				qtdValor++;
-			} else if (haha.getTipo().equalsIgnoreCase("Quantidade")) {
+			} else if (objLista.getTipo().equalsIgnoreCase("Quantidade")) {
 				qtdQuantidade++;
 			}
 		}
@@ -1603,15 +1567,13 @@ public class VisaoExecutiva_Diaria_BO {
 
 						for (int j = 0; j < list.size(); j++) {
 							int achou = -1;
-							if (list.get(j).getTipo()
-									.equalsIgnoreCase("Quantidade")) {
+							if (list.get(j).getTipo().equalsIgnoreCase("Quantidade")) {
 
 								// System.out.print(" 2 | "
 								// + list.get(j).getCanalDeVenda());
 								// System.out.println();
 
-								if (list.get(i).getCanalDeVenda()
-										.equals(list.get(j).getCanalDeVenda())) {
+								if (list.get(i).getCanalDeVenda().equals(list.get(j).getCanalDeVenda())) {
 									achou = j;
 									continue outer;
 								}
@@ -1625,29 +1587,16 @@ public class VisaoExecutiva_Diaria_BO {
 					}
 				}
 
-				String[] meses = { "0", "0", "0", "0", "0", "0", "0", "0", "0",
-						"0", "0", "0" };
+				String[] meses = { "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0" };
 
-				EmissaoPorCanalDeVendaVO canalVendaVazio = new EmissaoPorCanalDeVendaVO();
-				canalVendaVazio.setCanalDeVenda(list.get(
-						indiceElementoNaoEncontrado).getCanalDeVenda());
-				canalVendaVazio.setProduto(list
-						.get(indiceElementoNaoEncontrado).getProduto());
+				MovimentoPorCanalDeVendaVO canalVendaVazio = new MovimentoPorCanalDeVendaVO();
+				canalVendaVazio.setCanalDeVenda(list.get(indiceElementoNaoEncontrado).getCanalDeVenda());
+				canalVendaVazio.setProduto(list.get(indiceElementoNaoEncontrado).getProduto());
 				canalVendaVazio.setTipo("Quantidade");
 				canalVendaVazio.setMeses(meses);
 
-				list.add(((list.size() + 1) / 2 + indiceElementoNaoEncontrado),
-						canalVendaVazio);// aqui
-				// estou
-				// ordenando
-				// tudo
-				// que
-				// é
-				// 'tipo'
-				// 'Valor'
-				// antes
-				// de
-				// 'Quantidade'
+				list.add(((list.size() + 1) / 2 + indiceElementoNaoEncontrado), canalVendaVazio);// aqui
+				/* estou ordenando tudo que é tipo 'Valor' antes de 'Quantidade' */
 			} else {// Qtd eh maior
 				outer: for (int i = 0; i < list.size(); i++) {
 					if (list.get(i).getTipo().equalsIgnoreCase("Quantidade")) {
@@ -1666,8 +1615,7 @@ public class VisaoExecutiva_Diaria_BO {
 								// list.get(j).getCanalDeVenda());
 								// System.out.println();
 
-								if (list.get(i).getCanalDeVenda()
-										.equals(list.get(j).getCanalDeVenda())) {
+								if (list.get(i).getCanalDeVenda().equals(list.get(j).getCanalDeVenda())) {
 									achou = j;
 									continue outer;
 								}
@@ -1675,35 +1623,21 @@ public class VisaoExecutiva_Diaria_BO {
 								if (j == list.size() - 1 && achou == -1) {
 									indiceElementoNaoEncontrado = i;
 								}
-
 							}
 						}
 					}
 				}
 
-				String[] meses = { "0", "0", "0", "0", "0", "0", "0", "0", "0",
-						"0", "0", "0" };
+				String[] meses = { "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0" };
 
-				EmissaoPorCanalDeVendaVO canalVendaVazio = new EmissaoPorCanalDeVendaVO();
-				canalVendaVazio.setCanalDeVenda(list.get(
-						indiceElementoNaoEncontrado).getCanalDeVenda());
-				canalVendaVazio.setProduto(list
-						.get(indiceElementoNaoEncontrado).getProduto());
+				MovimentoPorCanalDeVendaVO canalVendaVazio = new MovimentoPorCanalDeVendaVO();
+				canalVendaVazio.setCanalDeVenda(list.get(indiceElementoNaoEncontrado).getCanalDeVenda());
+				canalVendaVazio.setProduto(list.get(indiceElementoNaoEncontrado).getProduto());
 				canalVendaVazio.setTipo("Valor");
 				canalVendaVazio.setMeses(meses);
 
-				list.add(((list.size() + 1) / 2 + indiceElementoNaoEncontrado),
-						canalVendaVazio);// aqui
-				// estou
-				// ordenando
-				// tudo
-				// que
-				// é
-				// 'tipo'
-				// 'Valor'
-				// antes
-				// de
-				// 'Quantidade'
+				list.add(((list.size() + 1) / 2 + indiceElementoNaoEncontrado), canalVendaVazio);// aqui
+				/* estou ordenando tudo que é tipo 'Valor' antes de 'Quantidade' */
 
 			}
 
@@ -1712,21 +1646,20 @@ public class VisaoExecutiva_Diaria_BO {
 		/*
 		 * ===Primeiro crio os objetos com os totais=========
 		 */
-		for (EmissaoPorCanalDeVendaVO emi : list) {
+		for (MovimentoPorCanalDeVendaVO emi : list) {
 
 			if (emi.getTipo().equals("Valor")) {
 
 				for (int i = 0; i < emi.getMeses().length; i++) {
-					mesesTotaisValor[i] = new BigDecimal(mesesTotaisValor[i])
-							.add(new BigDecimal(emi.getMeses()[i])).toString();
+					mesesTotaisValor[i] = new BigDecimal(mesesTotaisValor[i]).add(new BigDecimal(emi.getMeses()[i]))
+							.toString();
 				}
 
 			} else if (emi.getTipo().equals("Quantidade")) {
 
 				for (int i = 0; i < emi.getMeses().length; i++) {
-					mesesTotaisQuantidade[i] = Integer.toString((Integer
-							.parseInt(mesesTotaisQuantidade[i]) + Integer
-							.parseInt(emi.getMeses()[i])));
+					mesesTotaisQuantidade[i] = Integer.toString(
+							(Integer.parseInt(mesesTotaisQuantidade[i]) + Integer.parseInt(emi.getMeses()[i])));
 				}
 			}
 
@@ -1735,8 +1668,8 @@ public class VisaoExecutiva_Diaria_BO {
 
 		}
 
-		EmissaoPorCanalDeVendaVO totalValor = new EmissaoPorCanalDeVendaVO();
-		EmissaoPorCanalDeVendaVO totalQuantidade = new EmissaoPorCanalDeVendaVO();
+		MovimentoPorCanalDeVendaVO totalValor = new MovimentoPorCanalDeVendaVO();
+		MovimentoPorCanalDeVendaVO totalQuantidade = new MovimentoPorCanalDeVendaVO();
 
 		totalValor.setCanalDeVenda("Total");
 		totalValor.setProduto(produtoTotal);
@@ -1762,16 +1695,16 @@ public class VisaoExecutiva_Diaria_BO {
 		DecimalFormat percentForm = new DecimalFormat("0.00%");
 		DecimalFormat roundForm = new DecimalFormat("0.00");
 		Uteis uteis = new Uteis();
-		List<EmissaoPorCanalDeVendaVO> listFinal = new ArrayList<EmissaoPorCanalDeVendaVO>();
+		List<MovimentoPorCanalDeVendaVO> listFinal = new ArrayList<MovimentoPorCanalDeVendaVO>();
 
 		for (int i = 0; i < list.size() / 2; i++) {
-			EmissaoPorCanalDeVendaVO emissaoValor = new EmissaoPorCanalDeVendaVO();
+			MovimentoPorCanalDeVendaVO emissaoValor = new MovimentoPorCanalDeVendaVO();
 			/* ===VALOR==== */
 			emissaoValor.setCanalDeVenda(list.get(i).getCanalDeVenda());
 			emissaoValor.setTipo(list.get(i).getTipo());
 			emissaoValor.setMeses(list.get(i).getMeses());
 
-			EmissaoPorCanalDeVendaVO emissaoValorPercent = new EmissaoPorCanalDeVendaVO();
+			MovimentoPorCanalDeVendaVO emissaoValorPercent = new MovimentoPorCanalDeVendaVO();
 			/* ===%=VALOR==== */
 			emissaoValorPercent.setCanalDeVenda(list.get(i).getCanalDeVenda());
 			emissaoValorPercent.setTipo("% " + list.get(i).getTipo());
@@ -1780,10 +1713,9 @@ public class VisaoExecutiva_Diaria_BO {
 			for (int k = 0; k < list.get(i).getMeses().length; k++) {
 
 				try {
-					double total = Double.parseDouble(new BigDecimal(list
-							.get(i).getMeses()[k]).divide(
-							new BigDecimal(listTotal.get(VALOR).getMeses()[k]),
-							5, RoundingMode.HALF_UP).toString());
+					double total = Double.parseDouble(new BigDecimal(list.get(i).getMeses()[k])
+							.divide(new BigDecimal(listTotal.get(VALOR).getMeses()[k]), 5, RoundingMode.HALF_DOWN)
+							.toString());
 					mesesPercentValor[k] = percentForm.format(total);
 
 				} catch (ArithmeticException e) {
@@ -1794,18 +1726,16 @@ public class VisaoExecutiva_Diaria_BO {
 			}
 			emissaoValorPercent.setMeses(mesesPercentValor);
 
-			EmissaoPorCanalDeVendaVO emissaoQuantidade = new EmissaoPorCanalDeVendaVO();
+			MovimentoPorCanalDeVendaVO emissaoQuantidade = new MovimentoPorCanalDeVendaVO();
 			/* ===QUANTIDADE==== */
 			int j = list.size() / 2;
-			emissaoQuantidade
-					.setCanalDeVenda(list.get(j + i).getCanalDeVenda());
+			emissaoQuantidade.setCanalDeVenda(list.get(j + i).getCanalDeVenda());
 			emissaoQuantidade.setTipo(list.get(j + i).getTipo());
 			emissaoQuantidade.setMeses(list.get(j + i).getMeses());
 
-			EmissaoPorCanalDeVendaVO emissaoQuantidadePercent = new EmissaoPorCanalDeVendaVO();
+			MovimentoPorCanalDeVendaVO emissaoQuantidadePercent = new MovimentoPorCanalDeVendaVO();
 			/* ===%=QUANTIDADE==== */
-			emissaoQuantidadePercent.setCanalDeVenda(list.get(j + i)
-					.getCanalDeVenda());
+			emissaoQuantidadePercent.setCanalDeVenda(list.get(j + i).getCanalDeVenda());
 			emissaoQuantidadePercent.setTipo("% " + list.get(j + i).getTipo());
 
 			String[] mesesPercentQuantidade = new String[12];
@@ -1813,13 +1743,10 @@ public class VisaoExecutiva_Diaria_BO {
 
 				try {
 
-					double total = Double.parseDouble(list.get(j + i)
-							.getMeses()[k])
-							/ Double.parseDouble(listTotal.get(QUANTIDADE)
-									.getMeses()[k]);
-					mesesPercentQuantidade[k] = percentForm.format(Double
-							.toString(total).equalsIgnoreCase("NaN") ? 0.0
-							: total);
+					double total = Double.parseDouble(list.get(j + i).getMeses()[k])
+							/ Double.parseDouble(listTotal.get(QUANTIDADE).getMeses()[k]);
+					mesesPercentQuantidade[k] = percentForm
+							.format(Double.toString(total).equalsIgnoreCase("NaN") ? 0.0 : total);
 
 				} catch (ArithmeticException e) {
 					mesesPercentQuantidade[k] = "0%";
@@ -1832,16 +1759,14 @@ public class VisaoExecutiva_Diaria_BO {
 			String[] valorFormatado = new String[12];
 			for (int k = 0; k < emissaoValor.getMeses().length; k++) {
 				valorFormatado[k] = uteis
-						.insereSeparadoresMoeda(roundForm.format(Double
-								.parseDouble(emissaoValor.getMeses()[k])));
+						.insereSeparadoresMoeda(roundForm.format(Double.parseDouble(emissaoValor.getMeses()[k])));
 
 			}
 			emissaoValor.setMeses(valorFormatado);
 
 			String[] valorFormatado2 = new String[12];
 			for (int k = 0; k < emissaoQuantidade.getMeses().length; k++) {
-				valorFormatado2[k] = uteis.insereSeparadores(emissaoQuantidade
-						.getMeses()[k]);
+				valorFormatado2[k] = uteis.insereSeparadores(emissaoQuantidade.getMeses()[k]);
 			}
 			emissaoQuantidade.setMeses(valorFormatado2);
 

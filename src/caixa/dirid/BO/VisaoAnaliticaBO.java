@@ -713,7 +713,6 @@ public class VisaoAnaliticaBO extends VisoesBO {
 	 * 
 	 */
 	public void validaAtualizaRVNE(HttpServletRequest req) {
-		System.out.println("vchegou2");
 		RvneVO rvne = new RvneVO();
 		VisaoAnaliticaDAO dao = new VisaoAnaliticaDAO();
 
@@ -732,7 +731,7 @@ public class VisaoAnaliticaBO extends VisoesBO {
 		String idProduto = partes[1];
 		rvne.setId(Integer.parseInt(idProduto));
 
-		System.out.println("666Mes: " + mes + " IdProduto: " + idProduto);
+		System.out.println("Mes: " + mes + " IdProduto: " + idProduto);
 		for (String string : partes) {
 			System.out.println(string);
 		}

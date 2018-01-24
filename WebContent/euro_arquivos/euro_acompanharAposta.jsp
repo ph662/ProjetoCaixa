@@ -101,7 +101,7 @@
 		
 		var num = "";
 		sessionStorage.setItem("numeroAceitacao", num); 
-		window.open('http://10.125.7.51:8080/ProjetoCaixa/euroServlet?tipo=verTodasApostas','_blank','scrollbars=yes,resizable=yes,top=100,left=70,width=1000,height=500');
+		window.open('http://10.125.7.49:8080/ProjetoCaixa/euroServlet?tipo=verTodasApostas','_blank','scrollbars=yes,resizable=yes,top=100,left=70,width=1000,height=500');
 		
 	}
 	
@@ -109,7 +109,7 @@
 </head>
 
 <body>
-	<a href="http://10.125.7.51:8080/ProjetoCaixa/euro_arquivos/euro_menu.htm">Menu</a>
+	<a href="http://10.125.7.49:8080/ProjetoCaixa/euro_arquivos/euro_menu.htm">Menu</a>
 	<br>
 	<br>
 	<div style="margin-left: 70px;">

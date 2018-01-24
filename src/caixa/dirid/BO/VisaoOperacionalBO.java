@@ -9,16 +9,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
-
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-
 import caixa.dirid.DAO.VisaoOperacionalDAO;
 import caixa.dirid.UTEIS.Uteis;
 import caixa.dirid.VO.CoberturasVO;
@@ -36,34 +33,37 @@ public class VisaoOperacionalBO extends VisoesBO {
 	/**************************/
 
 	/**
-	 * Retorna uma lista contendo o quantitativo de apolices para analisar. E a
-	 * soma de alguns destes valores.
+	 * Retorna uma lista contendo o quantitativo de apolices para analisar. E a soma
+	 * de alguns destes valores.
 	 *
 	 * @return List<RenovacaoVO>
 	 * 
-	 * */
-	public List<RenovacaoVO> validaSelecionaAnaliseRenovacao(String mes,
-			String ano) {
+	 */
+	public List<RenovacaoVO> validaSelecionaAnaliseRenovacao(String mes, String ano, String codProduto) {
+
+		if (codProduto.equals("*")) {
+			codProduto = "";
+		} else {
+			codProduto = " and Produto in (" + codProduto.replace("p", ",") + ") ";
+		}
+		codProduto = codProduto.replace(",)", ")");
+
 		VisaoOperacionalDAO dao = new VisaoOperacionalDAO();
-		List<RenovacaoVO> lista = dao.selecionaAnaliseRenovacao(mes, ano);
+		List<RenovacaoVO> lista = dao.selecionaAnaliseRenovacao(mes, ano, codProduto);
 		List<RenovacaoVO> listaTratada = new ArrayList<RenovacaoVO>();
 
-		int totalGeral = Integer.parseInt(lista.get(0).getValor())
-				+ Integer.parseInt(lista.get(2).getValor());
+		int totalGeral = Integer.parseInt(lista.get(0).getValor()) + Integer.parseInt(lista.get(2).getValor());
 
 		int totalGeralSemPrazoCurto = Integer.parseInt(lista.get(1).getValor())
 				+ Integer.parseInt(lista.get(3).getValor());
 
 		RenovacaoVO totalGeralVo = new RenovacaoVO();
 		totalGeralVo.setDescricao("Vincendos - M&ecirc;s Refer&ecirc;ncia");
-		totalGeralVo.setValor(uti.insereSeparadores(Integer
-				.toString(totalGeral)));
+		totalGeralVo.setValor(uti.insereSeparadores(Integer.toString(totalGeral)));
 
 		RenovacaoVO totalGeralSemPrazoCurtoVo = new RenovacaoVO();
-		totalGeralSemPrazoCurtoVo
-				.setDescricao("Vincendos - M&ecirc;s Refer&ecirc;ncia - Sem Prazo Curto");
-		totalGeralSemPrazoCurtoVo.setValor(uti.insereSeparadores(Integer
-				.toString(totalGeralSemPrazoCurto)));
+		totalGeralSemPrazoCurtoVo.setDescricao("Vincendos - M&ecirc;s Refer&ecirc;ncia - Sem Prazo Curto");
+		totalGeralSemPrazoCurtoVo.setValor(uti.insereSeparadores(Integer.toString(totalGeralSemPrazoCurto)));
 
 		listaTratada.add(totalGeralVo);
 		listaTratada.add(totalGeralSemPrazoCurtoVo);
@@ -71,81 +71,65 @@ public class VisaoOperacionalBO extends VisoesBO {
 		for (int i = 0; i < lista.size(); i++) {
 			RenovacaoVO renovacaoVo = new RenovacaoVO();
 			renovacaoVo.setDescricao(lista.get(i).getDescricao());
-			renovacaoVo
-					.setValor(uti.insereSeparadores(lista.get(i).getValor()));
+			renovacaoVo.setValor(uti.insereSeparadores(lista.get(i).getValor()));
 			listaTratada.add(renovacaoVo);
 		}
 
 		BigDecimal nGeradas = new BigDecimal(listaTratada.get(7).getValor());
 		RenovacaoVO indiceFalhaProposta = new RenovacaoVO();
-		indiceFalhaProposta
-				.setDescricao("&Iacute;ndice de Falha na Gera&ccedil;&atilde;o da Proposta");
+		indiceFalhaProposta.setDescricao("&Iacute;ndice de Falha na Gera&ccedil;&atilde;o da Proposta");
 
-		if (listaTratada.get(7).getValor().equals("0")
-				|| listaTratada.get(2).getValor().equals("0")) {
+		if (listaTratada.get(7).getValor().equals("0") || listaTratada.get(2).getValor().equals("0")) {
 			indiceFalhaProposta.setValor("0%");
 		} else {
 			// System.out.println(listaTratada.get(2).getValor().replace(".",
 			// ""));
-			indiceFalhaProposta.setValor(percentForm.format(Double
-					.parseDouble((nGeradas.divide(
-							new BigDecimal(listaTratada.get(2).getValor()
-									.replace(".", "").replace(",", ".")), 4,
-							RoundingMode.HALF_DOWN).toString()))));
+			indiceFalhaProposta.setValor(percentForm.format(Double.parseDouble(
+					(nGeradas.divide(new BigDecimal(listaTratada.get(2).getValor().replace(".", "").replace(",", ".")),
+							4, RoundingMode.HALF_DOWN).toString()))));
 		}
 		listaTratada.add(indiceFalhaProposta);
 
 		RenovacaoVO indiceRenovacao = new RenovacaoVO();
 
-		BigDecimal emitidas = new BigDecimal(listaTratada.get(8).getValor()
-				.replace(".", "").replace(",", "."));
+		BigDecimal emitidas = new BigDecimal(listaTratada.get(8).getValor().replace(".", "").replace(",", "."));
 
-		indiceRenovacao
-				.setDescricao("&Iacute;ndice de Renova&ccedil;&atilde;o");
+		indiceRenovacao.setDescricao("&Iacute;ndice de Renova&ccedil;&atilde;o");
 
-		if (listaTratada.get(7).getValor().equals("0")
-				|| listaTratada.get(2).getValor().equals("0")) {
+		if (listaTratada.get(7).getValor().equals("0") || listaTratada.get(2).getValor().equals("0")) {
 			indiceRenovacao.setValor("0%");
 		} else {
-			indiceRenovacao.setValor(percentForm.format(Double
-					.parseDouble((emitidas.divide(
-							new BigDecimal(listaTratada.get(6).getValor()
-									.replace(".", "").replace(",", ".")), 4,
-							RoundingMode.HALF_DOWN).toString()))));
+			indiceRenovacao.setValor(percentForm.format(Double.parseDouble(
+					(emitidas.divide(new BigDecimal(listaTratada.get(6).getValor().replace(".", "").replace(",", ".")),
+							4, RoundingMode.HALF_DOWN).toString()))));
 		}
 		listaTratada.add(indiceRenovacao);
 		return listaTratada;
 	}
 
 	/**
-	 * Retorna uma lista contendo o quantitativo de apolices para analisar
-	 * AGRUPADO POR Produto 14 e 18. E a soma de alguns destes valores.
+	 * Retorna uma lista contendo o quantitativo de apolices para analisar AGRUPADO
+	 * POR Produto 14 e 18. E a soma de alguns destes valores.
 	 *
 	 * @return List<RenovacaoVO>
 	 * 
-	 * */
-	public List<RenovacaoVO> validaSelecionaAnaliseRenovacaoPorProduto(
-			String mes) {
+	 */
+	public List<RenovacaoVO> validaSelecionaAnaliseRenovacaoPorProduto(String mes) {
 		VisaoOperacionalDAO dao = new VisaoOperacionalDAO();
 		List<RenovacaoVO> lista = dao.selecionaAnaliseRenovacaoPorProduto(mes);
 		List<RenovacaoVO> listaTratada = new ArrayList<RenovacaoVO>();
 		List<RenovacaoVO> listaFinal = new ArrayList<RenovacaoVO>();
 
 		for (int i = 0; i < lista.size(); i++) {
-			if (lista.get(i).getProduto().contains("14")
-					&& lista.get(i + 1).getProduto().contains("14")) {
-				if (lista.get(i).getDescricao()
-						.equalsIgnoreCase(lista.get(i + 1).getDescricao())) {
+			if (lista.get(i).getProduto().contains("14") && lista.get(i + 1).getProduto().contains("14")) {
+				if (lista.get(i).getDescricao().equalsIgnoreCase(lista.get(i + 1).getDescricao())) {
 
 					RenovacaoVO renovacaoVo = new RenovacaoVO();
 					renovacaoVo.setProduto("14");
 					renovacaoVo.setDescricao(lista.get(i).getDescricao());
 					renovacaoVo
-							.setValor(uti.insereSeparadores(Integer
-									.toString((Integer.parseInt(lista.get(i)
-											.getValor()) + Integer
-											.parseInt(lista.get(i + 1)
-													.getValor())))));
+							.setValor(uti.insereSeparadores(Integer.toString((Integer.parseInt(lista.get(i).getValor())
+									+ Integer.parseInt(lista.get(i + 1).getValor())))));
 
 					listaTratada.add(renovacaoVo);
 					i++;
@@ -156,19 +140,15 @@ public class VisaoOperacionalBO extends VisoesBO {
 
 					renovacaoVo.setProduto("14");
 					renovacaoVo.setDescricao(lista.get(i).getDescricao());
-					renovacaoVo
-							.setValor(uti.insereSeparadores(Integer
-									.toString(Integer.parseInt(lista.get(i)
-											.getValor()))));
+					renovacaoVo.setValor(
+							uti.insereSeparadores(Integer.toString(Integer.parseInt(lista.get(i).getValor()))));
 
 				} else {
 
 					renovacaoVo.setProduto("18");
 					renovacaoVo.setDescricao(lista.get(i).getDescricao());
-					renovacaoVo
-							.setValor(uti.insereSeparadores(Integer
-									.toString(Integer.parseInt(lista.get(i)
-											.getValor()))));
+					renovacaoVo.setValor(
+							uti.insereSeparadores(Integer.toString(Integer.parseInt(lista.get(i).getValor()))));
 				}
 				listaTratada.add(renovacaoVo);
 
@@ -178,38 +158,28 @@ public class VisaoOperacionalBO extends VisoesBO {
 		int totalGeral = 0;
 		for (int i = 0; i < listaTratada.size(); i++) {
 			if (listaTratada.get(i).getDescricao().equals("Geral Para Renovar")
-					|| listaTratada.get(i).getDescricao()
-							.equals("Geral Canceladas")) {
-				totalGeral += Integer.parseInt(listaTratada.get(i).getValor()
-						.replace(".", ""));
+					|| listaTratada.get(i).getDescricao().equals("Geral Canceladas")) {
+				totalGeral += Integer.parseInt(listaTratada.get(i).getValor().replace(".", ""));
 			}
 		}
 
 		int totalGeralSemPrazoCurto = 0;
 		for (int i = 0; i < listaTratada.size(); i++) {
-			if (listaTratada.get(i).getDescricao()
-					.equals("Emitidas sem prazo curto do empresarial")
-					|| listaTratada
-							.get(i)
-							.getDescricao()
-							.equals("Canceladas sem prazo curto do empresarial")) {
-				totalGeralSemPrazoCurto += Integer.parseInt(listaTratada.get(i)
-						.getValor().replace(".", ""));
+			if (listaTratada.get(i).getDescricao().equals("Emitidas sem prazo curto do empresarial")
+					|| listaTratada.get(i).getDescricao().equals("Canceladas sem prazo curto do empresarial")) {
+				totalGeralSemPrazoCurto += Integer.parseInt(listaTratada.get(i).getValor().replace(".", ""));
 			}
 		}
 
 		RenovacaoVO totalGeralVo = new RenovacaoVO();
 		totalGeralVo.setProduto("14 e 18");
 		totalGeralVo.setDescricao("Total Geral de Ap&oacute;lices");
-		totalGeralVo.setValor(uti.insereSeparadores(Integer
-				.toString(totalGeral)));
+		totalGeralVo.setValor(uti.insereSeparadores(Integer.toString(totalGeral)));
 
 		RenovacaoVO totalGeralSemPrazoCurtoVo = new RenovacaoVO();
 		totalGeralSemPrazoCurtoVo.setProduto("14 e 18");
-		totalGeralSemPrazoCurtoVo
-				.setDescricao("Total Geral de Ap&oacute;lices - Sem Prazo Curto");
-		totalGeralSemPrazoCurtoVo.setValor(uti.insereSeparadores(Integer
-				.toString(totalGeralSemPrazoCurto)));
+		totalGeralSemPrazoCurtoVo.setDescricao("Total Geral de Ap&oacute;lices - Sem Prazo Curto");
+		totalGeralSemPrazoCurtoVo.setValor(uti.insereSeparadores(Integer.toString(totalGeralSemPrazoCurto)));
 
 		listaFinal.add(totalGeralVo);
 		listaFinal.add(totalGeralSemPrazoCurtoVo);
@@ -223,17 +193,23 @@ public class VisaoOperacionalBO extends VisoesBO {
 	}
 
 	/**
-	 * Retorna uma lista contendo o Canal e a quantidade de apolices das que
-	 * foram geradas e emitidas.
+	 * Retorna uma lista contendo o Canal e a quantidade de apolices das que foram
+	 * geradas e emitidas.
 	 *
 	 * @return List<RenovacaoVO>
 	 * 
-	 * */
-	public List<RenovacaoVO> validaSelecionaCanalApolicesEmitidas(String mes,
-			String ano) {
+	 */
+	public List<RenovacaoVO> validaSelecionaCanalApolicesEmitidas(String mes, String ano, String codProduto) {
+
+		if (codProduto.equals("*")) {
+			codProduto = "";
+		} else {
+			codProduto = " and Produto in (" + codProduto.replace("p", ",") + ") ";
+		}
+		codProduto = codProduto.replace(",)", ")");
 
 		VisaoOperacionalDAO dao = new VisaoOperacionalDAO();
-		List<RenovacaoVO> lista = dao.selecionaCanalApolicesEmitidas(mes, ano);
+		List<RenovacaoVO> lista = dao.selecionaCanalApolicesEmitidas(mes, ano, codProduto);
 		List<RenovacaoVO> listaTratada = new ArrayList<RenovacaoVO>();
 		// for (int i = 0; i < lista.size(); i++) {
 		// System.out.println();
@@ -250,12 +226,9 @@ public class VisaoOperacionalBO extends VisoesBO {
 		for (int i = 0; i < lista.size(); i++) {
 			RenovacaoVO renovacaoVo = new RenovacaoVO();
 			renovacaoVo.setDescricao(lista.get(i).getDescricao());
-			renovacaoVo.setPercentual(percentForm.format(Double
-					.parseDouble(new BigDecimal(lista.get(i).getValor())
-							.divide(total, 3, RoundingMode.HALF_DOWN)
-							.toString())));
-			renovacaoVo
-					.setValor(uti.insereSeparadores(lista.get(i).getValor()));
+			renovacaoVo.setPercentual(percentForm.format(Double.parseDouble(
+					new BigDecimal(lista.get(i).getValor()).divide(total, 3, RoundingMode.HALF_DOWN).toString())));
+			renovacaoVo.setValor(uti.insereSeparadores(lista.get(i).getValor()));
 			listaTratada.add(renovacaoVo);
 		}
 		return listaTratada;
@@ -264,18 +237,24 @@ public class VisaoOperacionalBO extends VisoesBO {
 	/**
 	 * 
 	 * Teste - Pedido da Dani Retorna uma lista contendo a principio o Canal
-	 * 'Renovação Automática' e logo abaixo o valor separado em outros canais.
-	 * Em seguida retorna o canal 'Renovação Mala Direta' e abaixo o valor
-	 * separado em outros canais. Tabela 'renovacao_acompanhamento' do banco.
+	 * 'Renovação Automática' e logo abaixo o valor separado em outros canais. Em
+	 * seguida retorna o canal 'Renovação Mala Direta' e abaixo o valor separado em
+	 * outros canais. Tabela 'renovacao_acompanhamento' do banco.
 	 * 
 	 * @return List<RenovacaoVO>
 	 * 
-	 * */
-	public List<RenovacaoVO> validaSelecionaRenovacoesRealizadas(String mes,
-			String ano) {
+	 */
+	public List<RenovacaoVO> validaSelecionaRenovacoesRealizadas(String mes, String ano, String codProduto) {
+
+		if (codProduto.equals("*")) {
+			codProduto = "";
+		} else {
+			codProduto = " and Produto in (" + codProduto.replace("p", ",") + ") ";
+		}
+		codProduto = codProduto.replace(",)", ")");
 
 		VisaoOperacionalDAO dao = new VisaoOperacionalDAO();
-		List<RenovacaoVO> lista = dao.selecionaRenovacoesRealizadas(mes, ano);
+		List<RenovacaoVO> lista = dao.selecionaRenovacoesRealizadas(mes, ano, codProduto);
 		List<RenovacaoVO> listaTratada = new ArrayList<RenovacaoVO>();
 		// for (int i = 0; i < lista.size(); i++) {
 		// System.out.println();
@@ -285,8 +264,7 @@ public class VisaoOperacionalBO extends VisoesBO {
 		double valorMD = 0D;
 		for (int i = 0; i < lista.size(); i++) {
 
-			if (lista.get(i).getDescricao()
-					.equalsIgnoreCase("Renovação Automática")) {
+			if (lista.get(i).getDescricao().equalsIgnoreCase("Renovação Automática")) {
 				if (valorRA == 0) {
 					valorRA = Double.parseDouble(lista.get(i).getValor());
 				} else {
@@ -295,8 +273,7 @@ public class VisaoOperacionalBO extends VisoesBO {
 					}
 				}
 
-			} else if (lista.get(i).getDescricao()
-					.equalsIgnoreCase("Renovação Mala Direta")) {
+			} else if (lista.get(i).getDescricao().equalsIgnoreCase("Renovação Mala Direta")) {
 				if (valorMD == 0) {
 					valorMD = Double.parseDouble(lista.get(i).getValor());
 				} else {
@@ -308,17 +285,14 @@ public class VisaoOperacionalBO extends VisoesBO {
 		}
 		for (int i = 0; i < lista.size(); i++) {
 			if (Double.parseDouble(lista.get(i).getValor()) == valorRA) {
-				lista.get(i).setDescricao(
-						"<b>" + lista.get(i).getDescricao() + "</b>");
+				lista.get(i).setDescricao("<b>" + lista.get(i).getDescricao() + "</b>");
 			} else if (Double.parseDouble(lista.get(i).getValor()) == valorMD) {
-				lista.get(i).setDescricao(
-						"<b>" + lista.get(i).getDescricao() + "</b>");
+				lista.get(i).setDescricao("<b>" + lista.get(i).getDescricao() + "</b>");
 			}
 
 			RenovacaoVO renovacaoVo = new RenovacaoVO();
 			renovacaoVo.setDescricao(lista.get(i).getDescricao());
-			renovacaoVo
-					.setValor(uti.insereSeparadores(lista.get(i).getValor()));
+			renovacaoVo.setValor(uti.insereSeparadores(lista.get(i).getValor()));
 			listaTratada.add(renovacaoVo);
 		}
 
@@ -327,22 +301,22 @@ public class VisaoOperacionalBO extends VisoesBO {
 
 	/***********************************************************/
 	/***********************************************************/
+
 	/*******************************/
 	/* Relatorio de SENSIBILIZACAO */
 	/*******************************/
 
 	/**
-	 * Retorna uma lista de 2 linhas, a primeira contem a quantidade de premio,
-	 * a segunda a quantidade de apolices. Pr&ecirc;mio Acumulado - 1.480.445,43
-	 * - Total de Propostas - 11.001
+	 * Retorna uma lista de 2 linhas, a primeira contem a quantidade de premio, a
+	 * segunda a quantidade de apolices. Pr&ecirc;mio Acumulado - 1.480.445,43 -
+	 * Total de Propostas - 11.001
 	 * 
 	 *
 	 * @return List<SensibilizacaoVO>
 	 * 
-	 * */
-	public List<SensibilizacaoVO> validaSelecionaTotalSensibilizacao(
-			String prod, String ano, String mes, String categoria,
-			String tipoMovimento) {
+	 */
+	public List<SensibilizacaoVO> validaSelecionaTotalSensibilizacao(String prod, String ano, String mes,
+			String categoria, String tipoMovimento) {
 		// System.out.println(prod + " " + ano + " " + mes + " " + categoria);
 		if (prod.equals("*")) {
 			prod = "";
@@ -360,8 +334,7 @@ public class VisaoOperacionalBO extends VisoesBO {
 
 		VisaoOperacionalDAO dao = new VisaoOperacionalDAO();
 
-		List<SensibilizacaoVO> lista = dao.selecionaTotalSensibilizacao(prod,
-				ano, mes, categoria, tipoMovimento);
+		List<SensibilizacaoVO> lista = dao.selecionaTotalSensibilizacao(prod, ano, mes, categoria, tipoMovimento);
 
 		List<SensibilizacaoVO> listaTratada = new ArrayList<SensibilizacaoVO>();
 		try {
@@ -369,36 +342,34 @@ public class VisaoOperacionalBO extends VisoesBO {
 				if (i == 0) { // premio acumulado
 					SensibilizacaoVO sensibilizacaoVo = new SensibilizacaoVO();
 					sensibilizacaoVo.setProduto(lista.get(i).getProduto());
-					sensibilizacaoVo.setQuantidade(uti.insereSeparadores(lista
-							.get(i).getQuantidade() == null ? "0.0" : lista
-							.get(i).getQuantidade()));
+					sensibilizacaoVo.setQuantidade(uti.insereSeparadores(
+							lista.get(i).getQuantidade() == null ? "0.0" : lista.get(i).getQuantidade()));
 					listaTratada.add(sensibilizacaoVo);
 				} else {
 					SensibilizacaoVO sensibilizacaoVo = new SensibilizacaoVO();
 					sensibilizacaoVo.setProduto(lista.get(i).getProduto());
-					sensibilizacaoVo.setQuantidade(uti.insereSeparadores(lista
-							.get(i).getQuantidade().replace(".00", "")));
+					sensibilizacaoVo
+							.setQuantidade(uti.insereSeparadores(lista.get(i).getQuantidade().replace(".00", "")));
 
 					listaTratada.add(sensibilizacaoVo);
 				}
 			}
 		} catch (NullPointerException npe) {
 			npe.printStackTrace();
-			System.out
-					.println("Metodo - validaSelecionaTotalSensibilizacao BO - NullPointerException.");
+			System.out.println("Metodo - validaSelecionaTotalSensibilizacao BO - NullPointerException.");
 		}
 		return listaTratada;
 	}
 
 	/**
-	 * Retorna uma lista com as colunas Agencia, Produto, SR, SUAT, Quantidade
-	 * de apolices e total de premio agrupado por Agencia.
+	 * Retorna uma lista com as colunas Agencia, Produto, SR, SUAT, Quantidade de
+	 * apolices e total de premio agrupado por Agencia.
 	 *
 	 * @return List<SensibilizacaoVO>
 	 * 
-	 * */
-	public List<SensibilizacaoVO> validaSelecionaTotalAgrupadoPorAgenciaSensibilizacao(
-			String prod, String ano, String mes, String categoria, int pagina) {
+	 */
+	public List<SensibilizacaoVO> validaSelecionaTotalAgrupadoPorAgenciaSensibilizacao(String prod, String ano,
+			String mes, String categoria, int pagina) {
 
 		if (prod.equals("*")) {
 			prod = " ";
@@ -406,15 +377,13 @@ public class VisaoOperacionalBO extends VisoesBO {
 
 			switch (categoria) {
 			case "vendasNovas":
-				prod = "and NumeroProdutoSIGPF in (" + prod.replace("p", ",")
-						+ ")";
+				prod = "and NumeroProdutoSIGPF in (" + prod.replace("p", ",") + ")";
 				prod = prod.replace(",)", ")");
 				// System.out.println(prod);
 				break;
 
 			case "fluxoFinanceiro":
-				prod = "where codigoproduto in (" + prod.replace("p", ",")
-						+ ")";
+				prod = "where codigoproduto in (" + prod.replace("p", ",") + ")";
 				prod = prod.replace(",)", ")");
 				// System.out.println(prod);
 				break;
@@ -423,9 +392,8 @@ public class VisaoOperacionalBO extends VisoesBO {
 
 		VisaoOperacionalDAO dao = new VisaoOperacionalDAO();
 		// System.out.println("@1");
-		List<SensibilizacaoVO> lista = dao
-				.selecionaTotalAgrupadoPorAgenciaSensibilizacao(prod, ano, mes,
-						categoria, pagina);
+		List<SensibilizacaoVO> lista = dao.selecionaTotalAgrupadoPorAgenciaSensibilizacao(prod, ano, mes, categoria,
+				pagina);
 		List<SensibilizacaoVO> listaTratada = new ArrayList<SensibilizacaoVO>();
 
 		for (int i = 0; i < lista.size(); i++) {
@@ -452,8 +420,7 @@ public class VisaoOperacionalBO extends VisoesBO {
 			sensibilizacaoVo.setSR(lista.get(i).getSR());
 			sensibilizacaoVo.setSUAT(lista.get(i).getSUAT());
 			sensibilizacaoVo.setQuantidade(lista.get(i).getQuantidade());
-			sensibilizacaoVo.setValor(uti.insereSeparadores(lista.get(i)
-					.getValor()));
+			sensibilizacaoVo.setValor(uti.insereSeparadores(lista.get(i).getValor()));
 			listaTratada.add(sensibilizacaoVo);
 		}
 
@@ -465,9 +432,8 @@ public class VisaoOperacionalBO extends VisoesBO {
 	 *
 	 * @return int
 	 * 
-	 * */
-	public int validaSelecionaQuantidadeRegistros(String prod, String ano,
-			String mes, String categoria) {
+	 */
+	public int validaSelecionaQuantidadeRegistros(String prod, String ano, String mes, String categoria) {
 
 		if (prod.equals("*")) {
 			prod = " ";
@@ -475,15 +441,13 @@ public class VisaoOperacionalBO extends VisoesBO {
 
 			switch (categoria) {
 			case "vendasNovas":
-				prod = "and NumeroProdutoSIGPF in (" + prod.replace("p", ",")
-						+ ")";
+				prod = "and NumeroProdutoSIGPF in (" + prod.replace("p", ",") + ")";
 				prod = prod.replace(",)", ")");
 				// System.out.println(prod);
 				break;
 
 			case "fluxoFinanceiro":
-				prod = "where codigoproduto in (" + prod.replace("p", ",")
-						+ ")";
+				prod = "where codigoproduto in (" + prod.replace("p", ",") + ")";
 				prod = prod.replace(",)", ")");
 				// System.out.println(prod);
 				break;
@@ -495,14 +459,12 @@ public class VisaoOperacionalBO extends VisoesBO {
 	}
 
 	/**
-	 * Gera um relatorio Excel com o mesmo conteudo que esta indo para a pagina
-	 * web.
+	 * Gera um relatorio Excel com o mesmo conteudo que esta indo para a pagina web.
 	 * 
 	 * @return List<SensibilizacaoVO>
 	 * 
-	 * */
-	public void validaGeraRelatorioExcel(String prod, String anoParam,
-			String mesParam, String categoria) {
+	 */
+	public void validaGeraRelatorioExcel(String prod, String anoParam, String mesParam, String categoria) {
 
 		String filename = " ";
 
@@ -511,31 +473,29 @@ public class VisaoOperacionalBO extends VisoesBO {
 
 			switch (categoria) {
 			case "vendasNovas":
-				filename = "D:\\workspace/ProjetoCaixaLocal_1.3/WebContent/Downloads/vendasNovas/"
-						+ categoria + anoParam + mesParam + ".xls";
+				filename = "D:\\eclipse-workspace/ProjetoCaixaLocal_1.3/WebContent/Downloads/vendasNovas/" + categoria
+						+ anoParam + mesParam + ".xls";
 				break;
 
 			case "fluxoFinanceiro":
-				filename = "D:\\workspace/ProjetoCaixaLocal_1.3/WebContent/Downloads/fluxoFinanceiro/"
-						+ categoria + anoParam + mesParam + ".xls";
+				filename = "D:\\eclipse-workspace/ProjetoCaixaLocal_1.3/WebContent/Downloads/fluxoFinanceiro/" + categoria
+						+ anoParam + mesParam + ".xls";
 				break;
 			}
 		} else {
 			switch (categoria) {
 			case "vendasNovas":
-				filename = "D:\\workspace/ProjetoCaixaLocal_1.3/WebContent/Downloads/vendasNovas/"
-						+ categoria + anoParam + mesParam + ".xls";
-				prod = "and NumeroProdutoSIGPF in (" + prod.replace("p", ",")
-						+ ")";
+				filename = "D:\\eclipse-workspace/ProjetoCaixaLocal_1.3/WebContent/Downloads/vendasNovas/" + categoria
+						+ anoParam + mesParam + ".xls";
+				prod = "and NumeroProdutoSIGPF in (" + prod.replace("p", ",") + ")";
 				prod = prod.replace(",)", ")");
 				// System.out.println(prod);
 				break;
 
 			case "fluxoFinanceiro":
-				filename = "D:\\workspace/ProjetoCaixaLocal_1.3/WebContent/Downloads/fluxoFinanceiro/"
-						+ categoria + anoParam + mesParam + ".xls";
-				prod = "where codigoproduto in (" + prod.replace("p", ",")
-						+ ")";
+				filename = "D:\\eclipse-workspace/ProjetoCaixaLocal_1.3/WebContent/Downloads/fluxoFinanceiro/" + categoria
+						+ anoParam + mesParam + ".xls";
+				prod = "where codigoproduto in (" + prod.replace("p", ",") + ")";
 				prod = prod.replace(",)", ")");
 				// System.out.println(prod);
 				break;
@@ -544,11 +504,9 @@ public class VisaoOperacionalBO extends VisoesBO {
 
 		VisaoOperacionalDAO dao = new VisaoOperacionalDAO();
 		// System.out.println("@2");
-		List<SensibilizacaoVO> lista = dao
-				.selecionaTotalAgrupadoPorAgenciaSensibilizacao(prod, anoParam,
-						mesParam, categoria, 9999);
-		List<SensibilizacaoVO> listaPeriodo = dao
-				.selecionaPeriodoSensibilizacao(anoParam, mesParam, categoria);
+		List<SensibilizacaoVO> lista = dao.selecionaTotalAgrupadoPorAgenciaSensibilizacao(prod, anoParam, mesParam,
+				categoria, 9999);
+		List<SensibilizacaoVO> listaPeriodo = dao.selecionaPeriodoSensibilizacao(anoParam, mesParam, categoria);
 		List<SensibilizacaoVO> listaTratada = new ArrayList<SensibilizacaoVO>();
 		List<SensibilizacaoVO> listaTratadaPeriodo = new ArrayList<SensibilizacaoVO>();
 
@@ -576,19 +534,15 @@ public class VisaoOperacionalBO extends VisoesBO {
 			sensibilizacaoVo.setSR(lista.get(i).getSR());
 			sensibilizacaoVo.setSUAT(lista.get(i).getSUAT());
 			sensibilizacaoVo.setQuantidade(lista.get(i).getQuantidade());
-			sensibilizacaoVo.setValor(uti.insereSeparadores(lista.get(i)
-					.getValor()));
+			sensibilizacaoVo.setValor(uti.insereSeparadores(lista.get(i).getValor()));
 
 			listaTratada.add(sensibilizacaoVo);
 		}
 		for (int i = 0; i < listaPeriodo.size(); i++) {
 			try {
-				String ano = listaPeriodo.get(i).getDataInicio()
-						.substring(0, 4);
-				String mes = listaPeriodo.get(i).getDataInicio()
-						.substring(5, 7);
-				String dia = listaPeriodo.get(i).getDataInicio()
-						.substring(8, 10);
+				String ano = listaPeriodo.get(i).getDataInicio().substring(0, 4);
+				String mes = listaPeriodo.get(i).getDataInicio().substring(5, 7);
+				String dia = listaPeriodo.get(i).getDataInicio().substring(8, 10);
 				String dataI = dia + "/" + mes + "/" + ano;
 
 				ano = listaPeriodo.get(i).getDataFim().substring(0, 4);
@@ -602,13 +556,13 @@ public class VisaoOperacionalBO extends VisoesBO {
 				listaTratadaPeriodo.add(sensibilizacaoVo);
 			} catch (NullPointerException npe) {
 				npe.printStackTrace();
-				System.out
-						.println("Metodo - validaGeraRelatorioExcel - BO - NullPointerException.");
+				System.out.println("Metodo - validaGeraRelatorioExcel - BO - NullPointerException.");
 			}
 		}
 		try {
 			// String filename =
-			// "Y://DIRETORIA DE RISCOS DIVERSOS/PUBLICA/PHELIPE/RelatorioSensibilizacaoMensal/NewExcelFile.xls";
+			// "Y://DIRETORIA DE RISCOS
+			// DIVERSOS/PUBLICA/PHELIPE/RelatorioSensibilizacaoMensal/NewExcelFile.xls";
 
 			HSSFWorkbook workbook = new HSSFWorkbook();
 			HSSFSheet sheet = workbook.createSheet("Mês " + mesParam);
@@ -629,22 +583,16 @@ public class VisaoOperacionalBO extends VisoesBO {
 
 				if (i == 4) {
 					row.createCell(7).setCellValue("Período");
-					row.createCell(8).setCellValue(
-							listaTratadaPeriodo.get(0).getDataInicio());
-					row.createCell(9).setCellValue(
-							listaTratadaPeriodo.get(0).getDataFim());
+					row.createCell(8).setCellValue(listaTratadaPeriodo.get(0).getDataInicio());
+					row.createCell(9).setCellValue(listaTratadaPeriodo.get(0).getDataFim());
 				}
 
-				row.createCell(0).setCellValue(
-						listaTratada.get(i).getCodAgencia());
-				row.createCell(1)
-						.setCellValue(listaTratada.get(i).getAgencia());
-				row.createCell(2)
-						.setCellValue(listaTratada.get(i).getProduto());
+				row.createCell(0).setCellValue(listaTratada.get(i).getCodAgencia());
+				row.createCell(1).setCellValue(listaTratada.get(i).getAgencia());
+				row.createCell(2).setCellValue(listaTratada.get(i).getProduto());
 				row.createCell(3).setCellValue(listaTratada.get(i).getSR());
 				row.createCell(4).setCellValue(listaTratada.get(i).getSUAT());
-				row.createCell(5).setCellValue(
-						listaTratada.get(i).getQuantidade());
+				row.createCell(5).setCellValue(listaTratada.get(i).getQuantidade());
 				row.createCell(6).setCellValue(listaTratada.get(i).getValor());
 
 			}
@@ -658,8 +606,7 @@ public class VisaoOperacionalBO extends VisoesBO {
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			System.out
-					.println("ERRO metodo validaGeraRelatorioExcel VisaoOperacionalBO");
+			System.out.println("ERRO metodo validaGeraRelatorioExcel VisaoOperacionalBO");
 		}
 
 	}
@@ -670,13 +617,12 @@ public class VisaoOperacionalBO extends VisoesBO {
 	 * 
 	 * @return List<SensibilizacaoVO>
 	 * 
-	 * */
+	 */
 
-	public List<SensibilizacaoVO> validaSelecionaPeriodoSensibilizacao(
-			String anoParam, String mesParam, String categoria) {
+	public List<SensibilizacaoVO> validaSelecionaPeriodoSensibilizacao(String anoParam, String mesParam,
+			String categoria) {
 		VisaoOperacionalDAO dao = new VisaoOperacionalDAO();
-		List<SensibilizacaoVO> lista = dao.selecionaPeriodoSensibilizacao(
-				anoParam, mesParam, categoria);
+		List<SensibilizacaoVO> lista = dao.selecionaPeriodoSensibilizacao(anoParam, mesParam, categoria);
 		List<SensibilizacaoVO> listaTratada = new ArrayList<SensibilizacaoVO>();
 		for (int i = 0; i < lista.size(); i++) {
 			String ano = lista.get(i).getDataInicio().substring(0, 4);
@@ -702,19 +648,18 @@ public class VisaoOperacionalBO extends VisoesBO {
 
 	/**
 	 * 
-	 * Recebe o mesmo metodo com os valores do realizado do mes, utiliza o que
-	 * for renovado para gerar informacoes do tipo de movimento especifico, o
-	 * renovado e o quanto foi atingido em porcentagem entre os dois.
+	 * Recebe o mesmo metodo com os valores do realizado do mes, utiliza o que for
+	 * renovado para gerar informacoes do tipo de movimento especifico, o renovado e
+	 * o quanto foi atingido em porcentagem entre os dois.
 	 * 
 	 * @return List<SensibilizacaoTotalizadorVO>
 	 * 
-	 * */
+	 */
 	public List<SensibilizacaoTotalizadorVO> validaSelecionaTotalizadorMensal(
 			List<SensibilizacaoTotalizadorVO> realizado, String anoParam) {
 		List<SensibilizacaoTotalizadorVO> sensiVO = new ArrayList<SensibilizacaoTotalizadorVO>();
 		DecimalFormat percentForm = new DecimalFormat("0%");
-		String dataAtual = new SimpleDateFormat("dd/MM/yyyy").format(new Date(
-				System.currentTimeMillis()));
+		String dataAtual = new SimpleDateFormat("dd/MM/yyyy").format(new Date(System.currentTimeMillis()));
 		String dataCut[] = dataAtual.split("/");
 		String mes = dataCut[1];
 		String ano = anoParam;
@@ -722,25 +667,22 @@ public class VisaoOperacionalBO extends VisoesBO {
 		// aqui eu tenho o fluxo financeiro todos os meses select * from
 		// temp_sensibilizacao
 		VisaoOperacionalDAO dao = new VisaoOperacionalDAO();
-		sensiVO = dao.selecionaFluxoFinanceiroTotalizadorMensal(ano,
-				"renovacao");
+		sensiVO = dao.selecionaFluxoFinanceiroTotalizadorMensal(ano, "renovacao");
 
-		List<SensibilizacaoVO> fluxoFinanceiroEmpresarial = validaSelecionaTotalSensibilizacao(
-				"1804", anoParam, mes, "fluxoFinanceiro", "renovacao");
+		List<SensibilizacaoVO> fluxoFinanceiroEmpresarial = validaSelecionaTotalSensibilizacao("1804", anoParam, mes,
+				"fluxoFinanceiro", "renovacao");
 
-		List<SensibilizacaoVO> fluxoFinanceiroResidencial = validaSelecionaTotalSensibilizacao(
-				"1403p1404p1405", anoParam, mes, "fluxoFinanceiro", "renovacao");
+		List<SensibilizacaoVO> fluxoFinanceiroResidencial = validaSelecionaTotalSensibilizacao("1403p1404p1405",
+				anoParam, mes, "fluxoFinanceiro", "renovacao");
 
 		String[] arrayFluxoFina = sensiVO.get(0).getMeses();// EMPRESARIAL
-		arrayFluxoFina[Integer.parseInt(mes) - 1] = fluxoFinanceiroEmpresarial
-				.get(0).getQuantidade().toString().replace(".", "")
-				.replace(",", ".");
+		arrayFluxoFina[Integer.parseInt(mes) - 1] = fluxoFinanceiroEmpresarial.get(0).getQuantidade().toString()
+				.replace(".", "").replace(",", ".");
 		sensiVO.get(0).setMeses(arrayFluxoFina);
 
 		arrayFluxoFina = sensiVO.get(1).getMeses();// RESIDENCIAL
-		arrayFluxoFina[Integer.parseInt(mes) - 1] = fluxoFinanceiroResidencial
-				.get(0).getQuantidade().toString().replace(".", "")
-				.replace(",", ".");
+		arrayFluxoFina[Integer.parseInt(mes) - 1] = fluxoFinanceiroResidencial.get(0).getQuantidade().toString()
+				.replace(".", "").replace(",", ".");
 		sensiVO.get(1).setMeses(arrayFluxoFina);
 
 		// Abaixo vou juntar o mes atual na tabela temp_sensi
@@ -787,10 +729,9 @@ public class VisaoOperacionalBO extends VisoesBO {
 					BigDecimal bigFluxoFinanceiroEmpresarial;
 					try {
 						bigFluxoFinanceiroEmpresarial = new BigDecimal(
-								sensiVO.get(EMPRESARIAL).getMeses()[j]
-										.contains(".") ? sensiVO.get(
-										EMPRESARIAL).getMeses()[j] : sensiVO
-										.get(EMPRESARIAL).getMeses()[j] + ".00");
+								sensiVO.get(EMPRESARIAL).getMeses()[j].contains(".")
+										? sensiVO.get(EMPRESARIAL).getMeses()[j]
+										: sensiVO.get(EMPRESARIAL).getMeses()[j] + ".00");
 					} catch (Exception npe) {
 						bigFluxoFinanceiroEmpresarial = new BigDecimal("0.00");
 					}
@@ -798,23 +739,19 @@ public class VisaoOperacionalBO extends VisoesBO {
 					BigDecimal bigRealizadoEmpresarial;
 
 					try {
-						bigRealizadoEmpresarial = new BigDecimal(sensiVO.get(
-								i + 2).getMeses()[j].contains(".") ? sensiVO
-								.get(i + 2).getMeses()[j] : sensiVO.get(i + 2)
-								.getMeses()[j] + ".00");
+						bigRealizadoEmpresarial = new BigDecimal(
+								sensiVO.get(i + 2).getMeses()[j].contains(".") ? sensiVO.get(i + 2).getMeses()[j]
+										: sensiVO.get(i + 2).getMeses()[j] + ".00");
 					} catch (Exception npe) {
 						bigRealizadoEmpresarial = new BigDecimal("0.00");
 					}
 
 					try {
 
-						atingidoEmpresarial[j] = percentForm.format(Double
-								.parseDouble(bigFluxoFinanceiroEmpresarial
-										.toString().equals("0.00") ? "0.00"
-										: bigFluxoFinanceiroEmpresarial.divide(
-												bigRealizadoEmpresarial,
-												BigDecimal.ROUND_HALF_UP)
-												.toString()));
+						atingidoEmpresarial[j] = percentForm.format(
+								Double.parseDouble(bigFluxoFinanceiroEmpresarial.toString().equals("0.00") ? "0.00"
+										: bigFluxoFinanceiroEmpresarial
+												.divide(bigRealizadoEmpresarial, BigDecimal.ROUND_HALF_UP).toString()));
 					} catch (Exception e) {
 
 						atingidoEmpresarial[j] = percentForm.format(0.0D);
@@ -827,10 +764,9 @@ public class VisaoOperacionalBO extends VisoesBO {
 					BigDecimal bigFluxoFinanceiroResidencial;
 					try {
 						bigFluxoFinanceiroResidencial = new BigDecimal(
-								sensiVO.get(RESIDENCIAL).getMeses()[j]
-										.contains(".") ? sensiVO.get(
-										RESIDENCIAL).getMeses()[j] : sensiVO
-										.get(RESIDENCIAL).getMeses()[j] + ".00");
+								sensiVO.get(RESIDENCIAL).getMeses()[j].contains(".")
+										? sensiVO.get(RESIDENCIAL).getMeses()[j]
+										: sensiVO.get(RESIDENCIAL).getMeses()[j] + ".00");
 					} catch (Exception e) {
 						bigFluxoFinanceiroResidencial = new BigDecimal("0.00");
 					}
@@ -838,22 +774,18 @@ public class VisaoOperacionalBO extends VisoesBO {
 					BigDecimal bigRealizadoResidencial;
 
 					try {
-						bigRealizadoResidencial = new BigDecimal(sensiVO.get(
-								i + 2).getMeses()[j].contains(".") ? sensiVO
-								.get(i + 2).getMeses()[j] : sensiVO.get(i + 2)
-								.getMeses()[j] + ".00");
+						bigRealizadoResidencial = new BigDecimal(
+								sensiVO.get(i + 2).getMeses()[j].contains(".") ? sensiVO.get(i + 2).getMeses()[j]
+										: sensiVO.get(i + 2).getMeses()[j] + ".00");
 					} catch (Exception e) {
 						bigRealizadoResidencial = new BigDecimal("0.00");
 					}
 
 					try {
-						atingidoResidencial[j] = percentForm.format(Double
-								.parseDouble(bigFluxoFinanceiroResidencial
-										.toString().equals("0.00") ? "0.00"
-										: bigFluxoFinanceiroResidencial.divide(
-												bigRealizadoResidencial,
-												BigDecimal.ROUND_HALF_UP)
-												.toString()));
+						atingidoResidencial[j] = percentForm.format(
+								Double.parseDouble(bigFluxoFinanceiroResidencial.toString().equals("0.00") ? "0.00"
+										: bigFluxoFinanceiroResidencial
+												.divide(bigRealizadoResidencial, BigDecimal.ROUND_HALF_UP).toString()));
 					} catch (Exception npe) {
 						atingidoResidencial[j] = percentForm.format(0.0D);
 					}
@@ -876,8 +808,7 @@ public class VisaoOperacionalBO extends VisoesBO {
 			for (int j = 0; j < 12; j++) {
 
 				try {
-					arrayFormatadoMoeda[j] = uti.insereSeparadoresMoeda(sensiVO
-							.get(i).getMeses()[j]);
+					arrayFormatadoMoeda[j] = uti.insereSeparadoresMoeda(sensiVO.get(i).getMeses()[j]);
 				} catch (Exception e) {
 					arrayFormatadoMoeda[j] = uti.insereSeparadoresMoeda("0.0");
 				}
@@ -889,7 +820,9 @@ public class VisaoOperacionalBO extends VisoesBO {
 		sensiVO.add(atingidoEM);
 		sensiVO.add(atingidoRD);
 
-		/***** insiro na lista o BP e o atingido entre BP e realizado ***********************/
+		/*****
+		 * insiro na lista o BP e o atingido entre BP e realizado
+		 ***********************/
 		SensibilizacaoTotalizadorVO residencial_BP = new SensibilizacaoTotalizadorVO();
 		SensibilizacaoTotalizadorVO atingidoRD_BP = new SensibilizacaoTotalizadorVO();
 		SensibilizacaoTotalizadorVO empresarial_BP = new SensibilizacaoTotalizadorVO();
@@ -921,18 +854,15 @@ public class VisaoOperacionalBO extends VisoesBO {
 	}
 
 	/**
-	 * Retorna BP, o valor Realizado durante o ano e a media entre BP e o
-	 * realizado.
+	 * Retorna BP, o valor Realizado durante o ano e a media entre BP e o realizado.
 	 *
 	 * @return List<SensibilizacaoTotalizadorVO>
 	 * 
-	 * */
-	public List<SensibilizacaoTotalizadorVO> validaSelecionaTotalizadorMensal(
-			String tipoMovimento, String anoParam) {
+	 */
+	public List<SensibilizacaoTotalizadorVO> validaSelecionaTotalizadorMensal(String tipoMovimento, String anoParam) {
 
 		DecimalFormat percentForm = new DecimalFormat("0%");
-		String dataAtual = new SimpleDateFormat("dd/MM/yyyy").format(new Date(
-				System.currentTimeMillis()));
+		String dataAtual = new SimpleDateFormat("dd/MM/yyyy").format(new Date(System.currentTimeMillis()));
 		String dataCut[] = dataAtual.split("/");
 		String mes = dataCut[1];
 
@@ -942,8 +872,7 @@ public class VisaoOperacionalBO extends VisoesBO {
 		// aqui eu tenho o select * from temp_sensibilizacao
 		VisaoOperacionalDAO dao = new VisaoOperacionalDAO();
 		List<SensibilizacaoTotalizadorVO> sensiVO = new ArrayList<SensibilizacaoTotalizadorVO>();
-		sensiVO = dao.selecionaSensibilizacaoTotalizadorMensal(mes,
-				tipoMovimento, anoParam);
+		sensiVO = dao.selecionaSensibilizacaoTotalizadorMensal(mes, tipoMovimento, anoParam);
 
 		// for (int i = 0; i < sensiVO.size(); i++) {
 		// System.out.println(sensiVO.get(i).getProduto());
@@ -955,33 +884,31 @@ public class VisaoOperacionalBO extends VisoesBO {
 		// }
 
 		/*
-		 * aqui eu tenho o select das tabelas no mes atual - emissao e
-		 * financeiro
+		 * aqui eu tenho o select das tabelas no mes atual - emissao e financeiro
 		 */
 
 		// Empresarial
-		List<SensibilizacaoVO> vendasNovasEmpresarial = validaSelecionaTotalSensibilizacao(
-				"1804", anoParam, mes, "vendasNovas", tipoMovimento);
-		List<SensibilizacaoVO> fluxoFinanceiroEmpresarial = validaSelecionaTotalSensibilizacao(
-				"1804", anoParam, mes, "fluxoFinanceiro", tipoMovimento);
+		List<SensibilizacaoVO> vendasNovasEmpresarial = validaSelecionaTotalSensibilizacao("1804", anoParam, mes,
+				"vendasNovas", tipoMovimento);
+		List<SensibilizacaoVO> fluxoFinanceiroEmpresarial = validaSelecionaTotalSensibilizacao("1804", anoParam, mes,
+				"fluxoFinanceiro", tipoMovimento);
 
 		// Residencial
-		List<SensibilizacaoVO> vendasNovasResidencial = validaSelecionaTotalSensibilizacao(
-				"1403p1404p1405", anoParam, mes, "vendasNovas", tipoMovimento);
-		List<SensibilizacaoVO> fluxoFinanceiroResidencial = validaSelecionaTotalSensibilizacao(
-				"1403p1404p1405", anoParam, mes, "fluxoFinanceiro",
-				tipoMovimento);
+		List<SensibilizacaoVO> vendasNovasResidencial = validaSelecionaTotalSensibilizacao("1403p1404p1405", anoParam,
+				mes, "vendasNovas", tipoMovimento);
+		List<SensibilizacaoVO> fluxoFinanceiroResidencial = validaSelecionaTotalSensibilizacao("1403p1404p1405",
+				anoParam, mes, "fluxoFinanceiro", tipoMovimento);
 
 		// Abaixo vou juntar o mes atual na tabela temp_sensi
 
-		BigDecimal venNovaEmpre = new BigDecimal(vendasNovasEmpresarial.get(0)
-				.getQuantidade().replace(".", "").replace(",", "."));
-		BigDecimal fluFinaEmpre = new BigDecimal(fluxoFinanceiroEmpresarial
-				.get(0).getQuantidade().replace(".", "").replace(",", "."));
-		BigDecimal venNovaResid = new BigDecimal(vendasNovasResidencial.get(0)
-				.getQuantidade().replace(".", "").replace(",", "."));
-		BigDecimal fluFinaResid = new BigDecimal(fluxoFinanceiroResidencial
-				.get(0).getQuantidade().replace(".", "").replace(",", "."));
+		BigDecimal venNovaEmpre = new BigDecimal(
+				vendasNovasEmpresarial.get(0).getQuantidade().replace(".", "").replace(",", "."));
+		BigDecimal fluFinaEmpre = new BigDecimal(
+				fluxoFinanceiroEmpresarial.get(0).getQuantidade().replace(".", "").replace(",", "."));
+		BigDecimal venNovaResid = new BigDecimal(
+				vendasNovasResidencial.get(0).getQuantidade().replace(".", "").replace(",", "."));
+		BigDecimal fluFinaResid = new BigDecimal(
+				fluxoFinanceiroResidencial.get(0).getQuantidade().replace(".", "").replace(",", "."));
 
 		// get 0 BP-EMPRESARIAL
 		String[] mesArray = sensiVO.get(0).getMeses();
@@ -1007,8 +934,7 @@ public class VisaoOperacionalBO extends VisoesBO {
 		mesArray = sensiVO.get(empresarial).getMeses();
 
 		/* FACO AQUI A SOMA DO FLUXOfINANCEIRO + VENDASnOVAS EMPRESARIAL */
-		mesArray[Integer.parseInt(mes) - 1] = venNovaEmpre.add(fluFinaEmpre)
-				.toString();
+		mesArray[Integer.parseInt(mes) - 1] = venNovaEmpre.add(fluFinaEmpre).toString();
 		for (int i = 0; i < 12; i++) {
 			if (mesArray[i] == null) {
 				mesArray[i] = "-";
@@ -1019,8 +945,7 @@ public class VisaoOperacionalBO extends VisoesBO {
 		mesArray = sensiVO.get(residencial).getMeses();
 
 		/* FACO AQUI A SOMA DO FLUXOfINANCEIRO + VENDASnOVAS RESIDENCIAL */
-		mesArray[Integer.parseInt(mes) - 1] = venNovaResid.add(fluFinaResid)
-				.toString();
+		mesArray[Integer.parseInt(mes) - 1] = venNovaResid.add(fluFinaResid).toString();
 		for (int i = 0; i < 12; i++) {
 			if (mesArray[i] == null) {
 				mesArray[i] = "-";
@@ -1035,39 +960,29 @@ public class VisaoOperacionalBO extends VisoesBO {
 			for (int j = 0; j < 12; j++) {
 
 				if (i == 0) { // bp empresarial
-					BigDecimal bpEmpresarial = new BigDecimal(sensiVO.get(i)
-							.getMeses()[j].contains(".") ? sensiVO.get(i)
-							.getMeses()[j] : sensiVO.get(i).getMeses()[j]
-							+ ".00");
-					BigDecimal valorEmpresarial = new BigDecimal(sensiVO.get(
-							empresarial).getMeses()[j].contains(".") ? sensiVO
-							.get(empresarial).getMeses()[j] : sensiVO.get(
-							empresarial).getMeses()[j]
-							+ ".00");
+					BigDecimal bpEmpresarial = new BigDecimal(
+							sensiVO.get(i).getMeses()[j].contains(".") ? sensiVO.get(i).getMeses()[j]
+									: sensiVO.get(i).getMeses()[j] + ".00");
+					BigDecimal valorEmpresarial = new BigDecimal(sensiVO.get(empresarial).getMeses()[j].contains(".")
+							? sensiVO.get(empresarial).getMeses()[j]
+							: sensiVO.get(empresarial).getMeses()[j] + ".00");
 
-					atingidoEmpresarial[j] = percentForm.format(Double
-							.parseDouble(valorEmpresarial.toString().equals(
-									"0.00") ? "0.00" : valorEmpresarial.divide(
-									bpEmpresarial, BigDecimal.ROUND_DOWN)
-									.toString()));
+					atingidoEmpresarial[j] = percentForm
+							.format(Double.parseDouble(valorEmpresarial.toString().equals("0.00") ? "0.00"
+									: valorEmpresarial.divide(bpEmpresarial, BigDecimal.ROUND_DOWN).toString()));
 				}
 
 				if (i == 2) { // bp residencial
-					BigDecimal bpResidencial = new BigDecimal(sensiVO.get(i)
-							.getMeses()[j].contains(".") ? sensiVO.get(i)
-							.getMeses()[j] : sensiVO.get(i).getMeses()[j]
-							+ ".00");
-					BigDecimal valorResidencial = new BigDecimal(sensiVO.get(
-							residencial).getMeses()[j].contains(".") ? sensiVO
-							.get(residencial).getMeses()[j] : sensiVO.get(
-							residencial).getMeses()[j]
-							+ ".00");
+					BigDecimal bpResidencial = new BigDecimal(
+							sensiVO.get(i).getMeses()[j].contains(".") ? sensiVO.get(i).getMeses()[j]
+									: sensiVO.get(i).getMeses()[j] + ".00");
+					BigDecimal valorResidencial = new BigDecimal(sensiVO.get(residencial).getMeses()[j].contains(".")
+							? sensiVO.get(residencial).getMeses()[j]
+							: sensiVO.get(residencial).getMeses()[j] + ".00");
 
-					atingidoResidencial[j] = percentForm.format(Double
-							.parseDouble(valorResidencial.toString().equals(
-									"0.00") ? "0.00" : valorResidencial.divide(
-									bpResidencial, BigDecimal.ROUND_DOWN)
-									.toString()));
+					atingidoResidencial[j] = percentForm
+							.format(Double.parseDouble(valorResidencial.toString().equals("0.00") ? "0.00"
+									: valorResidencial.divide(bpResidencial, BigDecimal.ROUND_DOWN).toString()));
 				}
 			}
 		}
@@ -1085,8 +1000,7 @@ public class VisaoOperacionalBO extends VisoesBO {
 			String[] arrayFormatadoMoeda = new String[12];
 			for (int j = 0; j < 12; j++) {
 
-				arrayFormatadoMoeda[j] = uti.insereSeparadoresMoeda(sensiVO
-						.get(i).getMeses()[j]);
+				arrayFormatadoMoeda[j] = uti.insereSeparadoresMoeda(sensiVO.get(i).getMeses()[j]);
 
 			}
 			sensiVO.get(i).setMeses(arrayFormatadoMoeda);
@@ -1107,51 +1021,46 @@ public class VisaoOperacionalBO extends VisoesBO {
 	 * public List<SensibilizacaoTotalizadorVO> validaSelecionaTotalizadorFACIL(
 	 * String mesP) {
 	 * 
-	 * DecimalFormat percentForm = new DecimalFormat("0%"); String dataAtual =
-	 * new SimpleDateFormat("dd/MM/yyyy").format(new Date(
-	 * System.currentTimeMillis())); String dataCut[] = dataAtual.split("/");
-	 * String mes = dataCut[1]; String ano = dataCut[2]; mes = mesP;
-	 * List<SensibilizacaoTotalizadorVO> listaFinal = new
+	 * DecimalFormat percentForm = new DecimalFormat("0%"); String dataAtual = new
+	 * SimpleDateFormat("dd/MM/yyyy").format(new Date( System.currentTimeMillis()));
+	 * String dataCut[] = dataAtual.split("/"); String mes = dataCut[1]; String ano
+	 * = dataCut[2]; mes = mesP; List<SensibilizacaoTotalizadorVO> listaFinal = new
 	 * ArrayList<SensibilizacaoTotalizadorVO>(); String[] mesesFinal = new
 	 * String[12];
 	 * 
-	 * // aqui eu tenho o select * from temp_sensibilizacao VisaoOperacionalDAO
-	 * dao = new VisaoOperacionalDAO(); List<SensibilizacaoTotalizadorVO>
-	 * sensiVO = new ArrayList<SensibilizacaoTotalizadorVO>(); sensiVO =
+	 * // aqui eu tenho o select * from temp_sensibilizacao VisaoOperacionalDAO dao
+	 * = new VisaoOperacionalDAO(); List<SensibilizacaoTotalizadorVO> sensiVO = new
+	 * ArrayList<SensibilizacaoTotalizadorVO>(); sensiVO =
 	 * dao.selecionaSensibilizacaoTotalizadorMensal(ano, mes);
 	 * 
-	 * /* aqui eu tenho o select das tabelas no mes atual - emissao e financeiro
-	 * /
+	 * /* aqui eu tenho o select das tabelas no mes atual - emissao e financeiro /
 	 * 
 	 * // Empresarial List<SensibilizacaoVO> vendasNovasEmpresarial =
 	 * validaSelecionaTotalSensibilizacao( "1804", "2017", mes, "vendasNovas");
 	 * List<SensibilizacaoVO> fluxoFinanceiroEmpresarial =
-	 * validaSelecionaTotalSensibilizacao( "1804", "2017", mes,
-	 * "fluxoFinanceiro");
+	 * validaSelecionaTotalSensibilizacao( "1804", "2017", mes, "fluxoFinanceiro");
 	 * 
 	 * // Residencial List<SensibilizacaoVO> vendasNovasResidencial =
 	 * validaSelecionaTotalSensibilizacao( "1405", "2017", mes, "vendasNovas");
 	 * List<SensibilizacaoVO> fluxoFinanceiroResidencial =
-	 * validaSelecionaTotalSensibilizacao( "1405", "2017", mes,
-	 * "fluxoFinanceiro");
+	 * validaSelecionaTotalSensibilizacao( "1405", "2017", mes, "fluxoFinanceiro");
 	 * 
 	 * // aqui vou tentar juntar o mes atual na tabela temp_sensi
 	 * 
 	 * BigDecimal venNovaEmpre = new BigDecimal(vendasNovasEmpresarial.get(0)
-	 * .getQuantidade().replace(".", "").replace(",", ".")); BigDecimal
-	 * fluFinaEmpre = new BigDecimal(fluxoFinanceiroEmpresarial
+	 * .getQuantidade().replace(".", "").replace(",", ".")); BigDecimal fluFinaEmpre
+	 * = new BigDecimal(fluxoFinanceiroEmpresarial
 	 * .get(0).getQuantidade().replace(".", "").replace(",", ".")); BigDecimal
 	 * venNovaResid = new BigDecimal(vendasNovasResidencial.get(0)
-	 * .getQuantidade().replace(".", "").replace(",", ".")); BigDecimal
-	 * fluFinaResid = new BigDecimal(fluxoFinanceiroResidencial
+	 * .getQuantidade().replace(".", "").replace(",", ".")); BigDecimal fluFinaResid
+	 * = new BigDecimal(fluxoFinanceiroResidencial
 	 * .get(0).getQuantidade().replace(".", "").replace(",", "."));
 	 * 
-	 * // get 0 BP-EMPRESARIAL String[] mesArray = sensiVO.get(0).getMeses();
-	 * for (int i = 0; i < 12; i++) { if (mesArray[i] == null) { mesArray[i] =
-	 * "-"; } }
+	 * // get 0 BP-EMPRESARIAL String[] mesArray = sensiVO.get(0).getMeses(); for
+	 * (int i = 0; i < 12; i++) { if (mesArray[i] == null) { mesArray[i] = "-"; } }
 	 * 
-	 * // get 2 BP-RESIDENCIAL mesArray = sensiVO.get(2).getMeses(); for (int i
-	 * = 0; i < 12; i++) { if (mesArray[i] == null) { mesArray[i] = "-"; } }
+	 * // get 2 BP-RESIDENCIAL mesArray = sensiVO.get(2).getMeses(); for (int i = 0;
+	 * i < 12; i++) { if (mesArray[i] == null) { mesArray[i] = "-"; } }
 	 * 
 	 * // get 1 EMPRESARIAL int empresarial = 1;
 	 * 
@@ -1174,17 +1083,17 @@ public class VisaoOperacionalBO extends VisoesBO {
 	 * 
 	 * sensiVO.get(residencial).setMeses(mesArray);
 	 * 
-	 * String[] atingidoEmpresarial = new String[12]; String[]
-	 * atingidoResidencial = new String[12]; for (int i = 0; i < sensiVO.size();
-	 * i++) { for (int j = 0; j < 12; j++) {
+	 * String[] atingidoEmpresarial = new String[12]; String[] atingidoResidencial =
+	 * new String[12]; for (int i = 0; i < sensiVO.size(); i++) { for (int j = 0; j
+	 * < 12; j++) {
 	 * 
 	 * if (i == 0) { // bp empresarial BigDecimal bpEmpresarial = new
 	 * BigDecimal(sensiVO.get(i) .getMeses()[j].contains(".") ? sensiVO.get(i)
 	 * .getMeses()[j] : sensiVO.get(i).getMeses()[j] + ".00"); BigDecimal
 	 * valorEmpresarial = new BigDecimal(sensiVO.get(
 	 * empresarial).getMeses()[j].contains(".") ? sensiVO
-	 * .get(empresarial).getMeses()[j] : sensiVO.get( empresarial).getMeses()[j]
-	 * + ".00");
+	 * .get(empresarial).getMeses()[j] : sensiVO.get( empresarial).getMeses()[j] +
+	 * ".00");
 	 * 
 	 * atingidoEmpresarial[j] = percentForm.format(Double
 	 * .parseDouble(valorEmpresarial.toString().equals( "0.00") ? "0.00" :
@@ -1196,17 +1105,16 @@ public class VisaoOperacionalBO extends VisoesBO {
 	 * .getMeses()[j] : sensiVO.get(i).getMeses()[j] + ".00"); BigDecimal
 	 * valorResidencial = new BigDecimal(sensiVO.get(
 	 * residencial).getMeses()[j].contains(".") ? sensiVO
-	 * .get(residencial).getMeses()[j] : sensiVO.get( residencial).getMeses()[j]
-	 * + ".00");
+	 * .get(residencial).getMeses()[j] : sensiVO.get( residencial).getMeses()[j] +
+	 * ".00");
 	 * 
 	 * atingidoResidencial[j] = percentForm.format(Double
 	 * .parseDouble(valorResidencial.toString().equals( "0.00") ? "0.00" :
 	 * valorResidencial.divide( bpResidencial, BigDecimal.ROUND_HALF_UP)
 	 * .toString())); } } }
 	 * 
-	 * SensibilizacaoTotalizadorVO atingidoRD = new
-	 * SensibilizacaoTotalizadorVO(); SensibilizacaoTotalizadorVO atingidoEM =
-	 * new SensibilizacaoTotalizadorVO();
+	 * SensibilizacaoTotalizadorVO atingidoRD = new SensibilizacaoTotalizadorVO();
+	 * SensibilizacaoTotalizadorVO atingidoEM = new SensibilizacaoTotalizadorVO();
 	 * 
 	 * atingidoEM.setProduto("Atingido Empresarial");
 	 * atingidoEM.setMeses(atingidoEmpresarial);
@@ -1214,8 +1122,8 @@ public class VisaoOperacionalBO extends VisoesBO {
 	 * atingidoRD.setProduto("Atingido Residencial");
 	 * atingidoRD.setMeses(atingidoResidencial);
 	 * 
-	 * for (int i = 0; i < sensiVO.size(); i++) { String[] arrayFormatadoMoeda =
-	 * new String[12]; for (int j = 0; j < 12; j++) {
+	 * for (int i = 0; i < sensiVO.size(); i++) { String[] arrayFormatadoMoeda = new
+	 * String[12]; for (int j = 0; j < 12; j++) {
 	 * 
 	 * arrayFormatadoMoeda[j] = uti.insereSeparadoresMoeda(sensiVO
 	 * .get(i).getMeses()[j]);
@@ -1237,12 +1145,10 @@ public class VisaoOperacionalBO extends VisoesBO {
 	 *
 	 * @return List<SensibilizacaoTotalizadorVO>
 	 * 
-	 * */
-	public List<SensibilizacaoTotalizadorVO> validaSelecionaApenasRenovacao(
-			String tipoMovimento) {
+	 */
+	public List<SensibilizacaoTotalizadorVO> validaSelecionaApenasRenovacao(String tipoMovimento) {
 		DecimalFormat percentForm = new DecimalFormat("0%");
-		String dataAtual = new SimpleDateFormat("dd/MM/yyyy").format(new Date(
-				System.currentTimeMillis()));
+		String dataAtual = new SimpleDateFormat("dd/MM/yyyy").format(new Date(System.currentTimeMillis()));
 		String dataCut[] = dataAtual.split("/");
 		String mes = dataCut[1];
 		String ano = dataCut[2];
@@ -1250,12 +1156,11 @@ public class VisaoOperacionalBO extends VisoesBO {
 		// aqui eu tenho o select * from temp_sensibilizacao
 		VisaoOperacionalDAO dao = new VisaoOperacionalDAO();
 		List<SensibilizacaoTotalizadorVO> sensiVO = new ArrayList<SensibilizacaoTotalizadorVO>();
-		sensiVO = dao.selecionaSensibilizacaoTotalizadorMensal(mes,
-				tipoMovimento, ano);
+		sensiVO = dao.selecionaSensibilizacaoTotalizadorMensal(mes, tipoMovimento, ano);
 
 		// Empresarial
-		List<SensibilizacaoVO> fluxoFinanceiroEmpresarial_renovacao = validaSelecionaTotalSensibilizacao(
-				"1804", "2017", mes, "fluxoFinanceiro", tipoMovimento);
+		List<SensibilizacaoVO> fluxoFinanceiroEmpresarial_renovacao = validaSelecionaTotalSensibilizacao("1804", "2017",
+				mes, "fluxoFinanceiro", tipoMovimento);
 
 		// Residencial
 		List<SensibilizacaoVO> fluxoFinanceiroResidencial_renovacao = validaSelecionaTotalSensibilizacao(
@@ -1264,11 +1169,9 @@ public class VisaoOperacionalBO extends VisoesBO {
 		// Abaixo vou juntar o mes atual na tabela temp_sensi
 
 		BigDecimal fluFinaEmpre = new BigDecimal(
-				fluxoFinanceiroEmpresarial_renovacao.get(0).getQuantidade()
-						.replace(".", "").replace(",", "."));
+				fluxoFinanceiroEmpresarial_renovacao.get(0).getQuantidade().replace(".", "").replace(",", "."));
 		BigDecimal fluFinaResid = new BigDecimal(
-				fluxoFinanceiroResidencial_renovacao.get(0).getQuantidade()
-						.replace(".", "").replace(",", "."));
+				fluxoFinanceiroResidencial_renovacao.get(0).getQuantidade().replace(".", "").replace(",", "."));
 
 		// get 0 BP-EMPRESARIAL
 		String[] mesArray = sensiVO.get(0).getMeses();
@@ -1321,39 +1224,29 @@ public class VisaoOperacionalBO extends VisoesBO {
 			for (int j = 0; j < 12; j++) {
 
 				if (i == 0) { // bp empresarial
-					BigDecimal bpEmpresarial = new BigDecimal(sensiVO.get(i)
-							.getMeses()[j].contains(".") ? sensiVO.get(i)
-							.getMeses()[j] : sensiVO.get(i).getMeses()[j]
-							+ ".00");
-					BigDecimal valorEmpresarial = new BigDecimal(sensiVO.get(
-							empresarial).getMeses()[j].contains(".") ? sensiVO
-							.get(empresarial).getMeses()[j] : sensiVO.get(
-							empresarial).getMeses()[j]
-							+ ".00");
+					BigDecimal bpEmpresarial = new BigDecimal(
+							sensiVO.get(i).getMeses()[j].contains(".") ? sensiVO.get(i).getMeses()[j]
+									: sensiVO.get(i).getMeses()[j] + ".00");
+					BigDecimal valorEmpresarial = new BigDecimal(sensiVO.get(empresarial).getMeses()[j].contains(".")
+							? sensiVO.get(empresarial).getMeses()[j]
+							: sensiVO.get(empresarial).getMeses()[j] + ".00");
 
-					atingidoEmpresarial[j] = percentForm.format(Double
-							.parseDouble(valorEmpresarial.toString().equals(
-									"0.00") ? "0.00" : valorEmpresarial.divide(
-									bpEmpresarial, BigDecimal.ROUND_HALF_UP)
-									.toString()));
+					atingidoEmpresarial[j] = percentForm
+							.format(Double.parseDouble(valorEmpresarial.toString().equals("0.00") ? "0.00"
+									: valorEmpresarial.divide(bpEmpresarial, BigDecimal.ROUND_HALF_UP).toString()));
 				}
 
 				if (i == 2) { // bp residencial
-					BigDecimal bpResidencial = new BigDecimal(sensiVO.get(i)
-							.getMeses()[j].contains(".") ? sensiVO.get(i)
-							.getMeses()[j] : sensiVO.get(i).getMeses()[j]
-							+ ".00");
-					BigDecimal valorResidencial = new BigDecimal(sensiVO.get(
-							residencial).getMeses()[j].contains(".") ? sensiVO
-							.get(residencial).getMeses()[j] : sensiVO.get(
-							residencial).getMeses()[j]
-							+ ".00");
+					BigDecimal bpResidencial = new BigDecimal(
+							sensiVO.get(i).getMeses()[j].contains(".") ? sensiVO.get(i).getMeses()[j]
+									: sensiVO.get(i).getMeses()[j] + ".00");
+					BigDecimal valorResidencial = new BigDecimal(sensiVO.get(residencial).getMeses()[j].contains(".")
+							? sensiVO.get(residencial).getMeses()[j]
+							: sensiVO.get(residencial).getMeses()[j] + ".00");
 
-					atingidoResidencial[j] = percentForm.format(Double
-							.parseDouble(valorResidencial.toString().equals(
-									"0.00") ? "0.00" : valorResidencial.divide(
-									bpResidencial, BigDecimal.ROUND_HALF_UP)
-									.toString()));
+					atingidoResidencial[j] = percentForm
+							.format(Double.parseDouble(valorResidencial.toString().equals("0.00") ? "0.00"
+									: valorResidencial.divide(bpResidencial, BigDecimal.ROUND_HALF_UP).toString()));
 				}
 			}
 		}
@@ -1371,8 +1264,7 @@ public class VisaoOperacionalBO extends VisoesBO {
 			String[] arrayFormatadoMoeda = new String[12];
 			for (int j = 0; j < 12; j++) {
 
-				arrayFormatadoMoeda[j] = uti.insereSeparadoresMoeda(sensiVO
-						.get(i).getMeses()[j]);
+				arrayFormatadoMoeda[j] = uti.insereSeparadoresMoeda(sensiVO.get(i).getMeses()[j]);
 
 			}
 			sensiVO.get(i).setMeses(arrayFormatadoMoeda);
@@ -1389,13 +1281,11 @@ public class VisaoOperacionalBO extends VisoesBO {
 	 *
 	 * @return List<SensibilizacaoTotalizadorVO>
 	 * 
-	 * */
-	public List<SensibilizacaoTotalizadorVO> validaSelecionaTotalizadorAcumulado(
-			String tipoMovimento) {
+	 */
+	public List<SensibilizacaoTotalizadorVO> validaSelecionaTotalizadorAcumulado(String tipoMovimento) {
 
 		DecimalFormat percentForm = new DecimalFormat("0%");
-		String dataAtual = new SimpleDateFormat("dd/MM/yyyy").format(new Date(
-				System.currentTimeMillis()));
+		String dataAtual = new SimpleDateFormat("dd/MM/yyyy").format(new Date(System.currentTimeMillis()));
 		String dataCut[] = dataAtual.split("/");
 		String mes = dataCut[1];
 		String ano = dataCut[2];
@@ -1409,32 +1299,31 @@ public class VisaoOperacionalBO extends VisoesBO {
 		sensiVO = dao.selecionaSensibilizacaoTotalizadorAcumulado(ano);
 
 		/*
-		 * aqui eu tenho o select das tabelas no mes atual - emissao e
-		 * financeiro
+		 * aqui eu tenho o select das tabelas no mes atual - emissao e financeiro
 		 */
 
 		// Empresarial
-		List<SensibilizacaoVO> vendasNovasEmpresarial = validaSelecionaTotalSensibilizacao(
-				"1804", "2017", mes, "vendasNovas", tipoMovimento);
-		List<SensibilizacaoVO> fluxoFinanceiroEmpresarial = validaSelecionaTotalSensibilizacao(
-				"1804", "2017", mes, "fluxoFinanceiro", tipoMovimento);
+		List<SensibilizacaoVO> vendasNovasEmpresarial = validaSelecionaTotalSensibilizacao("1804", "2017", mes,
+				"vendasNovas", tipoMovimento);
+		List<SensibilizacaoVO> fluxoFinanceiroEmpresarial = validaSelecionaTotalSensibilizacao("1804", "2017", mes,
+				"fluxoFinanceiro", tipoMovimento);
 
 		// Residencial
-		List<SensibilizacaoVO> vendasNovasResidencial = validaSelecionaTotalSensibilizacao(
-				"1403p1404p1405", "2017", mes, "vendasNovas", tipoMovimento);
-		List<SensibilizacaoVO> fluxoFinanceiroResidencial = validaSelecionaTotalSensibilizacao(
-				"1403p1404p1405", "2017", mes, "fluxoFinanceiro", tipoMovimento);
+		List<SensibilizacaoVO> vendasNovasResidencial = validaSelecionaTotalSensibilizacao("1403p1404p1405", "2017",
+				mes, "vendasNovas", tipoMovimento);
+		List<SensibilizacaoVO> fluxoFinanceiroResidencial = validaSelecionaTotalSensibilizacao("1403p1404p1405", "2017",
+				mes, "fluxoFinanceiro", tipoMovimento);
 
 		// aqui vou tentar juntar o mes atual na tabela temp_sensi
 
-		BigDecimal venNovaEmpre = new BigDecimal(vendasNovasEmpresarial.get(0)
-				.getQuantidade().replace(".", "").replace(",", "."));
-		BigDecimal fluFinaEmpre = new BigDecimal(fluxoFinanceiroEmpresarial
-				.get(0).getQuantidade().replace(".", "").replace(",", "."));
-		BigDecimal venNovaResid = new BigDecimal(vendasNovasResidencial.get(0)
-				.getQuantidade().replace(".", "").replace(",", "."));
-		BigDecimal fluFinaResid = new BigDecimal(fluxoFinanceiroResidencial
-				.get(0).getQuantidade().replace(".", "").replace(",", "."));
+		BigDecimal venNovaEmpre = new BigDecimal(
+				vendasNovasEmpresarial.get(0).getQuantidade().replace(".", "").replace(",", "."));
+		BigDecimal fluFinaEmpre = new BigDecimal(
+				fluxoFinanceiroEmpresarial.get(0).getQuantidade().replace(".", "").replace(",", "."));
+		BigDecimal venNovaResid = new BigDecimal(
+				vendasNovasResidencial.get(0).getQuantidade().replace(".", "").replace(",", "."));
+		BigDecimal fluFinaResid = new BigDecimal(
+				fluxoFinanceiroResidencial.get(0).getQuantidade().replace(".", "").replace(",", "."));
 
 		// get 0 BP-EMPRESARIAL
 		String[] mesArray = sensiVO.get(0).getMeses();
@@ -1460,8 +1349,7 @@ public class VisaoOperacionalBO extends VisoesBO {
 		mesArray = sensiVO.get(empresarial).getMeses();
 
 		/* FACO AQUI A SOMA DO FLUXOfINANCEIRO + VENDASnOVAS EMPRESARIAL */
-		mesArray[Integer.parseInt(mes) - 1] = venNovaEmpre.add(fluFinaEmpre)
-				.toString();
+		mesArray[Integer.parseInt(mes) - 1] = venNovaEmpre.add(fluFinaEmpre).toString();
 		for (int i = 0; i < 12; i++) {
 			if (mesArray[i] == null) {
 				mesArray[i] = "-";
@@ -1473,8 +1361,7 @@ public class VisaoOperacionalBO extends VisoesBO {
 		mesArray = sensiVO.get(residencial).getMeses();
 
 		/* FACO AQUI A SOMA DO FLUXOfINANCEIRO + VENDASnOVAS RESIDENCIAL */
-		mesArray[Integer.parseInt(mes) - 1] = venNovaResid.add(fluFinaResid)
-				.toString();
+		mesArray[Integer.parseInt(mes) - 1] = venNovaResid.add(fluFinaResid).toString();
 		for (int i = 0; i < 12; i++) {
 			if (mesArray[i] == null) {
 				mesArray[i] = "-";
@@ -1489,39 +1376,29 @@ public class VisaoOperacionalBO extends VisoesBO {
 			for (int j = 0; j < 12; j++) {
 
 				if (i == 0) { // bp empresarial
-					BigDecimal bpEmpresarial = new BigDecimal(sensiVO.get(i)
-							.getMeses()[j].contains(".") ? sensiVO.get(i)
-							.getMeses()[j] : sensiVO.get(i).getMeses()[j]
-							+ ".00");
-					BigDecimal valorEmpresarial = new BigDecimal(sensiVO.get(
-							empresarial).getMeses()[j].contains(".") ? sensiVO
-							.get(empresarial).getMeses()[j] : sensiVO.get(
-							empresarial).getMeses()[j]
-							+ ".00");
+					BigDecimal bpEmpresarial = new BigDecimal(
+							sensiVO.get(i).getMeses()[j].contains(".") ? sensiVO.get(i).getMeses()[j]
+									: sensiVO.get(i).getMeses()[j] + ".00");
+					BigDecimal valorEmpresarial = new BigDecimal(sensiVO.get(empresarial).getMeses()[j].contains(".")
+							? sensiVO.get(empresarial).getMeses()[j]
+							: sensiVO.get(empresarial).getMeses()[j] + ".00");
 
-					atingidoEmpresarial[j] = percentForm.format(Double
-							.parseDouble(valorEmpresarial.toString().equals(
-									"0.00") ? "0.00" : valorEmpresarial.divide(
-									bpEmpresarial, BigDecimal.ROUND_HALF_UP)
-									.toString()));
+					atingidoEmpresarial[j] = percentForm
+							.format(Double.parseDouble(valorEmpresarial.toString().equals("0.00") ? "0.00"
+									: valorEmpresarial.divide(bpEmpresarial, BigDecimal.ROUND_HALF_UP).toString()));
 				}
 
 				if (i == 2) { // bp residencial
-					BigDecimal bpResidencial = new BigDecimal(sensiVO.get(i)
-							.getMeses()[j].contains(".") ? sensiVO.get(i)
-							.getMeses()[j] : sensiVO.get(i).getMeses()[j]
-							+ ".00");
-					BigDecimal valorResidencial = new BigDecimal(sensiVO.get(
-							residencial).getMeses()[j].contains(".") ? sensiVO
-							.get(residencial).getMeses()[j] : sensiVO.get(
-							residencial).getMeses()[j]
-							+ ".00");
+					BigDecimal bpResidencial = new BigDecimal(
+							sensiVO.get(i).getMeses()[j].contains(".") ? sensiVO.get(i).getMeses()[j]
+									: sensiVO.get(i).getMeses()[j] + ".00");
+					BigDecimal valorResidencial = new BigDecimal(sensiVO.get(residencial).getMeses()[j].contains(".")
+							? sensiVO.get(residencial).getMeses()[j]
+							: sensiVO.get(residencial).getMeses()[j] + ".00");
 
-					atingidoResidencial[j] = percentForm.format(Double
-							.parseDouble(valorResidencial.toString().equals(
-									"0.00") ? "0.00" : valorResidencial.divide(
-									bpResidencial, BigDecimal.ROUND_HALF_UP)
-									.toString()));
+					atingidoResidencial[j] = percentForm
+							.format(Double.parseDouble(valorResidencial.toString().equals("0.00") ? "0.00"
+									: valorResidencial.divide(bpResidencial, BigDecimal.ROUND_HALF_UP).toString()));
 				}
 			}
 		}
@@ -1539,8 +1416,7 @@ public class VisaoOperacionalBO extends VisoesBO {
 			String[] arrayFormatadoMoeda = new String[12];
 			for (int j = 0; j < 12; j++) {
 
-				arrayFormatadoMoeda[j] = uti.insereSeparadoresMoeda(sensiVO
-						.get(i).getMeses()[j]);
+				arrayFormatadoMoeda[j] = uti.insereSeparadoresMoeda(sensiVO.get(i).getMeses()[j]);
 
 			}
 			sensiVO.get(i).setMeses(arrayFormatadoMoeda);
@@ -1564,7 +1440,7 @@ public class VisaoOperacionalBO extends VisoesBO {
 	 * 
 	 * @return List<CoberturasVO>
 	 * 
-	 * */
+	 */
 	public List<CoberturasVO> validaSelecionaCoberturas() {
 		VisaoOperacionalDAO dao = new VisaoOperacionalDAO();
 		List<CoberturasVO> lista = dao.selecionaCoberturas();
@@ -1573,8 +1449,8 @@ public class VisaoOperacionalBO extends VisoesBO {
 	}
 
 	/**
-	 * Recebe a requisição dos dados inseridos na interface, faz alguns
-	 * tratamentos para enviar um objeto para ser inserido no banco.
+	 * Recebe a requisição dos dados inseridos na interface, faz alguns tratamentos
+	 * para enviar um objeto para ser inserido no banco.
 	 * 
 	 * @return void
 	 * 
@@ -1582,8 +1458,7 @@ public class VisaoOperacionalBO extends VisoesBO {
 
 	public String validaTrataDadosAceitacao(HttpServletRequest req) {
 
-		for (Enumeration<String> e = req.getParameterNames(); e
-				.hasMoreElements();) {
+		for (Enumeration<String> e = req.getParameterNames(); e.hasMoreElements();) {
 			System.out.println(e.nextElement());
 		}
 		// System.out.println(req.getParameter("nAceitacao"));
@@ -1622,38 +1497,28 @@ public class VisaoOperacionalBO extends VisoesBO {
 		RelatorioAceitacaoVO relatorioAce = new RelatorioAceitacaoVO();
 
 		relatorioAce.setNumeroAceitacao(req.getParameter("nAceitacao"));
-		relatorioAce.setNumeroProposta(req.getParameter("nProposta")
-				.replaceAll("[^0-9]", ""));
+		relatorioAce.setNumeroProposta(req.getParameter("nProposta").replaceAll("[^0-9]", ""));
 		relatorioAce.setSegurado(req.getParameter("segurado"));
 		relatorioAce.setLocalRisco(req.getParameter("localRisco"));
 		relatorioAce.setCpf(req.getParameter("cpf"));
 		relatorioAce.setAtividadePrincipal(req.getParameter("combo"));
 		relatorioAce.setInicioVig(req.getParameter("inicioVig"));
 		relatorioAce.setFimVig(req.getParameter("fimVig"));
-		relatorioAce
-				.setIs(req.getParameter("is").replace("_", "")
-						.replace("R$", "").replaceAll("[.]", "")
-						.replaceAll("[,]", "."));
-		relatorioAce.setPremioLiq(req.getParameter("premioLiq")
-				.replace("_", "").replace("R$", "").replaceAll("[.]", "")
+		relatorioAce.setIs(
+				req.getParameter("is").replace("_", "").replace("R$", "").replaceAll("[.]", "").replaceAll("[,]", "."));
+		relatorioAce.setPremioLiq(req.getParameter("premioLiq").replace("_", "").replace("R$", "").replaceAll("[.]", "")
 				.replaceAll("[,]", "."));
-		relatorioAce.setPremioNet(req.getParameter("premioNet")
-				.replace("_", "").replace("R$", "").replaceAll("[.]", "")
+		relatorioAce.setPremioNet(req.getParameter("premioNet").replace("_", "").replace("R$", "").replaceAll("[.]", "")
 				.replaceAll("[,]", "."));
-		relatorioAce.setPremioRetido(req.getParameter("premioRetido")
-				.replace("_", "").replace("R$", "").replaceAll("[.]", "")
-				.replaceAll("[,]", "."));
-		relatorioAce.setPremioCedido(req.getParameter("premioCedido")
-				.replace("_", "").replace("R$", "").replaceAll("[.]", "")
-				.replaceAll("[,]", "."));
-		relatorioAce.setLimiteSinistro(req.getParameter("limiteSinistro")
-				.replace("_", "").replace("R$", "").replaceAll("[.]", "")
-				.replaceAll("[,]", "."));
-		relatorioAce.setPartResseg(req.getParameter("partResseg")
-				.replace("_", "").replace("R$", "").replaceAll("[.]", "")
-				.replaceAll("[,]", "."));
-		relatorioAce.setPartCaixa(req.getParameter("partCaixa")
-				.replace("_", "").replace("R$", "").replaceAll("[.]", "")
+		relatorioAce.setPremioRetido(req.getParameter("premioRetido").replace("_", "").replace("R$", "")
+				.replaceAll("[.]", "").replaceAll("[,]", "."));
+		relatorioAce.setPremioCedido(req.getParameter("premioCedido").replace("_", "").replace("R$", "")
+				.replaceAll("[.]", "").replaceAll("[,]", "."));
+		relatorioAce.setLimiteSinistro(req.getParameter("limiteSinistro").replace("_", "").replace("R$", "")
+				.replaceAll("[.]", "").replaceAll("[,]", "."));
+		relatorioAce.setPartResseg(req.getParameter("partResseg").replace("_", "").replace("R$", "")
+				.replaceAll("[.]", "").replaceAll("[,]", "."));
+		relatorioAce.setPartCaixa(req.getParameter("partCaixa").replace("_", "").replace("R$", "").replaceAll("[.]", "")
 				.replaceAll("[,]", "."));
 
 		String coberturas[] = req.getParameterValues("cobertura");
@@ -1673,17 +1538,11 @@ public class VisaoOperacionalBO extends VisoesBO {
 			// "").replace("R$", "").replaceAll("^[.]+", ""));
 
 			for (int j = 0; j < listaCoberturas.size(); j++) {
-				if (Integer.parseInt(idCobertura) == listaCoberturas.get(j)
-						.getIdCobertura()) {
+				if (Integer.parseInt(idCobertura) == listaCoberturas.get(j).getIdCobertura()) {
 					temp.add(idCobertura
-							+ ";"
-							+ listaCoberturas.get(j).getCobertura()
-							+ ";"
-							+ req.getParameter("cobertura" + i)
-									.replace("_", "").replace("R$", "")
-									.replaceAll("[.]", "")
-									.replaceAll("[,]", ".") + ";"
-							+ listaCoberturas.get(j).getFranquia());
+							+ ";" + listaCoberturas.get(j).getCobertura() + ";" + req.getParameter("cobertura" + i)
+									.replace("_", "").replace("R$", "").replaceAll("[.]", "").replaceAll("[,]", ".")
+							+ ";" + listaCoberturas.get(j).getFranquia());
 				}
 			}
 			i++;
@@ -1693,8 +1552,8 @@ public class VisaoOperacionalBO extends VisoesBO {
 
 		/* PARECER TECNICO */
 		/*
-		 * Por algum motivo estava vindo o caractere "%u200B" do editor de
-		 * texto, o processo a seguir retira este caractere:
+		 * Por algum motivo estava vindo o caractere "%u200B" do editor de texto, o
+		 * processo a seguir retira este caractere:
 		 */
 
 		String parecer = req.getParameter("editor1").toString();
@@ -1705,12 +1564,10 @@ public class VisaoOperacionalBO extends VisoesBO {
 			String jsEscapedString = parecer.replace("%u200B", "");
 			ScriptEngineManager factory = new ScriptEngineManager();
 			ScriptEngine engine = factory.getEngineByName("JavaScript");
-			result = (String) engine
-					.eval("unescape('" + jsEscapedString + "')");
+			result = (String) engine.eval("unescape('" + jsEscapedString + "')");
 		} catch (ScriptException e) {
 			e.printStackTrace();
-			System.out
-					.println("ERRO metodo validaTrataDadosAceitacao VisaoOperacionalBO");
+			System.out.println("ERRO metodo validaTrataDadosAceitacao VisaoOperacionalBO");
 		}
 
 		relatorioAce.setParecerTecnico(result);
@@ -1721,15 +1578,14 @@ public class VisaoOperacionalBO extends VisoesBO {
 		// System.out.println(relatorioAce.getCobertura().get(k));
 		// }
 
-		String numeroAceitacao = dao
-				.insereDadosRelatorioAceitacao(relatorioAce);
+		String numeroAceitacao = dao.insereDadosRelatorioAceitacao(relatorioAce);
 		System.out.println("inseriu");
 		return numeroAceitacao;
 	}
 
 	/**
-	 * Recebe a requisição dos dados inseridos na interface, faz alguns
-	 * tratamentos para enviar um objeto para ser alterado no banco.
+	 * Recebe a requisição dos dados inseridos na interface, faz alguns tratamentos
+	 * para enviar um objeto para ser alterado no banco.
 	 * 
 	 * @return void
 	 * 
@@ -1744,38 +1600,28 @@ public class VisaoOperacionalBO extends VisoesBO {
 
 		RelatorioAceitacaoVO relatorioAce = new RelatorioAceitacaoVO();
 		relatorioAce.setNumeroAceitacao(req.getParameter("nAceitacao"));
-		relatorioAce.setNumeroProposta(req.getParameter("nProposta")
-				.replaceAll("[^0-9]", ""));
+		relatorioAce.setNumeroProposta(req.getParameter("nProposta").replaceAll("[^0-9]", ""));
 		relatorioAce.setSegurado(req.getParameter("segurado"));
 		relatorioAce.setLocalRisco(req.getParameter("localRisco"));
 		relatorioAce.setCpf(req.getParameter("cpf"));
 		relatorioAce.setAtividadePrincipal(req.getParameter("combo"));
 		relatorioAce.setInicioVig(req.getParameter("inicioVig"));
 		relatorioAce.setFimVig(req.getParameter("fimVig"));
-		relatorioAce
-				.setIs(req.getParameter("is").replace("_", "")
-						.replace("R$", "").replaceAll("[.]", "")
-						.replaceAll("[,]", "."));
-		relatorioAce.setPremioLiq(req.getParameter("premioLiq")
-				.replace("_", "").replace("R$", "").replaceAll("[.]", "")
+		relatorioAce.setIs(
+				req.getParameter("is").replace("_", "").replace("R$", "").replaceAll("[.]", "").replaceAll("[,]", "."));
+		relatorioAce.setPremioLiq(req.getParameter("premioLiq").replace("_", "").replace("R$", "").replaceAll("[.]", "")
 				.replaceAll("[,]", "."));
-		relatorioAce.setPremioNet(req.getParameter("premioNet")
-				.replace("_", "").replace("R$", "").replaceAll("[.]", "")
+		relatorioAce.setPremioNet(req.getParameter("premioNet").replace("_", "").replace("R$", "").replaceAll("[.]", "")
 				.replaceAll("[,]", "."));
-		relatorioAce.setPremioRetido(req.getParameter("premioRetido")
-				.replace("_", "").replace("R$", "").replaceAll("[.]", "")
-				.replaceAll("[,]", "."));
-		relatorioAce.setPremioCedido(req.getParameter("premioCedido")
-				.replace("_", "").replace("R$", "").replaceAll("[.]", "")
-				.replaceAll("[,]", "."));
-		relatorioAce.setLimiteSinistro(req.getParameter("limiteSinistro")
-				.replace("_", "").replace("R$", "").replaceAll("[.]", "")
-				.replaceAll("[,]", "."));
-		relatorioAce.setPartResseg(req.getParameter("partResseg")
-				.replace("_", "").replace("R$", "").replaceAll("[.]", "")
-				.replaceAll("[,]", "."));
-		relatorioAce.setPartCaixa(req.getParameter("partCaixa")
-				.replace("_", "").replace("R$", "").replaceAll("[.]", "")
+		relatorioAce.setPremioRetido(req.getParameter("premioRetido").replace("_", "").replace("R$", "")
+				.replaceAll("[.]", "").replaceAll("[,]", "."));
+		relatorioAce.setPremioCedido(req.getParameter("premioCedido").replace("_", "").replace("R$", "")
+				.replaceAll("[.]", "").replaceAll("[,]", "."));
+		relatorioAce.setLimiteSinistro(req.getParameter("limiteSinistro").replace("_", "").replace("R$", "")
+				.replaceAll("[.]", "").replaceAll("[,]", "."));
+		relatorioAce.setPartResseg(req.getParameter("partResseg").replace("_", "").replace("R$", "")
+				.replaceAll("[.]", "").replaceAll("[,]", "."));
+		relatorioAce.setPartCaixa(req.getParameter("partCaixa").replace("_", "").replace("R$", "").replaceAll("[.]", "")
 				.replaceAll("[,]", "."));
 
 		String coberturas[] = req.getParameterValues("cobertura");
@@ -1795,17 +1641,11 @@ public class VisaoOperacionalBO extends VisoesBO {
 			// "").replace("R$", "").replaceAll("^[.]+", ""));
 
 			for (int j = 0; j < listaCoberturas.size(); j++) {
-				if (Integer.parseInt(idCobertura) == listaCoberturas.get(j)
-						.getIdCobertura()) {
+				if (Integer.parseInt(idCobertura) == listaCoberturas.get(j).getIdCobertura()) {
 					temp.add(idCobertura
-							+ ";"
-							+ listaCoberturas.get(j).getCobertura()
-							+ ";"
-							+ req.getParameter("cobertura" + i)
-									.replace("_", "").replace("R$", "")
-									.replaceAll("[.]", "")
-									.replaceAll("[,]", ".") + ";"
-							+ listaCoberturas.get(j).getFranquia());
+							+ ";" + listaCoberturas.get(j).getCobertura() + ";" + req.getParameter("cobertura" + i)
+									.replace("_", "").replace("R$", "").replaceAll("[.]", "").replaceAll("[,]", ".")
+							+ ";" + listaCoberturas.get(j).getFranquia());
 				}
 			}
 			i++;
@@ -1815,8 +1655,8 @@ public class VisaoOperacionalBO extends VisoesBO {
 
 		/* PARECER TECNICO */
 		/*
-		 * Por algum motivo estava vindo o caractere "%u200B" do editor de
-		 * texto, o processo a seguir retira este caractere:
+		 * Por algum motivo estava vindo o caractere "%u200B" do editor de texto, o
+		 * processo a seguir retira este caractere:
 		 */
 
 		String parecer = req.getParameter("editor1").toString();
@@ -1827,12 +1667,10 @@ public class VisaoOperacionalBO extends VisoesBO {
 			String jsEscapedString = parecer.replace("%u200B", "");
 			ScriptEngineManager factory = new ScriptEngineManager();
 			ScriptEngine engine = factory.getEngineByName("JavaScript");
-			result = (String) engine
-					.eval("unescape('" + jsEscapedString + "')");
+			result = (String) engine.eval("unescape('" + jsEscapedString + "')");
 		} catch (ScriptException e) {
 			e.printStackTrace();
-			System.out
-					.println("ERRO metodo validaTrataDadosAceitacaoAlterar VisaoOperacionalBO");
+			System.out.println("ERRO metodo validaTrataDadosAceitacaoAlterar VisaoOperacionalBO");
 		}
 
 		relatorioAce.setParecerTecnico(result);
@@ -1843,8 +1681,7 @@ public class VisaoOperacionalBO extends VisoesBO {
 		// System.out.println(relatorioAce.getCobertura().get(k));
 		// }
 
-		String numeroAceitacao = dao
-				.alteraDadosRelatorioAceitacao(relatorioAce);
+		String numeroAceitacao = dao.alteraDadosRelatorioAceitacao(relatorioAce);
 		System.out.println("alterou");
 		return numeroAceitacao;
 	}
@@ -1859,8 +1696,7 @@ public class VisaoOperacionalBO extends VisoesBO {
 		VisaoOperacionalDAO dao = new VisaoOperacionalDAO();
 		String num = "";
 		try {
-			num = Integer.toString(Integer.parseInt(dao
-					.selecionaMaiorNumeroAceitacao()) + 1);
+			num = Integer.toString(Integer.parseInt(dao.selecionaMaiorNumeroAceitacao()) + 1);
 		} catch (NumberFormatException nfe) {
 			num = "40";
 		}
@@ -1873,9 +1709,8 @@ public class VisaoOperacionalBO extends VisoesBO {
 	 * 
 	 * @return List<CoberturasVO>
 	 * 
-	 * */
-	public List<RelatorioAceitacaoVO> validaSelecionaRelatoriosSalvos(
-			String numAceitacao) {
+	 */
+	public List<RelatorioAceitacaoVO> validaSelecionaRelatoriosSalvos(String numAceitacao) {
 		Uteis uteis = new Uteis();
 		VisaoOperacionalDAO dao = new VisaoOperacionalDAO();
 		List<RelatorioAceitacaoVO> lista = null;
@@ -1886,41 +1721,23 @@ public class VisaoOperacionalBO extends VisoesBO {
 
 				// System.out.println(lista.get(i).getPremioLiq());
 
-				lista.get(i).setIs(
-						uteis.insereSeparadoresMoeda(lista.get(i).getIs()));
-				lista.get(i).setPremioLiq(
-						uteis.insereSeparadoresMoeda(lista.get(i)
-								.getPremioLiq()));
-				lista.get(i).setPremioNet(
-						uteis.insereSeparadoresMoeda(lista.get(i)
-								.getPremioNet()));
-				lista.get(i).setPremioRetido(
-						uteis.insereSeparadoresMoeda(lista.get(i)
-								.getPremioRetido()));
-				lista.get(i).setPremioCedido(
-						uteis.insereSeparadoresMoeda(lista.get(i)
-								.getPremioCedido()));
-				lista.get(i).setLimiteSinistro(
-						uteis.insereSeparadoresMoeda(lista.get(i)
-								.getLimiteSinistro()));
-				lista.get(i).setPartResseg(
-						uteis.insereSeparadoresMoeda(lista.get(i)
-								.getPartResseg()));
-				lista.get(i).setPartCaixa(
-						uteis.insereSeparadoresMoeda(lista.get(i)
-								.getPartCaixa()));
-				lista.get(i).setInicioVig(
-						uteis.editaData(lista.get(i).getInicioVig()));
-				lista.get(i).setFimVig(
-						uteis.editaData(lista.get(i).getFimVig()));
+				lista.get(i).setIs(uteis.insereSeparadoresMoeda(lista.get(i).getIs()));
+				lista.get(i).setPremioLiq(uteis.insereSeparadoresMoeda(lista.get(i).getPremioLiq()));
+				lista.get(i).setPremioNet(uteis.insereSeparadoresMoeda(lista.get(i).getPremioNet()));
+				lista.get(i).setPremioRetido(uteis.insereSeparadoresMoeda(lista.get(i).getPremioRetido()));
+				lista.get(i).setPremioCedido(uteis.insereSeparadoresMoeda(lista.get(i).getPremioCedido()));
+				lista.get(i).setLimiteSinistro(uteis.insereSeparadoresMoeda(lista.get(i).getLimiteSinistro()));
+				lista.get(i).setPartResseg(uteis.insereSeparadoresMoeda(lista.get(i).getPartResseg()));
+				lista.get(i).setPartCaixa(uteis.insereSeparadoresMoeda(lista.get(i).getPartCaixa()));
+				lista.get(i).setInicioVig(uteis.editaData(lista.get(i).getInicioVig()));
+				lista.get(i).setFimVig(uteis.editaData(lista.get(i).getFimVig()));
 			}
 		} else {
 			lista = dao.selecionaRelatoriosSalvos(null);
 		}
 
 		for (int i = 0; i < lista.size(); i++) {
-			lista.get(i).setParecerTecnico(
-					lista.get(i).getParecerTecnico().replace("\'", "\""));
+			lista.get(i).setParecerTecnico(lista.get(i).getParecerTecnico().replace("\'", "\""));
 			lista.get(i).setCpf(lista.get(i).getCpf().replace("\'", "\""));
 		}
 
@@ -1932,17 +1749,15 @@ public class VisaoOperacionalBO extends VisoesBO {
 	 * 
 	 * @return List<CoberturasVO>
 	 * 
-	 * */
-	public List<CoberturasVO> validaSelecionaCoberturasRelatoriosSalvos(
-			String numAceitacao) {
+	 */
+	public List<CoberturasVO> validaSelecionaCoberturasRelatoriosSalvos(String numAceitacao) {
 		Uteis uteis = new Uteis();
 		VisaoOperacionalDAO dao = new VisaoOperacionalDAO();
 		List<CoberturasVO> lista = null;
 		if (numAceitacao != null) {
 			lista = dao.selecionaCoberturasRelatoriosSalvos(numAceitacao);
 			for (int i = 0; i < lista.size(); i++) {
-				lista.get(i).setLMI(
-						uteis.insereSeparadoresMoeda(lista.get(i).getLMI()));
+				lista.get(i).setLMI(uteis.insereSeparadoresMoeda(lista.get(i).getLMI()));
 			}
 		} else {
 			lista = dao.selecionaCoberturasRelatoriosSalvos(null);
@@ -1960,17 +1775,15 @@ public class VisaoOperacionalBO extends VisoesBO {
 	 * 
 	 * @return List<CoberturasVO>
 	 * 
-	 * */
+	 */
 	public void validaGravaAlteracoesGrid(HttpServletRequest req) {
 		VisaoOperacionalDAO dao = new VisaoOperacionalDAO();
 
 		String colunaGrid = req.getParameter("colunaGrid");
 		String numAcei = req.getParameter("numAcei");
-		if (colunaGrid.equalsIgnoreCase("data_entrega")
-				|| colunaGrid.equalsIgnoreCase("data_saida")) {
+		if (colunaGrid.equalsIgnoreCase("data_entrega") || colunaGrid.equalsIgnoreCase("data_saida")) {
 			long mili = Long.parseLong(req.getParameter("data"));
-			String date = new java.text.SimpleDateFormat("yyyy-MM-dd")
-					.format(new java.util.Date(mili));
+			String date = new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date(mili));
 			// /insere data
 			dao.atualizaDataStatus(date, Integer.parseInt(numAcei), colunaGrid);
 		} else {
@@ -1985,8 +1798,7 @@ public class VisaoOperacionalBO extends VisoesBO {
 				situacao = 0;
 				break;
 			}
-			dao.atualizaDataStatus(Integer.toString(situacao),
-					Integer.parseInt(numAcei),
+			dao.atualizaDataStatus(Integer.toString(situacao), Integer.parseInt(numAcei),
 					colunaGrid.replace("status", "status_checkbox"));
 		}
 

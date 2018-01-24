@@ -73,7 +73,7 @@
 				];
 				
 				// create jqxTree
-				$('#jqxTree').jqxTree({ source: source });
+				$('#jqxTree').jqxTree({ source: source, enableHover: true });
 				
 				//$('#Events').jqxPanel({ height: '250px', width: '170px' });
 				

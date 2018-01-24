@@ -14,13 +14,13 @@ import caixa.dirid.VO.FaturamentoVO;
 public class VisaoExecutivaDAO extends VisoesDAO {
 
 	/**
-	 * Retorna lista contendo BP,EMITIDO,EMITIDOS CANCELADOS,EMITIDOS
-	 * RESTITUIDOS, QT APOLICES EMITIDAS,QT SINISTROS AVISADOS,QT SINISTROS
-	 * INDENIZADOS,RVNE SINISTROS AVISADOS,SINISTROS INDENIZADOS. O retorno é
-	 * feito em milhoes e com varias casas decimais.
+	 * Retorna lista contendo BP,EMITIDO,EMITIDOS CANCELADOS,EMITIDOS RESTITUIDOS,
+	 * QT APOLICES EMITIDAS,QT SINISTROS AVISADOS,QT SINISTROS INDENIZADOS,RVNE
+	 * SINISTROS AVISADOS,SINISTROS INDENIZADOS. O retorno é feito em milhoes e com
+	 * varias casas decimais.
 	 * 
-	 * Esse metodo tambem verifica se a tabela temp_graficoFaturamento esta
-	 * vazia para que novos dados sejam inseridos
+	 * Esse metodo tambem verifica se a tabela temp_graficoFaturamento esta vazia
+	 * para que novos dados sejam inseridos
 	 * 
 	 * @return List<FaturamentoVO>
 	 * 
@@ -28,9 +28,7 @@ public class VisaoExecutivaDAO extends VisoesDAO {
 	 */
 	public List<FaturamentoVO> selecionaDadosFaturamento(String ano) {
 		// Connection con = new Conexao().getConexaoMySqlSQLServer();
-		Connection con = new Conexao()
-				.getConexaoMySql("selecionaDadosFaturamento - VisaoExecutivaDAO - "
-						+ ano);
+		Connection con = new Conexao().getConexaoMySql("selecionaDadosFaturamento - VisaoExecutivaDAO - " + ano);
 		List<FaturamentoVO> fatu = new ArrayList<FaturamentoVO>();
 		try {
 			Statement statement = con.createStatement();
@@ -43,15 +41,11 @@ public class VisaoExecutivaDAO extends VisoesDAO {
 			/* *************************** */
 			/* Utilizando sintaxe MySql */
 			/* *************************** */
-			String verificaTabela = "SELECT Tipo FROM temp_graficoFaturamento where ano = "
-					+ anoAtual + " LIMIT 1,1;";
+			String verificaTabela = "SELECT Tipo FROM temp_graficoFaturamento where ano = " + anoAtual + " LIMIT 1,1;";
 			String criaTabela = "CREATE TABLE temp_graficoFaturamento(id int primary key auto_increment, Produto VARCHAR(40), Tipo VARCHAR(40), Ano VARCHAR(7), Jane VARCHAR(40),feve VARCHAR(40),marc VARCHAR(40), abri VARCHAR(40), maio VARCHAR(40), junh VARCHAR(40), julh VARCHAR(40), agos VARCHAR(40), sete VARCHAR(40), outu VARCHAR(40), nove VARCHAR(40),deze VARCHAR(40));";
 
 			String sqlFinal = "SELECT Tipo,  	CASE WHEN jane IS NULL THEN '0.0'  		ELSE jane END AS jane,     CASE WHEN feve IS NULL THEN '0.0'  		ELSE feve END AS feve, 	CASE WHEN marc IS NULL THEN '0.0' 		ELSE marc END AS marc, 	CASE WHEN abri IS NULL THEN '0.0'  		ELSE abri END AS abri, 	CASE WHEN maio IS NULL THEN '0.0'  		ELSE maiO END AS maio,  	CASE WHEN JUNH IS NULL THEN '0.0' 		ELSE junh END AS junh, 	CASE WHEN julh IS NULL THEN '0.0'  		ELSE julh END AS julh, 	CASE WHEN agos IS NULL THEN '0.0'  		ELSE agos END AS agos, 	CASE WHEN sete IS NULL THEN '0.0'  		ELSE sete END AS sete, 	CASE WHEN outu IS NULL THEN '0.0'  		ELSE outu END AS outu, 	CASE WHEN nove IS NULL THEN '0.0' 		ELSE nove END AS nove,  	CASE WHEN deze IS NULL THEN '0.0' 		ELSE deze END AS deze FROM temp_graficoFaturamento where Ano = '"
-					+ anoAtual
-					+ "' and Produto like '%"
-					+ tipo
-					+ "%' order by Tipo;";
+					+ anoAtual + "' and Produto like '%" + tipo + "%' order by Tipo;";
 
 			boolean repete = true;
 			do {
@@ -62,9 +56,8 @@ public class VisaoExecutivaDAO extends VisoesDAO {
 					// se a tabela existir e NAO tiver dados
 					if (!verifica.first()) {
 						// insere dados na tabela
-						System.out
-								.println(new Date(System.currentTimeMillis())
-										+ " Método selecionaDadosFaturamento: Inserindo dados na tabela...");
+						System.out.println(new Date(System.currentTimeMillis())
+								+ " Método selecionaDadosFaturamento: Inserindo dados na tabela...");
 
 						/* ==================================== */
 
@@ -123,6 +116,10 @@ public class VisaoExecutivaDAO extends VisoesDAO {
 						statement.executeUpdate(insereEmpresarial2016);
 						String insereEmpresarial2015 = "call `prcDadosFaturamento`('2015','MR Empresarial','1801,1802,1804')";
 						statement.executeUpdate(insereEmpresarial2015);
+
+						/* Empresarial Prazo Curto */
+						String insereEmpresarialPrazoCurto2017 = "call `prcDadosFaturamento`('2017','Empresarial Prazo Curto','1809')";
+						statement.executeUpdate(insereEmpresarial2017);
 
 						/* LOTERICO */
 						String insereLoterico2017 = "call `prcDadosFaturamento_Loterico_CCA`('2017','LOTERICO','%Lote%','1803')";
@@ -184,12 +181,20 @@ public class VisaoExecutivaDAO extends VisoesDAO {
 						String insereAporte2015 = "call `prcDadosFaturamento`('2015','MR Residencial Aporte Caixa','1406,1408')";
 						statement.executeUpdate(insereAporte2015);
 
+						/* Minha Casa Minha Vida Mais Premiavel */
+						String insereMCMVMaisPremiavel2017 = "call `prcDadosFaturamento`('2017','MCMV Mais Premiavel','1412')";
+						statement.executeUpdate(insereMCMVMaisPremiavel2017);
+						
+						/* Cibrasec Securitizadora */
+						String insereCibrasecSecuritizadora2017 = "call `prcDadosFaturamento`('2017','Cibrasec Securitizadora','1413')";
+						statement.executeUpdate(insereCibrasecSecuritizadora2017);
+						
 						/* RD PF Outros */
-						String insereRdPfOutros2017 = "call `prcDadosFaturamento`('2017','Rd Pf Outros','1002,1410,1489,4002,7100,7101,7106,7107,7108,7109,7110,7117,7122,7123')";
+						String insereRdPfOutros2017 = "call `prcDadosFaturamento`('2017','Rd Pf Outros','1002,1410,1411,1489,4002,7100,7101,7106,7107,7108,7109,7110,7117,7122,7123')";
 						statement.executeUpdate(insereRdPfOutros2017);
-						String insereRdPfOutros2016 = "call `prcDadosFaturamento`('2016','Rd Pf Outros','1002,1410,1489,4002,7100,7101,7106,7107,7108,7109,7110,7117,7122,7123')";
+						String insereRdPfOutros2016 = "call `prcDadosFaturamento`('2016','Rd Pf Outros','1002,1410,1411,1489,4002,7100,7101,7106,7107,7108,7109,7110,7117,7122,7123')";
 						statement.executeUpdate(insereRdPfOutros2016);
-						String insereRdPfOutros2015 = "call `prcDadosFaturamento`('2015','Rd Pf Outros','1002,1410,1489,4002,7100,7101,7106,7107,7108,7109,7110,7117,7122,7123')";
+						String insereRdPfOutros2015 = "call `prcDadosFaturamento`('2015','Rd Pf Outros','1002,1410,1411,1489,4002,7100,7101,7106,7107,7108,7109,7110,7117,7122,7123')";
 						statement.executeUpdate(insereRdPfOutros2015);
 
 						/*
@@ -227,9 +232,8 @@ public class VisaoExecutivaDAO extends VisoesDAO {
 						String insereDIRID2015 = "call `prcDadosFaturamentoDirid`('2015','Dirid')";
 						statement.executeUpdate(insereDIRID2015);
 
-						System.out
-								.println(new Date(System.currentTimeMillis())
-										+ " Método selecionaDadosFaturamento: ...dados inseridos.");
+						System.out.println(new Date(System.currentTimeMillis())
+								+ " Método selecionaDadosFaturamento: ...dados inseridos.");
 					}
 					// Finaliza o laço "Do"
 					repete = false;
@@ -238,9 +242,8 @@ public class VisaoExecutivaDAO extends VisoesDAO {
 				} catch (SQLException e) {
 					System.out.println("Exception: " + e);
 					statement.executeUpdate(criaTabela); // cria a tabela
-					System.out
-							.println(new Date(System.currentTimeMillis())
-									+ ": Método selecionaDadosFaturamento - Tabela criada.");
+					System.out.println(new Date(System.currentTimeMillis())
+							+ ": Método selecionaDadosFaturamento - Tabela criada.");
 				}
 			} while (repete);
 
@@ -263,15 +266,13 @@ public class VisaoExecutivaDAO extends VisoesDAO {
 
 		} catch (SQLException SQLe) {
 			SQLe.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaDadosFaturamento VisaoExecutivaDAO");
+			System.out.println("ERRO metodo selecionaDadosFaturamento VisaoExecutivaDAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo selecionaDadosFaturamento VisaoExecutivaDAO");
+				System.out.println("ERRO metodo selecionaDadosFaturamento VisaoExecutivaDAO");
 			}
 		}
 
@@ -283,9 +284,9 @@ public class VisaoExecutivaDAO extends VisoesDAO {
 	/***************************************/
 
 	/**
-	 * Retorna APENAS o Faturamento sem RVNE do ano/produto passado por
-	 * parametro O Retorno eh feito em milhoes e com varias casas
-	 * decimais.Exemplo: '25011566.14000021'.
+	 * Retorna APENAS o Faturamento sem RVNE do ano/produto passado por parametro O
+	 * Retorno eh feito em milhoes e com varias casas decimais.Exemplo:
+	 * '25011566.14000021'.
 	 * 
 	 * @return List<FaturamentoVO>
 	 * 
@@ -295,16 +296,15 @@ public class VisaoExecutivaDAO extends VisoesDAO {
 		// Connection con = new Conexao().getConexaoMySqlSQLServer();
 
 		List<FaturamentoVO> fatu = new ArrayList<FaturamentoVO>();
-		Connection con = new Conexao()
-				.getConexaoMySql("selecionaFaturamentoTotal - VisaoExecutivaDAO");
+		Connection con = new Conexao().getConexaoMySql("selecionaFaturamentoTotal - VisaoExecutivaDAO");
 
 		try {
 			Statement statement = con.createStatement();
 
 			String anoAtual = uteis.cortaRetornaAno(ano);
 
-			String sqlFinal = "call prcFaturamentoTotal('" + anoAtual + "','%"
-					+ uteis.cortaRetornaProduto(ano) + "%');";
+			String sqlFinal = "call prcFaturamentoTotal('" + anoAtual + "','%" + uteis.cortaRetornaProduto(ano)
+					+ "%');";
 
 			List<FaturamentoVO> listaRvne = selecionaRVNE(ano, 2, "0");
 
@@ -321,10 +321,8 @@ public class VisaoExecutivaDAO extends VisoesDAO {
 
 				for (int i = 2; i <= 13; i++) {
 
-					mesesAno[i - 2] = Double
-							.toString(Double.parseDouble(rs.getString(i))
-									+ Double.parseDouble(listaRvne.get(0)
-											.getMeses()[i - 2]));
+					mesesAno[i - 2] = Double.toString(Double.parseDouble(rs.getString(i))
+							+ Double.parseDouble(listaRvne.get(0).getMeses()[i - 2]));
 				}
 
 				fatuVO.setMeses(mesesAno);
@@ -333,15 +331,13 @@ public class VisaoExecutivaDAO extends VisoesDAO {
 
 		} catch (SQLException SQLe) {
 			SQLe.printStackTrace();
-			System.out
-					.println("ERRO metodo selecionaFaturamentoTotal VisaoExecutivaDAO");
+			System.out.println("ERRO metodo selecionaFaturamentoTotal VisaoExecutivaDAO");
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.out
-						.println("ERRO metodo selecionaFaturamentoTotal VisaoExecutivaDAO");
+				System.out.println("ERRO metodo selecionaFaturamentoTotal VisaoExecutivaDAO");
 			}
 		}
 

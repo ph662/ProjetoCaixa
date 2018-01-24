@@ -34,7 +34,7 @@
 						List<RvneVO> lista = (List<RvneVO>) request.getAttribute("rvne");
 						
 						for (int i = 0; i < lista.size(); i++) {
-							if(! ( lista.get(i).getProduto().contains("Lar Mais") || lista.get(i).getProduto().contains("MR Residencial Aporte Caixa") || lista.get(i).getProduto().contains("Rd Pf Outros") || lista.get(i).getProduto().contains("Dirid") ) ){ 		
+							if(! ( lista.get(i).getProduto().contains("Lar Mais") || lista.get(i).getProduto().contains("MCMV Mais Premiavel") || lista.get(i).getProduto().contains("Cibrasec Securitizadora") || lista.get(i).getProduto().contains("Empresarial Prazo Curto") || lista.get(i).getProduto().contains("MR Residencial Aporte Caixa") || lista.get(i).getProduto().contains("Rd Pf Outros") || lista.get(i).getProduto().contains("Dirid") ) ){ 		
 					%>
 								<tr>
 									<input id="<%=lista.get(i).getProduto()%>" type="hidden" value="<%=lista.get(i).getId() %>" />

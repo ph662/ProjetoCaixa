@@ -39,7 +39,7 @@ $(document).ready(function () {
 	 var a = sessionStorage.getItem("numeroAceitacao");
 	    alert(a);
 //	var thisis ='tess';
-	//var popwin = window.open('http://10.125.7.51:8080/ProjetoCaixa/pagiMenuPrincipal.jsp');
+	//var popwin = window.open('http://10.125.7.49:8080/ProjetoCaixa/pagiMenuPrincipal.jsp');
 	//popwin.vari = thisis;
 	
 	var id = "loucuraaaaaa";
@@ -49,10 +49,10 @@ $(document).ready(function () {
 	    sessionStorage.setItem("sent", id); 
 
 	    //this is to open a window in new tab
-	    window.open("http://10.125.7.51:8080/ProjetoCaixa/pagiMenuPrincipal.jsp","_blank");
+	    window.open("http://10.125.7.49:8080/ProjetoCaixa/pagiMenuPrincipal.jsp","_blank");
 
 	
-    setTimeout(function(){window.location.href='http://10.125.7.51:8080/ProjetoCaixa/pagiRelatorioSensibilizacaoFinanceiro.jsp';},4000);
+    setTimeout(function(){window.location.href='http://10.125.7.49:8080/ProjetoCaixa/pagiRelatorioSensibilizacaoFinanceiro.jsp';},4000);
     
     
 	$('.searchType').click(function() {

@@ -18,8 +18,7 @@ import caixa.dirid.BO.VisaoOperacionalBO;
 public class VisaoOperacionalServlet extends HttpServlet {
 
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
 		VisaoOperacionalBO boOperacional = new VisaoOperacionalBO();
 		/*
@@ -30,26 +29,16 @@ public class VisaoOperacionalServlet extends HttpServlet {
 		 * =============================================
 		 */
 		if (req.getParameter("tipo").equals("renovacao")) {
-			req.setAttribute(
-					"listaRenovacao",
-					boOperacional.validaSelecionaAnaliseRenovacao(
-							req.getParameter("mes"), req.getParameter("ano")));
-			req.setAttribute(
-					"listaCanal",
-					boOperacional.validaSelecionaCanalApolicesEmitidas(
-							req.getParameter("mes"), req.getParameter("ano")));
-			req.setAttribute(
-					"listaRenovacaoCanal",
-					boOperacional.validaSelecionaRenovacoesRealizadas(
-							req.getParameter("mes"), req.getParameter("ano")));
+			req.setAttribute("listaRenovacao",boOperacional.validaSelecionaAnaliseRenovacao(req.getParameter("mes"), req.getParameter("ano"), req.getParameter("codProd")));
+			req.setAttribute("listaCanal",boOperacional.validaSelecionaCanalApolicesEmitidas(req.getParameter("mes"), req.getParameter("ano"), req.getParameter("codProd")));
+			req.setAttribute("listaRenovacaoCanal",boOperacional.validaSelecionaRenovacoesRealizadas(req.getParameter("mes"), req.getParameter("ano"), req.getParameter("codProd")));
 			// utilizado para evitar o erro:
 			// "Motivo: o cabeçalho CORS 'Access-Control-Allow-Origin' não está presente"
 			// gerado quando acesso a aplicação pelo localhost para o ip local
-			// 10.125.7.51
+			// 10.125.7.49
 			resp.setHeader("Access-Control-Allow-Origin", "*");
 
-			req.getRequestDispatcher("ajaxTabelaRenovacao.jsp").forward(req,
-					resp);
+			req.getRequestDispatcher("ajaxTabelaRenovacao.jsp").forward(req,resp);
 			/*
 			 * =============================================
 			 * 
@@ -63,7 +52,7 @@ public class VisaoOperacionalServlet extends HttpServlet {
 				resp.setHeader("Content-Disposition",
 						"attachment; filename=\"teste.xlsl\"");
 
-				String filePath = "D:\\workspace/ProjetoCaixaLocal_1.3/WebContent/Downloads/"
+				String filePath = "D:\\eclipse-workspace/ProjetoCaixaLocal_1.3/WebContent/Downloads/"
 						+ req.getParameter("categoria")
 						+ "/"
 						+ req.getParameter("categoria")
@@ -201,7 +190,7 @@ public class VisaoOperacionalServlet extends HttpServlet {
 							// gerado quando acesso a aplicação pelo localhost
 							// para
 							// o ip local
-							// 10.125.7.51
+							// 10.125.7.49
 							resp.setHeader("Access-Control-Allow-Origin", "*");
 
 							req.getRequestDispatcher(
@@ -362,7 +351,7 @@ public class VisaoOperacionalServlet extends HttpServlet {
 							// gerado quando acesso a aplicação pelo localhost
 							// para
 							// o ip local
-							// 10.125.7.51
+							// 10.125.7.49
 							resp.setHeader("Access-Control-Allow-Origin", "*");
 
 							req.getRequestDispatcher(
@@ -444,7 +433,7 @@ public class VisaoOperacionalServlet extends HttpServlet {
 							// gerado quando acesso a aplicação pelo localhost
 							// para
 							// o ip local
-							// 10.125.7.51
+							// 10.125.7.49
 							resp.setHeader("Access-Control-Allow-Origin", "*");
 
 							req.getRequestDispatcher(

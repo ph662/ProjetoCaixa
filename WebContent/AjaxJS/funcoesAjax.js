@@ -21,7 +21,7 @@ function enviaAjax(dados){
 function dadosRenovacao(ano,mes){
 	if (!(mes === "zero") && !(ano === "zero")){
 		$.ajax({
-			url: "http://"+ip_porta+"/ProjetoCaixa/visaoOperacional?tipo=renovacao&mes="+mes+"&ano="+ano,
+			url: "http://"+ip_porta+"/ProjetoCaixa/visaoOperacional?tipo=renovacao&mes="+mes+"&ano="+ano+"&codProd=*",
 			global: false,
 			type: "GET",
 			//data: (dadosTratados),
