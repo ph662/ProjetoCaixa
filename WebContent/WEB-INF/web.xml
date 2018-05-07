@@ -53,7 +53,18 @@
     <servlet-name>EuroServlet</servlet-name>
     <url-pattern>/euroServlet</url-pattern>
   </servlet-mapping>
+
   
+  <servlet>
+    <servlet-name>CopaServlet</servlet-name>
+    <servlet-class>caixa.dirid.SERVLET.CopaServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>CopaServlet</servlet-name>
+    <url-pattern>/copaServlet</url-pattern>
+  </servlet-mapping>
+  
+    
   
   <error-page>
     <error-code>404</error-code>

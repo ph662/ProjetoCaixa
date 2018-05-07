@@ -1,0 +1,1395 @@
+<%@ page import="java.text.DecimalFormat"%>
+<%@ page import="java.math.BigDecimal"%>
+<%@ page import="caixa.dirid.VO.CopaUsuarioVO"%>
+<%@ page import="caixa.dirid.VO.CopaPartidasVO"%>
+<%@ page import="caixa.dirid.VO.CopaApostasRealizadasVO"%>
+<%@ page import="caixa.dirid.UTEIS.*"%>
+<%@ page import="java.util.*"%>
+<%@ page import="java.text.*"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"	pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+
+	<%
+		/***********/
+		/*VARIAVEIS*/
+		/***********/
+	
+		//Recebem o objeto "VO" da servlet "VisaoExecutivaServlet.java"
+		CopaUsuarioVO usuario = (CopaUsuarioVO) request.getAttribute("objetoUsuario");
+	
+		String login = (String) request.getAttribute("usuario");
+		String senha = (String) request.getAttribute("senha");
+		
+		List<CopaPartidasVO> partidas = (List<CopaPartidasVO>) request.getAttribute("dadosPartidas");
+		List<CopaApostasRealizadasVO> apostasRealizadas = (List<CopaApostasRealizadasVO>) request.getAttribute("apostasRealizadas");
+		
+		/*
+		List<CopaPartidasVO> partidasF2 = (List<CopaPartidasVO>) request.getAttribute("dadosPartidasF2");
+		List<CopaApostasRealizadasVO> apostasRealizadasF2 = (List<CopaApostasRealizadasVO>) request.getAttribute("apostasRealizadasF2");
+		
+		List<CopaPartidasVO> partidasF3 = (List<CopaPartidasVO>) request.getAttribute("dadosPartidasF3");
+		List<CopaApostasRealizadasVO> apostasRealizadasF3 = (List<CopaApostasRealizadasVO>) request.getAttribute("apostasRealizadasF3");
+		
+		List<CopaPartidasVO> partidasF4 = (List<CopaPartidasVO>) request.getAttribute("dadosPartidasF4");
+		List<CopaApostasRealizadasVO> apostasRealizadasF4 = (List<CopaApostasRealizadasVO>) request.getAttribute("apostasRealizadasF4");
+	
+		List<CopaPartidasVO> partidasF5 = (List<CopaPartidasVO>) request.getAttribute("dadosPartidasF5");
+		List<CopaApostasRealizadasVO> apostasRealizadasF5 = (List<CopaApostasRealizadasVO>) request.getAttribute("apostasRealizadasF5");
+		*/
+		
+				
+		
+		
+		
+		String dataSistema = (String) request.getAttribute("dataHoje");
+		
+		if(usuario.getPermissaoBean() == 1){
+			dataSistema="2014-06-12";
+		}
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Date dataSistemaObj = sdf.parse(dataSistema);
+
+	%>
+	
+
+<head>
+	<script type="text/javascript" src="jquery.jqplot.1.0.8r1250/dist/jquery.js"></script>
+	
+	<meta charset="ISO-8859-1">
+	<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+	<meta name=ProgId content=Excel.Sheet>
+	<meta name=Generator content="Microsoft Excel 15">
+	<link rel=Stylesheet href=e_copa_arquivos/stylesheet.css>
+	
+	<style>
+		#externo {
+			display: table;
+			width: 100%;
+		}
+		
+		.interno {
+			float: left;
+			width:49%;
+		}
+		
+		#cadastroUser{
+			display:none;
+		}
+		
+		#mudarSenha{
+			display:none;
+		}
+	</style>
+	
+	<script type="text/javascript">
+		$(function() {
+			//alert('Página em manutenção, as apostas não serão gravadas, aguarde um momento!');
+			if('<%=senha%>' == 'caixa123'){
+				alert('Lembre-se de alterar a sua senha!');
+			}
+		});
+		
+		function visualizarDados(){
+			var usuario = '<%=login%>';
+			var senha = '<%=senha%>';
+			
+			teste = '<%=senha%>';
+			alert('Usuário: '+usuario+'\nSenha: '+teste);
+		}
+		
+		function mostraQuadroAlterarSenha(){
+			
+			$('#mudarSenha').show();
+			
+		}
+		
+		function alterarSenha(){
+			var senhaAtual = $('#senhaAtual').val();
+			var novaSenha = $('#novaSenha').val();
+			var novaSenhaRepeat = $('#novaSenhaRepeat').val();
+			var idUser = <%=usuario.getIdBean()%>;
+			if(senhaAtual == '<%=senha%>'){
+				if(novaSenha != '' && novaSenhaRepeat != ''){
+					if(novaSenha == novaSenhaRepeat){
+						
+						$.ajax({
+							url: "http://192.168.1.108:8082/ProjetoCaixa/copaServlet?tipo=alterarSenha&novaSenha="+novaSenhaRepeat+"&id="+idUser,
+							global: false,
+							type: "POST",
+							cache: false
+						});
+						
+						alert('Senha alterada com sucesso!');
+						window.location.href = "http://192.168.1.108:8082/ProjetoCaixa/e_copa_arquivos/copa_menu.htm";
+						//$('#senhaAtual').val(''); 
+						//$('#novaSenha').val('');
+						//$('#novaSenhaRepeat').val('');
+						//$('#mudarSenha').hide();
+						//teste = novaSenhaRepeat;
+					}else{
+						alert('Senhas novas não coincidem.');
+					}
+				}else{
+					alert('Digite a nova senha!');
+				}
+				
+			}else{
+				alert('Senha atual e senha digitada não coincidem.')
+			}
+			
+		}
+		
+		function fecharMudaSenha(){
+			$('#senhaAtual').val(''); 
+			$('#novaSenha').val('');
+			$('#novaSenhaRepeat').val('');
+			$('#mudarSenha').hide();
+		}
+	
+		<%if(usuario.getPermissaoBean() == 1){%>
+		
+				function gravaValoresAdmin(){
+					var url="http://192.168.1.108:8082/ProjetoCaixa/copaServlet";
+					var value="id="+<%=usuario.getIdBean()%>;
+					
+					var input, index;
+					var textInputs = [];
+					var unfiltered = document.getElementsByTagName("input");
+			        
+					var i = unfiltered.length;
+					
+				    while(i--) {
+				        input = unfiltered[i];
+				        if (!input.type || input.type === 'text'){
+				            textInputs.push(input);
+				        }
+				    }
+					
+				    //alert(textInputs.length);
+					for (index = 0; index < textInputs.length; index++) {
+						input = textInputs[index];
+						if(input.value != ''){
+							value+="&"+input.id+"="+input.value;
+							//alert(input.value);
+							//alert(input.id);
+						}
+					}
+					//alert(url);		
+					value+="&admin=t&tipo=gravar";
+					var request = new XMLHttpRequest();
+					request.open('POST', url, true);
+					request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+					//alert(value);
+					request.send(value);
+					
+					alert('Valores gravados com sucesso, o resultado final foi calculado!');
+					//window.location.href = "http://192.168.1.108:8082/ProjetoCaixa/e_copa_arquivos/copa_menu.htm";
+				}
+				
+				function abrirTelaCriacao(){
+					$('#cadastroUser').show();
+				}
+				
+				function fecharCadastro(){
+					
+					$('#cadastroUser').hide();
+					
+				}
+				
+				function visualizarTodasApostas(){
+					
+					var num = "";
+	    			sessionStorage.setItem("numeroAceitacao", num); 
+	    			window.open('http://192.168.1.108:8082/ProjetoCaixa/copaServlet?tipo=verTodasApostas','_blank','scrollbars=yes,resizable=yes,top=100,left=70,width=1000,height=500');
+					
+				}
+				
+				function cadastrarUsuario(){
+					
+					var login = $('#login').val();
+					var nome = $('#nome').val(); 
+					var senha = $('#senha').val();
+					
+					if ((login == null || login == "") || (nome == null || nome == "") || (senha == null || senha == "") ) {
+						alert("Preencha tudo!");
+						return false;
+					}else{
+						
+						$.ajax({
+							url: "http://192.168.1.108:8082/ProjetoCaixa/copaServlet?tipo=cadastrarUsuario&nLoginAdmin="+login+"&nNomeAdmin="+nome+"&nSenhaAdmin="+senha,
+							global: false,
+							type: "POST",
+							cache: false
+						});
+						
+						alert("Usuário: "+login+"\nNome: "+nome+"\nSenha: "+senha+"\n\nCadastrado com sucesso!");
+						
+						$('#login').val('');
+						$('#nome').val('');
+						$('#senha').val('');
+						$('#cadastroUser').hide();
+						return true;
+					}
+					
+					
+				}
+				
+				
+		<%}else{%>
+				function gravaValores(){
+					var url="http://192.168.1.108:8082/ProjetoCaixa/copaServlet";
+					var value="id="+<%=usuario.getIdBean()%>;
+					
+					var input, index;
+					var textInputs = [];
+					var unfiltered = document.getElementsByTagName("input");
+			        
+					var i = unfiltered.length;
+					
+				    while(i--) {
+				        input = unfiltered[i];
+				        if (!input.type || input.type === 'text'){
+				            textInputs.push(input);
+				        }
+				    }
+					
+					for (index = 0; index < textInputs.length; index++) {
+						input = textInputs[index];
+	
+						if(input.value != ''){
+							eval('data = document.getElementById("data_'+(input.id.substring(8,input.id.length))+'").innerText;')
+							value+="&"+input.id+"="+input.value+"&data_"+(input.id.substring(8,input.id.length))+"="+data;
+							//value+="&"+input.id+"="+input.value;
+						}
+					}
+					
+					value+='&tipo=gravar';
+					var request = new XMLHttpRequest();
+					request.open('POST', url, true);
+					request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+					
+					//alert(value);
+					request.send(value);
+					
+					alert('Valores gravados com sucesso!');
+					window.location.href = "http://192.168.1.108:8082/ProjetoCaixa/e_copa_arquivos/copa_menu.htm";
+				}
+	<%}%>
+	</script>
+</head>
+<body link="#0563C1" vlink="#954F72">
+	<%if(usuario.getPermissaoBean() == 1){%>
+	<h1> 
+		Bem vindo Administrador!
+	</h1>
+	<%} %>
+	<div id="externo">
+		<div id="fatuMensal" class="interno">
+			<table border=0 cellpadding=0 cellspacing=0 width=622
+				style='border-collapse: collapse; table-layout: fixed; width: 468pt'>
+				<col width=29Gru
+					style='mso-width-source: userset; mso-width-alt: 1060; width: 22pt'>
+				<col width=16
+					style='mso-width-source: userset; mso-width-alt: 585; width: 12pt'>
+				<col width=6
+					style='mso-width-source: userset; mso-width-alt: 219; width: 5pt'>
+				<col width=105
+					style='mso-width-source: userset; mso-width-alt: 3840; width: 79pt'>
+				<col width=132
+					style='mso-width-source: userset; mso-width-alt: 4827; width: 99pt'>
+				<col width=28
+					style='mso-width-source: userset; mso-width-alt: 1024; width: 21pt'>
+				<col width=17
+					style='mso-width-source: userset; mso-width-alt: 621; width: 13pt'>
+				<col width=28
+					style='mso-width-source: userset; mso-width-alt: 1024; width: 21pt'>
+				<col width=132
+					style='mso-width-source: userset; mso-width-alt: 4827; width: 99pt'>
+				<col width=107
+					style='mso-width-source: userset; mso-width-alt: 3913; width: 80pt'>
+				<col width=6
+					style='mso-width-source: userset; mso-width-alt: 219; width: 5pt'>
+				<col width=16
+					style='mso-width-source: userset; mso-width-alt: 585; width: 12pt'>
+				<tr height=0 style='display: none'>
+					<td width=29 style='width: 22pt'></td>
+					<td width=16 style='width: 12pt'></td>
+					<td width=6 style='width: 5pt'></td>
+					<td width=105 style='width: 79pt'></td>
+					<td width=132 style='width: 99pt'></td>
+					<td width=28 style='width: 21pt'></td>
+					<td width=17 style='width: 13pt'></td>
+					<td width=28 style='width: 21pt'></td>
+					<td width=132 style='width: 99pt'></td>
+					<td width=107 style='width: 80pt'></td>
+					<td width=6 style='width: 5pt'></td>
+					<td width=16 style='width: 12pt'></td>
+				</tr>
+				<tr height=0 style='display: none'>
+					<td height=0 colspan=12 style='mso-ignore: colspan'></td>
+				</tr>
+				<tr height=0 style='display: none'>
+					<td height=0 colspan=12 style='mso-ignore: colspan'></td>
+				</tr>
+				<tr height=0 style='display: none'>
+					<td height=0 colspan=12 style='mso-ignore: colspan'></td>
+				</tr>
+				<tr height=0 style='display: none'>
+					<td height=0 colspan=12 style='mso-ignore: colspan'></td>
+				</tr>
+				<tr height=25 style='mso-height-source: userset; height: 10.75pt'>
+					<td height=25 colspan=12 style='height: 10.75pt; mso-ignore: colspan'></td>
+				</tr>
+				<tr height=16 style='mso-height-source: userset; height: 12.0pt'>
+					<td height=16 style='height: 12.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=6 style='mso-height-source: userset; height: 4.5pt'>
+					<td height=6 style='height: 4.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td colspan=3 rowspan=3 height=60 width=265 style='height: 45.0pt; width: 199pt' align=left valign=top>
+					
+					<span style='mso-ignore: vglayout; position: absolute; z-index: 1; margin-left: 229px; margin-top: 2px; width: 221px; height: 80px'>
+						<img width=221 height=76 src="e_copa_arquivos/copa.jpg">
+					</span>
+						<span style='mso-ignore: vglayout2'>
+							<table cellpadding=0 cellspacing=0>
+								<tr>
+									<td colspan=3 rowspan=3 height=60 class=xl92 width=265 style='height: 45.0pt; width: 199pt'>Tabela da Copa 2018</td>
+								</tr>
+							</table>
+						</span>
+					</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td colspan=7 class=xl93>Primeira Fase</td>
+					<td></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+				<% 
+					int j = 1;
+					for(int i = 0;i < 6; i++){
+				%>
+					<tr height=20 style='height: 15.0pt'>
+						<td height=20 style='height: 15.0pt'></td>
+						<td class=xl77>&nbsp;</td>
+						<td></td>
+						<%if(j==3){ %>
+							<td class=xl90>Grupo A</td>
+						<%}else {
+									if(j==1){//linha topo						
+									%>
+										<td class=xl88>&nbsp;</td>
+								<%}else if(j==6){//linha final
+								%>
+										<td class=xl91>&nbsp;</td>
+								<%}else{ %>
+										<td class=xl89>&nbsp;</td>
+							<%	} %>
+						<%} %>
+						<td class=xl87><%=partidas.get(i).getTime1()%></td>
+						<td class=xl86 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadas.size();k++){
+									if(apostasRealizadas.get(k).getIdCampeonato() == partidas.get(i).getIdCampeonato()){
+										out.print(apostasRealizadas.get(k).getPlayer1());
+									}
+								}%>" id="player1_<%=partidas.get(i).getIdCampeonato()%>"   
+								<%
+								Date dataPartida = sdf.parse(partidas.get(i).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl86 style='border-left: none'>x</td>
+						<td class=xl86 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadas.size();k++){
+									if(apostasRealizadas.get(k).getIdCampeonato() == partidas.get(i).getIdCampeonato()){
+										out.print(apostasRealizadas.get(k).getPlayer2());
+									}
+								}%>" id="player2_<%=partidas.get(i).getIdCampeonato()%>"
+								<% 
+								dataPartida = sdf.parse(partidas.get(i).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+				
+						<td class=xl86 style='border-left: none'><%=partidas.get(i).getTime2()%></td>
+						<td class=xl94 style='border-left: none'><span id="data_<%=partidas.get(i).getIdCampeonato()%>"><%=partidas.get(i).getData().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2/$1")%></span></td>
+						<td></td>
+						<td class=xl77>&nbsp;</td>
+					</tr>
+				<% j++;
+					} %>
+					
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+				
+				<% 
+					j = 1;
+					for(int i = 0;i < 6; i++){
+				%>
+					<tr height=20 style='height: 15.0pt'>
+						<td height=20 style='height: 15.0pt'></td>
+						<td class=xl77>&nbsp;</td>
+						<td></td>
+						<%if(j==3){ %>
+							<td class=xl85>Grupo B</td>
+						<%}else {
+									if(j==1){//linha topo						
+									%>
+										<td class=xl81>&nbsp;</td>
+								<%}else if(j==6){//linha final
+								%>
+										<td class=xl80>&nbsp;</td>
+								<%}else{ %>
+										<td class=xl79>&nbsp;</td>
+							<%	} %>
+						<%} %>
+						<td class=xl83><%=partidas.get(i+6).getTime1()%></td>
+						<td class=xl84 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadas.size();k++){
+									if(apostasRealizadas.get(k).getIdCampeonato() == partidas.get(i+6).getIdCampeonato()){
+										out.print(apostasRealizadas.get(k).getPlayer1());
+									}
+								}%>" id="player1_<%=partidas.get(i+6).getIdCampeonato()%>"
+								<%
+								Date dataPartida = sdf.parse(partidas.get(i+6).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl82 style='border-left: none'>x</td>
+						<td class=xl84 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadas.size();k++){
+									if(apostasRealizadas.get(k).getIdCampeonato() == partidas.get(i+6).getIdCampeonato()){
+										out.print(apostasRealizadas.get(k).getPlayer2());
+									}
+								}%>" id="player2_<%=partidas.get(i+6).getIdCampeonato()%>"
+								<%
+								dataPartida = sdf.parse(partidas.get(i+6).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl84 style='border-left: none'><%=partidas.get(i+6).getTime2()%></td>
+						<td class=xl95 style='border-left: none'><span id="data_<%=partidas.get(i+6).getIdCampeonato()%>"><%=partidas.get(i+6).getData().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2/$1")%></span></td>
+						<td></td>
+						<td class=xl77>&nbsp;</td>
+					</tr>
+				<% j++;
+					} %>
+					
+					
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+				<%
+					j = 1;
+					for(int i = 0;i < 6; i++){
+				%>
+					<tr height=20 style='height: 15.0pt'>
+						<td height=20 style='height: 15.0pt'></td>
+						<td class=xl77>&nbsp;</td>
+						<td></td>
+						<%if(j==3){ %>
+							<td class=xl90>Grupo C</td>
+						<%}else {
+									if(j==1){//linha topo						
+									%>
+										<td class=xl88>&nbsp;</td>
+								<%}else if(j==6){//linha final
+								%>
+										<td class=xl91>&nbsp;</td>
+								<%}else{ %>
+										<td class=xl89>&nbsp;</td>
+							<%	} %>
+						<%} %>
+						<td class=xl87><%=partidas.get(i+12).getTime1()%></td>
+						<td class=xl86 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadas.size();k++){
+									if(apostasRealizadas.get(k).getIdCampeonato() == partidas.get(i+12).getIdCampeonato()){
+										out.print(apostasRealizadas.get(k).getPlayer1());
+									}
+								}%>" id="player1_<%=partidas.get(i+12).getIdCampeonato()%>"
+								<%
+								Date dataPartida = sdf.parse(partidas.get(i+12).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl86 style='border-left: none'>x</td>
+						<td class=xl86 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadas.size();k++){
+									if(apostasRealizadas.get(k).getIdCampeonato() == partidas.get(i+12).getIdCampeonato()){
+										out.print(apostasRealizadas.get(k).getPlayer2());
+									}
+								}%>" id="player2_<%=partidas.get(i+12).getIdCampeonato()%>"
+								<%
+								dataPartida = sdf.parse(partidas.get(i+12).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl86 style='border-left: none'><%=partidas.get(i+12).getTime2()%></td>
+						<td class=xl94 style='border-left: none'><span id="data_<%=partidas.get(i+12).getIdCampeonato()%>"><%=partidas.get(i+12).getData().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2/$1")%></span></td>
+						<td></td>
+						<td class=xl77>&nbsp;</td>
+					</tr>
+				<% j++;
+					} %>
+				
+				
+				
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+				
+				<% 
+					j = 1;
+					for(int i = 0;i < 6; i++){
+				%>
+					<tr height=20 style='height: 15.0pt'>
+						<td height=20 style='height: 15.0pt'></td>
+						<td class=xl77>&nbsp;</td>
+						<td></td>
+						<%if(j==3){ %>
+							<td class=xl85>Grupo D</td>
+						<%}else {
+									if(j==1){//linha topo						
+									%>
+										<td class=xl81>&nbsp;</td>
+								<%}else if(j==6){//linha final
+								%>
+										<td class=xl80>&nbsp;</td>
+								<%}else{ %>
+										<td class=xl79>&nbsp;</td>
+							<%	} %>
+						<%} %>
+						<td class=xl83><%=partidas.get(i+18).getTime1()%></td>
+						<td class=xl84 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2"
+						value="<% for(int k = 0;k < apostasRealizadas.size();k++){
+									if(apostasRealizadas.get(k).getIdCampeonato() == partidas.get(i+18).getIdCampeonato()){
+										out.print(apostasRealizadas.get(k).getPlayer1());
+									}
+								}%>" id="player1_<%=partidas.get(i+18).getIdCampeonato()%>"
+								<%
+								Date dataPartida = sdf.parse(partidas.get(i+18).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl82 style='border-left: none'>x</td>
+						<td class=xl84 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadas.size();k++){
+									if(apostasRealizadas.get(k).getIdCampeonato() == partidas.get(i+18).getIdCampeonato()){
+										out.print(apostasRealizadas.get(k).getPlayer2());
+									}
+								}%>" id="player2_<%=partidas.get(i+18).getIdCampeonato()%>"
+								<%
+								dataPartida = sdf.parse(partidas.get(i+18).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl84 style='border-left: none'><%=partidas.get(i+18).getTime2()%></td>
+						<td class=xl95 style='border-left: none'><span id="data_<%=partidas.get(i+18).getIdCampeonato()%>"><%=partidas.get(i+18).getData().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2/$1")%></span></td>
+						<td></td>
+						<td class=xl77>&nbsp;</td>
+					</tr>
+				<% j++;
+					} %>
+				
+				
+				
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+				
+				<%
+					j = 1;
+					for(int i = 0;i < 6; i++){
+				%>
+					<tr height=20 style='height: 15.0pt'>
+						<td height=20 style='height: 15.0pt'></td>
+						<td class=xl77>&nbsp;</td>
+						<td></td>
+						<%if(j==3){ %>
+							<td class=xl90>Grupo E</td>
+						<%}else {
+									if(j==1){//linha topo						
+									%>
+										<td class=xl88>&nbsp;</td>
+								<%}else if(j==6){//linha final
+								%>
+										<td class=xl91>&nbsp;</td>
+								<%}else{ %>
+										<td class=xl89>&nbsp;</td>
+							<%	} %>
+						<%} %>
+						<td class=xl87><%=partidas.get(i+24).getTime1()%></td>
+						<td class=xl86 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2"
+						value="<% for(int k = 0;k < apostasRealizadas.size();k++){
+									if(apostasRealizadas.get(k).getIdCampeonato() == partidas.get(i+24).getIdCampeonato()){
+										out.print(apostasRealizadas.get(k).getPlayer1());
+									}
+								}%>" id="player1_<%=partidas.get(i+24).getIdCampeonato()%>"
+								<%
+								Date dataPartida = sdf.parse(partidas.get(i+24).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl86 style='border-left: none'>x</td>
+						<td class=xl86 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadas.size();k++){
+									if(apostasRealizadas.get(k).getIdCampeonato() == partidas.get(i+24).getIdCampeonato()){
+										out.print(apostasRealizadas.get(k).getPlayer2());
+									}
+								}%>" id="player2_<%=partidas.get(i+24).getIdCampeonato()%>"
+								<%
+								dataPartida = sdf.parse(partidas.get(i+24).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl86 style='border-left: none'><%=partidas.get(i+24).getTime2()%></td>
+						<td class=xl94 style='border-left: none'><span id="data_<%=partidas.get(i+24).getIdCampeonato()%>"><%=partidas.get(i+24).getData().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2/$1").replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2/$1")%></span></td>
+						<td></td>
+						<td class=xl77>&nbsp;</td>
+					</tr>
+				<% j++;
+					} %>
+				
+				
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+				
+				<% 
+					j = 1;
+					for(int i = 0;i < 6; i++){
+				%>
+					<tr height=20 style='height: 15.0pt'>
+						<td height=20 style='height: 15.0pt'></td>
+						<td class=xl77>&nbsp;</td>
+						<td></td>
+						<%if(j==3){ %>
+							<td class=xl85>Grupo F</td>
+						<%}else {
+									if(j==1){//linha topo						
+									%>
+										<td class=xl81>&nbsp;</td>
+								<%}else if(j==6){//linha final
+								%>
+										<td class=xl80>&nbsp;</td>
+								<%}else{ %>
+										<td class=xl79>&nbsp;</td>
+							<%	} %>
+						<%} %>
+						<td class=xl83><%=partidas.get(i+30).getTime1()%></td>
+						<td class=xl84 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadas.size();k++){
+									if(apostasRealizadas.get(k).getIdCampeonato() == partidas.get(i+30).getIdCampeonato()){
+										out.print(apostasRealizadas.get(k).getPlayer1());
+									}
+								}%>" id="player1_<%=partidas.get(i+30).getIdCampeonato()%>"
+								<%
+								Date dataPartida = sdf.parse(partidas.get(i+30).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl82 style='border-left: none'>x</td>
+						<td class=xl84 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadas.size();k++){
+									if(apostasRealizadas.get(k).getIdCampeonato() == partidas.get(i+30).getIdCampeonato()){
+										out.print(apostasRealizadas.get(k).getPlayer2());
+									}
+								}%>" id="player2_<%=partidas.get(i+30).getIdCampeonato()%>"
+								<%
+								dataPartida = sdf.parse(partidas.get(i+30).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl84 style='border-left: none'><%=partidas.get(i+30).getTime2()%></td>
+						<td class=xl95 style='border-left: none'><span id="data_<%=partidas.get(i+30).getIdCampeonato()%>"><%=partidas.get(i+30).getData().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2/$1")%></span></td>
+						<td></td>
+						<td class=xl77>&nbsp;</td>
+					</tr>
+				<% j++;
+					} %>
+
+
+<!-- OUTRAS FASES AQUI -->
+
+
+<!-- AQUI -->
+
+
+<!-- OUTRAS FASES AQUI --> 
+
+
+			</table>
+		</div>
+		
+		
+		<div id="direita" class="interno">
+		
+			
+			
+			<%if(usuario.getPermissaoBean() == 1){%>
+			<table  id="cadastroUser" border=0 cellpadding=0 cellspacing=0 width=326 style="margin-left: 40px;" >
+				<col width=29
+					style='mso-width-source: userset; mso-width-alt: 1060; width: 22pt'>
+				<col width=16
+					style='mso-width-source: userset; mso-width-alt: 585; width: 12pt'>
+				<col width=6
+					style='mso-width-source: userset; mso-width-alt: 219; width: 5pt'>
+				<col width=105
+					style='mso-width-source: userset; mso-width-alt: 3840; width: 79pt'>
+				<col width=132
+					style='mso-width-source: userset; mso-width-alt: 4827; width: 99pt'>
+				<col width=28
+					style='mso-width-source: userset; mso-width-alt: 1024; width: 21pt'>
+				<col width=17
+					style='mso-width-source: userset; mso-width-alt: 621; width: 13pt'>
+				<col width=28
+					style='mso-width-source: userset; mso-width-alt: 1024; width: 21pt'>
+				<col width=132
+					style='mso-width-source: userset; mso-width-alt: 4827; width: 99pt'>
+				<col width=11
+					style='mso-width-source: userset; mso-width-alt: 402; width: 8pt'>
+				<col width=6
+					style='mso-width-source: userset; mso-width-alt: 219; width: 5pt'>
+				<col width=16
+					style='mso-width-source: userset; mso-width-alt: 585; width: 12pt'>
+				<tr height=0 style='display: none'>
+					<td width=29 style='width: 22pt'></td>
+					<td width=16 style='width: 12pt'></td>
+					<td width=6 style='width: 5pt'></td>
+					<td width=105 style='width: 79pt'></td>
+					<td width=132 style='width: 99pt'></td>
+					<td width=28 style='width: 21pt'></td>
+					<td width=17 style='width: 13pt'></td>
+					<td width=28 style='width: 21pt'></td>
+					<td width=132 style='width: 99pt'></td>
+					<td width=11 style='width: 8pt'></td>
+					<td width=6 style='width: 5pt'></td>
+					<td width=16 style='width: 12pt'></td>
+				</tr>
+				<tr height=0 style='display: none'>
+					<td height=0 colspan=12 style='mso-ignore: colspan'></td>
+				</tr>
+				<tr height=0 style='display: none'>
+					<td height=0 colspan=12 style='mso-ignore: colspan'></td>
+				</tr>
+				<tr height=0 style='display: none'>
+					<td height=0 colspan=12 style='mso-ignore: colspan'></td>
+				</tr>
+				<tr height=0 style='display: none'>
+					<td height=0 colspan=12 style='mso-ignore: colspan'></td>
+				</tr>
+				<tr height=5 style='mso-height-source: userset; height: 3.75pt'>
+					<td height=5 colspan=12 style='height: 3.75pt; mso-ignore: colspan'></td>
+				</tr>
+				<tr height=16 style='mso-height-source: userset; height: 12.0pt'>
+					<td height=16 style='height: 12.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=6 style='mso-height-source: userset; height: 4.5pt'>
+					<td height=6 style='height: 4.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+		
+		
+				
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td colspan=6 class=xl105>USUÁRIO:<input type="text" name="nLoginAdmin" id="login"></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+			
+				
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+				
+				
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td colspan=6 class=xl105>NOME:<input type="text" name="nNomeAdmin" id="nome"></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+				
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>	
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+				
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td colspan=6 class=xl105>SENHA:<input type="text" name="nSenhaAdmin" value="caixa123" id="senha"></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+				
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+				
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td colspan=6 class=xl105><input type="submit" value="Cadastrar usuário!" onclick = "cadastrarUsuario();">&nbsp;&nbsp;<input type="submit" value="Sair" onclick = "fecharCadastro();"></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+		
+		
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+		
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 colspan=4 style='height: 15.0pt; mso-ignore: colspan'></td>
+					<td class=xl78></td>
+					<td colspan=7 style='mso-ignore: colspan'></td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 colspan=4 style='height: 15.0pt; mso-ignore: colspan'></td>
+					<td class=xl78></td>
+					<td colspan=7 style='mso-ignore: colspan'></td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 colspan=4 style='height: 15.0pt; mso-ignore: colspan'></td>
+					<td class=xl78></td>
+					<td colspan=7 style='mso-ignore: colspan'></td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 colspan=4 style='height: 15.0pt; mso-ignore: colspan'></td>
+					<td class=xl78></td>
+					<td colspan=7 style='mso-ignore: colspan'></td>
+				</tr>
+				<![if supportMisalignedColumns]>
+				<tr height=0 style='display: none'>
+					<td width=29 style='width: 22pt'></td>
+					<td width=16 style='width: 12pt'></td>
+					<td width=6 style='width: 5pt'></td>
+					<td width=105 style='width: 79pt'></td>
+					<td width=132 style='width: 99pt'></td>
+					<td width=28 style='width: 21pt'></td>
+					<td width=17 style='width: 13pt'></td>
+					<td width=28 style='width: 21pt'></td>
+					<td width=132 style='width: 99pt'></td>
+					<td width=11 style='width: 8pt'></td>
+					<td width=6 style='width: 5pt'></td>
+					<td width=16 style='width: 12pt'></td>
+				</tr>
+				<![endif]>
+			</table>
+			
+			<br><br><br>
+			<br><br><br>
+			<div style="margin-left: 70px;">
+				<input type="button" value ="Gravar Resultado Real" onClick="gravaValoresAdmin();">
+			</div>
+			<br>
+			<div style="margin-left: 70px;">
+				<input type="button" value ="Criar novo usuário" onClick='abrirTelaCriacao();'>
+			</div>
+			<br>
+			<div style="margin-left: 70px;">
+				<input type="button"  value ="Visualizar todas as apostas" onClick='visualizarTodasApostas()'>
+			</div>
+			<br>
+			<%}else{%>
+			<br><br><br>
+			<br><br><br>
+			<div style="margin-left: 70px;">
+				<input type="button"  value ="Gravar aposta!" onClick="gravaValores();">
+			</div>
+			<br>
+			<%}%>
+			<br><br><br><br>
+			<div style="margin-left: 70px;">
+				<input type="button"  value ="Voltar ao menu" onClick='window.location.href = "http://192.168.1.108:8082/ProjetoCaixa/e_copa_arquivos/copa_menu.htm";'>
+			</div>
+			<br>
+			<div style="margin-left: 70px;">
+				<input type="button"  value ="Visualizar sua senha" onClick='visualizarDados()'>
+			</div>
+			<br><br><br><br><br>
+			<div style="margin-left: 70px;">
+				<input type="button"  value ="Alterar sua senha" onClick='mostraQuadroAlterarSenha()'>
+			</div>
+			
+			<br><br>
+			<table  id="mudarSenha" border=0 cellpadding=0 cellspacing=0 width=326 style="margin-left: 40px;" >
+				<col width=29
+					style='mso-width-source: userset; mso-width-alt: 1060; width: 22pt'>
+				<col width=16
+					style='mso-width-source: userset; mso-width-alt: 585; width: 12pt'>
+				<col width=6
+					style='mso-width-source: userset; mso-width-alt: 219; width: 5pt'>
+				<col width=105
+					style='mso-width-source: userset; mso-width-alt: 3840; width: 79pt'>
+				<col width=132
+					style='mso-width-source: userset; mso-width-alt: 4827; width: 99pt'>
+				<col width=28
+					style='mso-width-source: userset; mso-width-alt: 1024; width: 21pt'>
+				<col width=17
+					style='mso-width-source: userset; mso-width-alt: 621; width: 13pt'>
+				<col width=28
+					style='mso-width-source: userset; mso-width-alt: 1024; width: 21pt'>
+				<col width=132
+					style='mso-width-source: userset; mso-width-alt: 4827; width: 99pt'>
+				<col width=11
+					style='mso-width-source: userset; mso-width-alt: 402; width: 8pt'>
+				<col width=6
+					style='mso-width-source: userset; mso-width-alt: 219; width: 5pt'>
+				<col width=16
+					style='mso-width-source: userset; mso-width-alt: 585; width: 12pt'>
+				<tr height=0 style='display: none'>
+					<td width=29 style='width: 22pt'></td>
+					<td width=16 style='width: 12pt'></td>
+					<td width=6 style='width: 5pt'></td>
+					<td width=105 style='width: 79pt'></td>
+					<td width=132 style='width: 99pt'></td>
+					<td width=28 style='width: 21pt'></td>
+					<td width=17 style='width: 13pt'></td>
+					<td width=28 style='width: 21pt'></td>
+					<td width=132 style='width: 99pt'></td>
+					<td width=11 style='width: 8pt'></td>
+					<td width=6 style='width: 5pt'></td>
+					<td width=16 style='width: 12pt'></td>
+				</tr>
+				<tr height=0 style='display: none'>
+					<td height=0 colspan=12 style='mso-ignore: colspan'></td>
+				</tr>
+				<tr height=0 style='display: none'>
+					<td height=0 colspan=12 style='mso-ignore: colspan'></td>
+				</tr>
+				<tr height=0 style='display: none'>
+					<td height=0 colspan=12 style='mso-ignore: colspan'></td>
+				</tr>
+				<tr height=0 style='display: none'>
+					<td height=0 colspan=12 style='mso-ignore: colspan'></td>
+				</tr>
+				<tr height=5 style='mso-height-source: userset; height: 3.75pt'>
+					<td height=5 colspan=12 style='height: 3.75pt; mso-ignore: colspan'></td>
+				</tr>
+				<tr height=16 style='mso-height-source: userset; height: 12.0pt'>
+					<td height=16 style='height: 12.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=6 style='mso-height-source: userset; height: 4.5pt'>
+					<td height=6 style='height: 4.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+		
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td colspan=6 class=xl105>Senha Atual:<input type="password" name="nSenhaAtual" id="senhaAtual"></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+			
+				
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+								
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td colspan=6 class=xl105>Nova Senha:<input type="password" name="nNovaSenha" id="novaSenha"></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+	
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+				
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td colspan=6 class=xl105>Repita a nova Senha:<input type="password" name="nNovaSenhaRepeat"  id="novaSenhaRepeat"></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+				
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+				
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td colspan=6 class=xl105><input type="submit" value="Mudar senha!" onclick = "alterarSenha();">&nbsp;&nbsp;<input type="submit" value="Sair" onclick = "fecharMudaSenha();"></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+		
+		
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+		
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 colspan=4 style='height: 15.0pt; mso-ignore: colspan'></td>
+					<td class=xl78></td>
+					<td colspan=7 style='mso-ignore: colspan'></td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 colspan=4 style='height: 15.0pt; mso-ignore: colspan'></td>
+					<td class=xl78></td>
+					<td colspan=7 style='mso-ignore: colspan'></td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 colspan=4 style='height: 15.0pt; mso-ignore: colspan'></td>
+					<td class=xl78></td>
+					<td colspan=7 style='mso-ignore: colspan'></td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 colspan=4 style='height: 15.0pt; mso-ignore: colspan'></td>
+					<td class=xl78></td>
+					<td colspan=7 style='mso-ignore: colspan'></td>
+				</tr>
+				<![if supportMisalignedColumns]>
+				<tr height=0 style='display: none'>
+					<td width=29 style='width: 22pt'></td>
+					<td width=16 style='width: 12pt'></td>
+					<td width=6 style='width: 5pt'></td>
+					<td width=105 style='width: 79pt'></td>
+					<td width=132 style='width: 99pt'></td>
+					<td width=28 style='width: 21pt'></td>
+					<td width=17 style='width: 13pt'></td>
+					<td width=28 style='width: 21pt'></td>
+					<td width=132 style='width: 99pt'></td>
+					<td width=11 style='width: 8pt'></td>
+					<td width=6 style='width: 5pt'></td>
+					<td width=16 style='width: 12pt'></td>
+				</tr>
+				<![endif]>
+			</table>
+			
+			
+			
+			
+			
+		</div>
+	
+	</div>
+</body>
+
+</html>

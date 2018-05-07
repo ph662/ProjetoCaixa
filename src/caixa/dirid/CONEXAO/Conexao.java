@@ -12,8 +12,8 @@ public class Conexao {
 		try {
 			Date date = Calendar.getInstance().getTime();
 			Class.forName("com.mysql.jdbc.Driver");
-			System.out.println(date + " MySQL conectado - Método " + metodo);
-			return DriverManager.getConnection("jdbc:mysql://localhost:3306/SistemaDirid?user=root&password=root");
+			System.out.println(date + " MySQL conectado - MÃ©todo " + metodo);
+			return DriverManager.getConnection("jdbc:mysql://localhost:3306/sistemadirid?user=root&password=fucku");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {

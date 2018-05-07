@@ -13,27 +13,27 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import caixa.dirid.DAO.EuroDAO;
-import caixa.dirid.VO.EuroUsuarioVO;
+import caixa.dirid.DAO.CopaDAO;
+import caixa.dirid.VO.CopaUsuarioVO;
 
-public class EuroServlet extends HttpServlet {
+public class CopaServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 		System.out.println("chegou no GET");
-		EuroDAO dao = new EuroDAO();
+		CopaDAO dao = new CopaDAO();
 
 		if (request.getParameter("tipo").equals("verTodasApostas")) {
 
 			request.setAttribute("objetoUsuario", dao.buscarTodasApostas());
 			request.getRequestDispatcher(
-					"euro_arquivos/euro_acompanharTodasAposta.jsp").forward(
+					"copa_arquivos/copa_acompanharTodasAposta.jsp").forward(
 					request, response);
 		} else if (request.getParameter("tipo").equals("buscarRank")) {
 
 			request.setAttribute("objetoUsuario", dao.buscarRank());
 			request.getRequestDispatcher(
-					"euro_arquivos/euro_acompanharAposta.jsp").forward(request,
+					"copa_arquivos/copa_acompanharAposta.jsp").forward(request,
 					response);
 		}
 
@@ -43,7 +43,7 @@ public class EuroServlet extends HttpServlet {
 			HttpServletResponse response) throws ServletException, IOException {
 		System.out.println("chegou no POST");
 
-		EuroDAO dao = new EuroDAO();
+		CopaDAO dao = new CopaDAO();
 		System.out.println(request.getParameter("tipo"));
 		if (request.getParameter("tipo").equals("log")) {
 
@@ -57,11 +57,11 @@ public class EuroServlet extends HttpServlet {
 			 * } else { resp.sendRedirect("index.jsp?error=s"); }
 			 */
 
-			EuroUsuarioVO usuario = dao.logarDAO(request);
+			CopaUsuarioVO usuario = dao.logarDAO(request);
 
 			if (usuario.getLogin().equals("false")) {
 
-				response.sendRedirect("http://192.168.1.108:8082/ProjetoCaixa/euro_arquivos/euro_login.jsp?error=s");
+				response.sendRedirect("http://192.168.1.108:8082/ProjetoCaixa/copa_arquivos/copa_login.jsp?error=s");
 
 			} else {
 				if (usuario.getPermissaoBean() == 1) {
@@ -73,7 +73,7 @@ public class EuroServlet extends HttpServlet {
 					request.setAttribute("apostasRealizadas",
 							dao.buscaApostasRealizadasAdmin(1));
 
-					request.setAttribute("dadosPartidasF2",
+					/*request.setAttribute("dadosPartidasF2",
 							dao.buscaDadosPartidas(2));
 					request.setAttribute("apostasRealizadasF2",
 							dao.buscaApostasRealizadasAdmin(2));
@@ -92,7 +92,7 @@ public class EuroServlet extends HttpServlet {
 							dao.buscaDadosPartidas(5));
 					request.setAttribute("apostasRealizadasF5",
 							dao.buscaApostasRealizadasAdmin(5));
-
+*/
 					request.setAttribute("dataHoje", new SimpleDateFormat(
 							"yyyy-MM-dd").format(Calendar.getInstance()
 							.getTime()));
@@ -101,7 +101,7 @@ public class EuroServlet extends HttpServlet {
 					request.setAttribute("senha",
 							request.getParameter("nSenha"));
 					request.getRequestDispatcher(
-							"euro_arquivos/euro_aposta.jsp").forward(request,
+							"e_copa_arquivos/copa_aposta.jsp").forward(request,
 							response);
 				} else {
 					System.out.println("apostador");
@@ -139,7 +139,7 @@ public class EuroServlet extends HttpServlet {
 					request.setAttribute("senha",
 							request.getParameter("nSenha"));
 					request.getRequestDispatcher(
-							"euro_arquivos/euro_aposta.jsp").forward(request,
+							"copa_arquivos/copa_aposta.jsp").forward(request,
 							response);
 				}
 			}
