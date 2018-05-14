@@ -111,7 +111,7 @@ public class CopaServlet extends HttpServlet {
 					request.setAttribute("apostasRealizadas",
 							dao.buscaApostasRealizadas(usuario, 1));
 
-					request.setAttribute("dadosPartidasF2",
+					/*request.setAttribute("dadosPartidasF2",
 							dao.buscaDadosPartidas(2));
 					request.setAttribute("apostasRealizadasF2",
 							dao.buscaApostasRealizadas(usuario, 2));
@@ -129,7 +129,7 @@ public class CopaServlet extends HttpServlet {
 					request.setAttribute("dadosPartidasF5",
 							dao.buscaDadosPartidas(5));
 					request.setAttribute("apostasRealizadasF5",
-							dao.buscaApostasRealizadas(usuario, 5));
+							dao.buscaApostasRealizadas(usuario, 5));*/
 
 					request.setAttribute("dataHoje", new SimpleDateFormat(
 							"yyyy-MM-dd").format(Calendar.getInstance()
@@ -139,7 +139,7 @@ public class CopaServlet extends HttpServlet {
 					request.setAttribute("senha",
 							request.getParameter("nSenha"));
 					request.getRequestDispatcher(
-							"copa_arquivos/copa_aposta.jsp").forward(request,
+							"e_copa_arquivos/copa_aposta.jsp").forward(request,
 							response);
 				}
 			}

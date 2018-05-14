@@ -341,8 +341,8 @@ public class CopaDAO {
 					System.out.println("AQU2 "
 							+ request.getParameter(enumRequest));
 					String sqlInsert = "";
-					if (Integer.parseInt(enumRequestArray[1]) > 36
-							&& Integer.parseInt(enumRequestArray[1]) <= 44) {
+					if (Integer.parseInt(enumRequestArray[1]) > 48
+							&& Integer.parseInt(enumRequestArray[1]) <= 56 ) {
 						sqlInsert = "insert into euro_apostas (idUsuarios_FK,idCampeonato_FK,Aposta_"
 								+ enumRequestArray[0]
 								+ ",Fase) "
@@ -353,8 +353,8 @@ public class CopaDAO {
 								+ ","
 								+ request.getParameter(enumRequest) + ",2);";
 
-					} else if (Integer.parseInt(enumRequestArray[1]) > 44
-							&& Integer.parseInt(enumRequestArray[1]) <= 48) {
+					} else if (Integer.parseInt(enumRequestArray[1]) > 56
+							&& Integer.parseInt(enumRequestArray[1]) <= 60) {
 						sqlInsert = "insert into euro_apostas (idUsuarios_FK,idCampeonato_FK,Aposta_"
 								+ enumRequestArray[0]
 								+ ",Fase) "
@@ -365,8 +365,8 @@ public class CopaDAO {
 								+ ","
 								+ request.getParameter(enumRequest) + ",3);";
 
-					} else if (Integer.parseInt(enumRequestArray[1]) > 48
-							&& Integer.parseInt(enumRequestArray[1]) <= 50) {
+					} else if (Integer.parseInt(enumRequestArray[1]) > 60
+							&& Integer.parseInt(enumRequestArray[1]) <= 62) {
 						sqlInsert = "insert into euro_apostas (idUsuarios_FK,idCampeonato_FK,Aposta_"
 								+ enumRequestArray[0]
 								+ ",Fase) "
@@ -377,7 +377,7 @@ public class CopaDAO {
 								+ ","
 								+ request.getParameter(enumRequest) + ",4);";
 
-					} else if (Integer.parseInt(enumRequestArray[1]) == 51) {
+					} else if (Integer.parseInt(enumRequestArray[1]) == 63) {//final
 						sqlInsert = "insert into euro_apostas (idUsuarios_FK,idCampeonato_FK,Aposta_"
 								+ enumRequestArray[0]
 								+ ",Fase) "
