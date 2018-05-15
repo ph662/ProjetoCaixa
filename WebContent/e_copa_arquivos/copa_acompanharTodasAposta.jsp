@@ -1,6 +1,6 @@
 <%@ page import="java.text.DecimalFormat"%>
 <%@ page import="java.math.BigDecimal"%>
-<%@ page import="caixa.dirid.VO.EuroResultadosCompletoVO"%>
+<%@ page import="caixa.dirid.VO.CopaResultadosCompletoVO"%>
 <%@ page import="caixa.dirid.UTEIS.*"%>
 <%@ page import="java.util.*"%>
 <%@ page import="java.text.*"%>
@@ -12,7 +12,7 @@
 		/***********/
 		/*VARIAVEIS*/
 		/***********/
-		List<EuroResultadosCompletoVO> partidas = (List<EuroResultadosCompletoVO>) request.getAttribute("objetoUsuario");
+		List<CopaResultadosCompletoVO> partidas = (List<CopaResultadosCompletoVO>) request.getAttribute("objetoUsuario");
 	%>
 	
 
@@ -85,11 +85,11 @@
 				<td><%=partidas.get(i).getApostaP2()%></td>
 				<td><%=partidas.get(i).getNomeTime2()%></td>
 				<td>&nbsp;</td>
-				<td><%=partidas.get(i).getNomeTimeReal1()%></td>
-				<td><%=partidas.get(i).getRealP1()%></td>
+				<td><b><%=partidas.get(i).getNomeTimeReal1()%></b></td>
+				<td><b><%=partidas.get(i).getRealP1()%></b></td>
 				<td>x</td>
-				<td><%=partidas.get(i).getRealP2()%></td>
-				<td><%=partidas.get(i).getNomeTimeReal2()%></td>
+				<td><b><%=partidas.get(i).getRealP2()%></b></td>
+				<td><b><%=partidas.get(i).getNomeTimeReal2()%></b></td>
 				<td><%=partidas.get(i).getDataPartida()%></td>
 				<td><%=partidas.get(i).getFase()%></td>
 			</tr>

@@ -148,7 +148,7 @@ public class CopaDAO {
 		try {
 			Statement statement = con.createStatement();
 
-			String sqlSelect = "select eu.nome, eu.login ,er.Resultado,  y.Nome as time1, ea.Aposta_Player1,ea.Aposta_Player2,z.Nome as time2,  y.Nome as timeReal1,ec.ResultadoReal_Player1,ec.ResultadoReal_Player2,z.Nome as timeReal2,  ec.data_partida,ea.fase  from euro_Resultado er  join euro_apostas ea on er.idapostas_FK = ea.idApostas  join euro_campeonato ec on ea.idCampeonato_FK = ec.IdCampeonato  JOIN euro_clubes y ON y.idclubes = ec.idclubes_player1   JOIN euro_clubes z ON z.idclubes = ec.idclubes_player2  join euro_usuarios eu on eu.idUsuarios = ea.idUsuarios_FK  order by eu.nome,er.resultado desc, ec.data_partida;";
+			String sqlSelect = "select eu.nome, eu.login ,er.Resultado,  y.Nome as time1, ea.Aposta_Player1,ea.Aposta_Player2,z.Nome as time2,  y.Nome as timeReal1,ec.ResultadoReal_Player1,ec.ResultadoReal_Player2,z.Nome as timeReal2,  ec.data_partida,ea.fase  from euro_resultado er  join euro_apostas ea on er.idapostas_FK = ea.idApostas  join euro_campeonato ec on ea.idCampeonato_FK = ec.IdCampeonato  JOIN euro_clubes y ON y.idclubes = ec.idclubes_player1   JOIN euro_clubes z ON z.idclubes = ec.idclubes_player2  join euro_usuarios eu on eu.idUsuarios = ea.idUsuarios_FK  order by eu.nome,er.resultado desc, ec.data_partida;";
 
 			ResultSet rs = statement.executeQuery(sqlSelect);
 
@@ -203,7 +203,7 @@ public class CopaDAO {
 			Statement statement = con.createStatement();
 
 			String sqlSelect = "select eu.nome,sum(er.Resultado) as pontuacao      "
-					+ "  from euro_Resultado er join euro_apostas ea on er.idapostas_FK = ea.idApostas "
+					+ "  from euro_resultado er join euro_apostas ea on er.idapostas_FK = ea.idApostas "
 					+ "join euro_campeonato ec on ea.idCampeonato_FK = ec.IdCampeonato join euro_usuarios eu on eu.idUsuarios = ea.idUsuarios_FK "
 					+ "group by eu.nome order by pontuacao desc;";
 
@@ -469,7 +469,7 @@ public class CopaDAO {
 					ps = con.prepareStatement(sqlUpdate);
 					ps.execute();
 					if (i == 2) {
-						String geraResultadoApostas = "call `prcCopaCalculaApostas`('"
+						String geraResultadoApostas = "call `prcEuroCalculaApostas`('"
 								+ idCampeonato + "','3')";
 						System.out.println(geraResultadoApostas);
 						statement.executeUpdate(geraResultadoApostas);

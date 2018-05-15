@@ -27,13 +27,13 @@ public class CopaServlet extends HttpServlet {
 
 			request.setAttribute("objetoUsuario", dao.buscarTodasApostas());
 			request.getRequestDispatcher(
-					"copa_arquivos/copa_acompanharTodasAposta.jsp").forward(
+					"e_copa_arquivos/copa_acompanharTodasAposta.jsp").forward(
 					request, response);
 		} else if (request.getParameter("tipo").equals("buscarRank")) {
 
 			request.setAttribute("objetoUsuario", dao.buscarRank());
 			request.getRequestDispatcher(
-					"copa_arquivos/copa_acompanharAposta.jsp").forward(request,
+					"e_copa_arquivos/copa_acompanharAposta.jsp").forward(request,
 					response);
 		}
 
@@ -61,7 +61,7 @@ public class CopaServlet extends HttpServlet {
 
 			if (usuario.getLogin().equals("false")) {
 
-				response.sendRedirect("http://192.168.1.108:8082/ProjetoCaixa/copa_arquivos/copa_login.jsp?error=s");
+				response.sendRedirect("http://192.168.1.108:8082/ProjetoCaixa/e_copa_arquivos/copa_login.jsp?error=s");
 
 			} else {
 				if (usuario.getPermissaoBean() == 1) {
