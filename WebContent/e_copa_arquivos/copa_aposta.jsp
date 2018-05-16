@@ -22,9 +22,8 @@
 		String senha = (String) request.getAttribute("senha");
 		
 		List<CopaPartidasVO> partidas = (List<CopaPartidasVO>) request.getAttribute("dadosPartidas");
-		List<CopaApostasRealizadasVO> apostasRealizadas = (List<CopaApostasRealizadasVO>) request.getAttribute("apostasRealizadas");
+		List<CopaApostasRealizadasVO> apostasRealizadas = (List<CopaApostasRealizadasVO>) request.getAttribute("apostasRealizadas");	
 		
-		/*
 		List<CopaPartidasVO> partidasF2 = (List<CopaPartidasVO>) request.getAttribute("dadosPartidasF2");
 		List<CopaApostasRealizadasVO> apostasRealizadasF2 = (List<CopaApostasRealizadasVO>) request.getAttribute("apostasRealizadasF2");
 		
@@ -36,7 +35,10 @@
 	
 		List<CopaPartidasVO> partidasF5 = (List<CopaPartidasVO>) request.getAttribute("dadosPartidasF5");
 		List<CopaApostasRealizadasVO> apostasRealizadasF5 = (List<CopaApostasRealizadasVO>) request.getAttribute("apostasRealizadasF5");
-		*/
+		
+		List<CopaPartidasVO> partidasF6 = (List<CopaPartidasVO>) request.getAttribute("dadosPartidasF6");
+		List<CopaApostasRealizadasVO> apostasRealizadasF6 = (List<CopaApostasRealizadasVO>) request.getAttribute("apostasRealizadasF6");
+		
 		
 				
 		
@@ -1047,9 +1049,843 @@
 <!-- OUTRAS FASES AQUI -->
 
 
-<!-- AQUI -->
 
 
+
+<!-- SEGUNDA FASE -->
+
+
+
+
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td colspan=7 class=xl93>Oitavas de Final</td>
+					<td></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+				<% 
+					 j = 1;
+					for(int i = 0;i < 2; i++){
+				%>
+					<tr height=20 style='height: 15.0pt'>
+						<td height=20 style='height: 15.0pt'></td>
+						<td class=xl77>&nbsp;</td>
+						<td></td>
+						<%if(j==1){ %>
+							<td class=xl90>Jogo 49</td>
+						<%}else {
+									if(j==1){//linha topo						
+									%>
+										<td class=xl88>&nbsp;</td>
+								<%}else if(j==2){//linha final
+								%>
+										<td class=xl91><b>Jogo 50</b></td>
+								<%}else{ %>
+										<td class=xl89>&nbsp;</td>
+							<%	} %>
+						<%} %>
+						<td class=xl87><%=partidasF2.get(i).getTime1()%></td>
+						<td class=xl86 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadasF2.size();k++){
+									if(apostasRealizadasF2.get(k).getIdCampeonato() == partidasF2.get(i).getIdCampeonato()){
+										out.print(apostasRealizadasF2.get(k).getPlayer1());
+									}
+								}%>" id="player1_<%=partidasF2.get(i).getIdCampeonato()%>"   
+								<%
+								Date dataPartida = sdf.parse(partidasF2.get(i).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl86 style='border-left: none'>x</td>
+						<td class=xl86 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadasF2.size();k++){
+									if(apostasRealizadasF2.get(k).getIdCampeonato() == partidasF2.get(i).getIdCampeonato()){
+										out.print(apostasRealizadasF2.get(k).getPlayer2());
+									}
+								}%>" id="player2_<%=partidasF2.get(i).getIdCampeonato()%>"
+								<% 
+								dataPartida = sdf.parse(partidasF2.get(i).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+				
+						<td class=xl86 style='border-left: none'><%=partidasF2.get(i).getTime2()%></td>
+						<td class=xl94 style='border-left: none'><span id="data_<%=partidasF2.get(i).getIdCampeonato()%>"><%=partidasF2.get(i).getData().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2/$1")%></span></td>
+						<td></td>
+						<td class=xl77>&nbsp;</td>
+					</tr>
+				<% j++;
+					} %>
+					
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+		
+			
+				<% 
+					j = 1;
+					for(int i = 0;i < 2; i++){
+				%>
+					<tr height=20 style='height: 15.0pt'>
+						<td height=20 style='height: 15.0pt'></td>
+						<td class=xl77>&nbsp;</td>
+						<td></td>
+						<%if(j==1){ %>
+							<td class=xl85>Jogo 51</td>
+						<%}else {
+									if(j==1){//linha topo						
+									%>
+										<td class=xl81>&nbsp;</td>
+								<%}else if(j==2){//linha final
+								%>
+										<td class=xl80><b>Jogo 52</b></td>
+								<%}else{ %>
+										<td class=xl79>&nbsp;</td>
+							<%	} %>
+						<%} %>
+						<td class=xl83><%=partidasF2.get(i+2).getTime1()%></td>
+						<td class=xl84 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadasF2.size();k++){
+									if(apostasRealizadasF2.get(k).getIdCampeonato() == partidasF2.get(i+2).getIdCampeonato()){
+										out.print(apostasRealizadasF2.get(k).getPlayer1());
+									}
+								}%>" id="player1_<%=partidasF2.get(i+2).getIdCampeonato()%>"
+								<%
+								Date dataPartida = sdf.parse(partidasF2.get(i+2).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl82 style='border-left: none'>x</td>
+						<td class=xl84 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadasF2.size();k++){
+									if(apostasRealizadasF2.get(k).getIdCampeonato() == partidasF2.get(i+2).getIdCampeonato()){
+										out.print(apostasRealizadasF2.get(k).getPlayer2());
+									}
+								}%>" id="player2_<%=partidasF2.get(i+2).getIdCampeonato()%>"
+								<%
+								dataPartida = sdf.parse(partidasF2.get(i+2).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl84 style='border-left: none'><%=partidasF2.get(i+2).getTime2()%></td>
+						<td class=xl95 style='border-left: none'><span id="data_<%=partidasF2.get(i+2).getIdCampeonato()%>"><%=partidasF2.get(i+2).getData().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2/$1")%></span></td>
+						<td></td>
+						<td class=xl77>&nbsp;</td>
+					</tr>
+				<% j++;
+					} %>
+					
+					
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+				<%
+					j = 1;
+					for(int i = 0;i < 2; i++){
+				%>
+					<tr height=20 style='height: 15.0pt'>
+						<td height=20 style='height: 15.0pt'></td>
+						<td class=xl77>&nbsp;</td>
+						<td></td>
+						<%if(j==1){ %>
+							<td class=xl90>Jogo 53</td>
+						<%}else {
+									if(j==1){//linha topo						
+									%>
+										<td class=xl88>&nbsp;</td>
+								<%}else if(j==2){//linha final
+								%>
+										<td class=xl91><b>Jogo 54</b></td>
+								<%}else{ %>
+										<td class=xl89>&nbsp;</td>
+							<%	} %>
+						<%} %>
+						<td class=xl87><%=partidasF2.get(i+4).getTime1()%></td>
+						<td class=xl86 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadasF2.size();k++){
+									if(apostasRealizadasF2.get(k).getIdCampeonato() == partidasF2.get(i+4).getIdCampeonato()){
+										out.print(apostasRealizadasF2.get(k).getPlayer1());
+									}
+								}%>" id="player1_<%=partidasF2.get(i+4).getIdCampeonato()%>"
+								<%
+								Date dataPartida = sdf.parse(partidasF2.get(i+4).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl86 style='border-left: none'>x</td>
+						<td class=xl86 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadasF2.size();k++){
+									if(apostasRealizadasF2.get(k).getIdCampeonato() == partidasF2.get(i+4).getIdCampeonato()){
+										out.print(apostasRealizadasF2.get(k).getPlayer2());
+									}
+								}%>" id="player2_<%=partidasF2.get(i+4).getIdCampeonato()%>"
+								<%
+								dataPartida = sdf.parse(partidasF2.get(i+4).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl86 style='border-left: none'><%=partidasF2.get(i+4).getTime2()%></td>
+						<td class=xl94 style='border-left: none'><span id="data_<%=partidasF2.get(i+4).getIdCampeonato()%>"><%=partidasF2.get(i+4).getData().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2/$1")%></span></td>
+						<td></td>
+						<td class=xl77>&nbsp;</td>
+					</tr>
+				<% j++;
+					} %>
+				
+				
+				
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+				
+				<% 
+					j = 1;
+					for(int i = 0;i < 2; i++){
+				%>
+					<tr height=20 style='height: 15.0pt'>
+						<td height=20 style='height: 15.0pt'></td>
+						<td class=xl77>&nbsp;</td>
+						<td></td>
+						<%if(j==1){ %>
+							<td class=xl85>Jogo 55</td>
+						<%}else {
+									if(j==1){//linha topo						
+									%>
+										<td class=xl81>&nbsp;</td>
+								<%}else if(j==2){//linha final
+								%>
+										<td class=xl80><b>Jogo 56</b></td>
+								<%}else{ %>
+										<td class=xl79>&nbsp;</td>
+							<%	} %>
+						<%} %>
+						<td class=xl83><%=partidasF2.get(i+6).getTime1()%></td>
+						<td class=xl84 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2"
+						value="<% for(int k = 0;k < apostasRealizadasF2.size();k++){
+									if(apostasRealizadasF2.get(k).getIdCampeonato() == partidasF2.get(i+6).getIdCampeonato()){
+										out.print(apostasRealizadasF2.get(k).getPlayer1());
+									}
+								}%>" id="player1_<%=partidasF2.get(i+6).getIdCampeonato()%>"
+								<%
+								Date dataPartida = sdf.parse(partidasF2.get(i+6).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl82 style='border-left: none'>x</td>
+						<td class=xl84 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadasF2.size();k++){
+									if(apostasRealizadasF2.get(k).getIdCampeonato() == partidasF2.get(i+6).getIdCampeonato()){
+										out.print(apostasRealizadasF2.get(k).getPlayer2());
+									}
+								}%>" id="player2_<%=partidasF2.get(i+6).getIdCampeonato()%>"
+								<%
+								dataPartida = sdf.parse(partidasF2.get(i+6).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl84 style='border-left: none'><%=partidasF2.get(i+6).getTime2()%></td>
+						<td class=xl95 style='border-left: none'><span id="data_<%=partidasF2.get(i+6).getIdCampeonato()%>"><%=partidasF2.get(i+6).getData().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2/$1")%></span></td>
+						<td></td>
+						<td class=xl77>&nbsp;</td>
+					</tr>
+				<% j++;
+					} %>
+				
+				
+
+
+
+
+
+<!-- TERCEIRA FASE QUARTAS DE FINAL -->
+
+
+
+
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td colspan=7 class=xl93>Quartas de Final</td>
+					<td></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+				<% 
+					 j = 1;
+					for(int i = 0;i < 2; i++){
+				%>
+					<tr height=20 style='height: 15.0pt'>
+						<td height=20 style='height: 15.0pt'></td>
+						<td class=xl77>&nbsp;</td>
+						<td></td>
+						<%if(j==1){ %>
+							<td class=xl90>Jogo 57</td>
+						<%}else {
+									if(j==1){//linha topo						
+									%>
+										<td class=xl88>&nbsp;</td>
+								<%}else if(j==2){//linha final
+								%>
+										<td class=xl91><b>Jogo 58</b></td>
+								<%}else{ %>
+										<td class=xl89>&nbsp;</td>
+							<%	} %>
+						<%} %>
+						<td class=xl87><%=partidasF3.get(i).getTime1()%></td>
+						<td class=xl86 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadasF3.size();k++){
+									if(apostasRealizadasF3.get(k).getIdCampeonato() == partidasF3.get(i).getIdCampeonato()){
+										out.print(apostasRealizadasF3.get(k).getPlayer1());
+									}
+								}%>" id="player1_<%=partidasF3.get(i).getIdCampeonato()%>"   
+								<%
+								Date dataPartida = sdf.parse(partidasF3.get(i).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl86 style='border-left: none'>x</td>
+						<td class=xl86 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadasF3.size();k++){
+									if(apostasRealizadasF3.get(k).getIdCampeonato() == partidasF3.get(i).getIdCampeonato()){
+										out.print(apostasRealizadasF3.get(k).getPlayer2());
+									}
+								}%>" id="player2_<%=partidasF3.get(i).getIdCampeonato()%>"
+								<% 
+								dataPartida = sdf.parse(partidasF3.get(i).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+				
+						<td class=xl86 style='border-left: none'><%=partidasF3.get(i).getTime2()%></td>
+						<td class=xl94 style='border-left: none'><span id="data_<%=partidasF3.get(i).getIdCampeonato()%>"><%=partidasF3.get(i).getData().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2/$1")%></span></td>
+						<td></td>
+						<td class=xl77>&nbsp;</td>
+					</tr>
+				<% j++;
+					} %>
+					
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+				
+				<% 
+					j = 1;
+					for(int i = 0;i < 2; i++){
+				%>
+					<tr height=20 style='height: 15.0pt'>
+						<td height=20 style='height: 15.0pt'></td>
+						<td class=xl77>&nbsp;</td>
+						<td></td>
+						<%if(j==1){ %>
+							<td class=xl85>Jogo 59</td>
+						<%}else {
+									if(j==1){//linha topo						
+									%>
+										<td class=xl81>&nbsp;</td>
+								<%}else if(j==2){//linha final
+								%>
+										<td class=xl80><b>Jogo 60</b></td>
+								<%}else{ %>
+										<td class=xl79>&nbsp;</td>
+							<%	} %>
+						<%} %>
+						<td class=xl83><%=partidasF3.get(i+2).getTime1()%></td>
+						<td class=xl84 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadasF3.size();k++){
+									if(apostasRealizadasF3.get(k).getIdCampeonato() == partidasF3.get(i+2).getIdCampeonato()){
+										out.print(apostasRealizadasF3.get(k).getPlayer1());
+									}
+								}%>" id="player1_<%=partidasF3.get(i+2).getIdCampeonato()%>"
+								<%
+								Date dataPartida = sdf.parse(partidasF3.get(i+2).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl82 style='border-left: none'>x</td>
+						<td class=xl84 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadasF3.size();k++){
+									if(apostasRealizadasF3.get(k).getIdCampeonato() == partidasF3.get(i+2).getIdCampeonato()){
+										out.print(apostasRealizadasF3.get(k).getPlayer2());
+									}
+								}%>" id="player2_<%=partidasF3.get(i+2).getIdCampeonato()%>"
+								<%
+								dataPartida = sdf.parse(partidasF3.get(i+2).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl84 style='border-left: none'><%=partidasF3.get(i+2).getTime2()%></td>
+						<td class=xl95 style='border-left: none'><span id="data_<%=partidasF3.get(i+2).getIdCampeonato()%>"><%=partidasF3.get(i+2).getData().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2/$1")%></span></td>
+						<td></td>
+						<td class=xl77>&nbsp;</td>
+					</tr>
+				<% j++;
+					} %>
+					
+					
+
+
+
+<!-- QUARTA FASE SEMI FINAL -->
+
+
+
+
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td colspan=7 class=xl93>Semifinal</td>
+					<td></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+				<% 
+					 j = 1;
+					for(int i = 0;i < 2; i++){
+				%>
+					<tr height=20 style='height: 15.0pt'>
+						<td height=20 style='height: 15.0pt'></td>
+						<td class=xl77>&nbsp;</td>
+						<td></td>
+						<%if(j==1){ %>
+							<td class=xl90><b>Jogo 61</b></td>
+						<%}else {
+									if(j==1){//linha topo						
+									%>
+										<td class=xl88>&nbsp;</td>
+								<%}else if(j==2){//linha final
+								%>
+										<td class=xl91><b>Jogo 62</b></td>
+								<%}else{ %>
+										<td class=xl89>&nbsp;</td>
+							<%	} %>
+						<%} %>
+						<td class=xl87><%=partidasF4.get(i).getTime1()%></td>
+						<td class=xl86 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadasF4.size();k++){
+									if(apostasRealizadasF4.get(k).getIdCampeonato() == partidasF4.get(i).getIdCampeonato()){
+										out.print(apostasRealizadasF4.get(k).getPlayer1());
+									}
+								}%>" id="player1_<%=partidasF4.get(i).getIdCampeonato()%>"   
+								<%
+								Date dataPartida = sdf.parse(partidasF4.get(i).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl86 style='border-left: none'>x</td>
+						<td class=xl86 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadasF4.size();k++){
+									if(apostasRealizadasF4.get(k).getIdCampeonato() == partidasF4.get(i).getIdCampeonato()){
+										out.print(apostasRealizadasF4.get(k).getPlayer2());
+									}
+								}%>" id="player2_<%=partidasF4.get(i).getIdCampeonato()%>"
+								<% 
+								dataPartida = sdf.parse(partidasF4.get(i).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+				
+						<td class=xl86 style='border-left: none'><%=partidasF4.get(i).getTime2()%></td>
+						<td class=xl94 style='border-left: none'><span id="data_<%=partidasF4.get(i).getIdCampeonato()%>"><%=partidasF4.get(i).getData().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2/$1")%></span></td>
+						<td></td>
+						<td class=xl77>&nbsp;</td>
+					</tr>
+				<% j++;
+					} %>
+					
+		
+			
+<!-- QUINTA FASE FINAL -->
+
+
+
+
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td colspan=7 class=xl93>3º Lugar</td>
+					<td></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+				<% 
+					 j = 1;
+					for(int i = 0;i < 1; i++){
+				%>
+					<tr height=20 style='height: 15.0pt'>
+						<td height=20 style='height: 15.0pt'></td>
+						<td class=xl77>&nbsp;</td>
+						<td></td>
+						<%if(j==1){ %>
+							<td class=xl90>Jogo 63</td>
+						<%}else {
+									if(j==1){//linha topo						
+									%>
+										<td class=xl88>&nbsp;</td>
+								<%}else if(j==2){//linha final
+								%>
+										<td class=xl91>&nbsp;</td>
+								<%}else{ %>
+										<td class=xl89>&nbsp;</td>
+							<%	} %>
+						<%} %>
+						<td class=xl87><%=partidasF5.get(i).getTime1()%></td>
+						<td class=xl86 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadasF5.size();k++){
+									if(apostasRealizadasF5.get(k).getIdCampeonato() == partidasF5.get(i).getIdCampeonato()){
+										out.print(apostasRealizadasF5.get(k).getPlayer1());
+									}
+								}%>" id="player1_<%=partidasF5.get(i).getIdCampeonato()%>"   
+								<%
+								Date dataPartida = sdf.parse(partidasF5.get(i).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl86 style='border-left: none'>x</td>
+						<td class=xl86 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadasF5.size();k++){
+									if(apostasRealizadasF5.get(k).getIdCampeonato() == partidasF5.get(i).getIdCampeonato()){
+										out.print(apostasRealizadasF5.get(k).getPlayer2());
+									}
+								}%>" id="player2_<%=partidasF5.get(i).getIdCampeonato()%>"
+								<% 
+								dataPartida = sdf.parse(partidasF5.get(i).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+				
+						<td class=xl86 style='border-left: none'><%=partidasF5.get(i).getTime2()%></td>
+						<td class=xl94 style='border-left: none'><span id="data_<%=partidasF5.get(i).getIdCampeonato()%>"><%=partidasF5.get(i).getData().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2/$1")%></span></td>
+						<td></td>
+						<td class=xl77>&nbsp;</td>
+					</tr>
+				<% j++;
+					} %>
+					
+			
+
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=20 style='height: 15.0pt'>
+					<td height=20 style='height: 15.0pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td colspan=7 class=xl93>Final</td>
+					<td></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td colspan=9 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				<tr height=10 style='mso-height-source: userset; height: 7.5pt'>
+					<td height=10 style='height: 7.5pt'></td>
+					<td class=xl77>&nbsp;</td>
+					<td></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td class=xl65></td>
+					<td colspan=2 style='mso-ignore: colspan'></td>
+					<td class=xl77>&nbsp;</td>
+				</tr>
+				
+				<% 
+					 j = 1;
+					for(int i = 0;i < 1; i++){
+				%>
+					<tr height=20 style='height: 15.0pt'>
+						<td height=20 style='height: 15.0pt'></td>
+						<td class=xl77>&nbsp;</td>
+						<td></td>
+						<%if(j==1){ %>
+							<td class=xl90>Jogo 64</td>
+						<%}else {
+									if(j==1){//linha topo						
+									%>
+										<td class=xl88>&nbsp;</td>
+								<%}else if(j==2){//linha final
+								%>
+										<td class=xl91>&nbsp;</td>
+								<%}else{ %>
+										<td class=xl89>&nbsp;</td>
+							<%	} %>
+						<%} %>
+						<td class=xl87><%=partidasF6.get(i).getTime1()%></td>
+						<td class=xl86 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadasF6.size();k++){
+									if(apostasRealizadasF6.get(k).getIdCampeonato() == partidasF6.get(i).getIdCampeonato()){
+										out.print(apostasRealizadasF6.get(k).getPlayer1());
+									}
+								}%>" id="player1_<%=partidasF6.get(i).getIdCampeonato()%>"   
+								<%
+								Date dataPartida = sdf.parse(partidasF6.get(i).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+						<td class=xl86 style='border-left: none'>x</td>
+						<td class=xl86 style='border-left: none'>
+						<input type="text" style="height:1em; width:1.5em;" maxlength="2" 
+						value="<% for(int k = 0;k < apostasRealizadasF6.size();k++){
+									if(apostasRealizadasF6.get(k).getIdCampeonato() == partidasF6.get(i).getIdCampeonato()){
+										out.print(apostasRealizadasF6.get(k).getPlayer2());
+									}
+								}%>" id="player2_<%=partidasF6.get(i).getIdCampeonato()%>"
+								<% 
+								dataPartida = sdf.parse(partidasF6.get(i).getData());
+								if(dataSistemaObj.compareTo(dataPartida) == 0 || dataSistemaObj.compareTo(dataPartida) > 0){
+									out.print("disabled readonly='true'");
+								}
+								%>
+								></td>
+				
+						<td class=xl86 style='border-left: none'><%=partidasF6.get(i).getTime2()%></td>
+						<td class=xl94 style='border-left: none'><span id="data_<%=partidasF6.get(i).getIdCampeonato()%>"><%=partidasF6.get(i).getData().replaceAll("(\\d{4})-(\\d{2})-(\\d{2})", "$3/$2/$1")%></span></td>
+						<td></td>
+						<td class=xl77>&nbsp;</td>
+					</tr>
+				<% j++;
+					} %>
+					
+	
 <!-- OUTRAS FASES AQUI --> 
 
 

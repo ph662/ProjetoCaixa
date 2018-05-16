@@ -387,7 +387,17 @@ public class CopaDAO {
 								+ enumRequestArray[1]
 								+ ","
 								+ request.getParameter(enumRequest) + ",5);";
-
+					
+					} else if (Integer.parseInt(enumRequestArray[1]) == 64) {//final
+						sqlInsert = "insert into euro_apostas (idUsuarios_FK,idCampeonato_FK,Aposta_"
+								+ enumRequestArray[0]
+								+ ",Fase) "
+								+ "values ("
+								+ id
+								+ ","
+								+ enumRequestArray[1]
+								+ ","
+								+ request.getParameter(enumRequest) + ",6);";
 					} else {
 						sqlInsert = "insert into euro_apostas (idUsuarios_FK,idCampeonato_FK,Aposta_"
 								+ enumRequestArray[0]

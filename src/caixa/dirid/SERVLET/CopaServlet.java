@@ -73,7 +73,7 @@ public class CopaServlet extends HttpServlet {
 					request.setAttribute("apostasRealizadas",
 							dao.buscaApostasRealizadasAdmin(1));
 
-					/*request.setAttribute("dadosPartidasF2",
+					request.setAttribute("dadosPartidasF2",
 							dao.buscaDadosPartidas(2));
 					request.setAttribute("apostasRealizadasF2",
 							dao.buscaApostasRealizadasAdmin(2));
@@ -92,7 +92,13 @@ public class CopaServlet extends HttpServlet {
 							dao.buscaDadosPartidas(5));
 					request.setAttribute("apostasRealizadasF5",
 							dao.buscaApostasRealizadasAdmin(5));
-*/
+
+					request.setAttribute("dadosPartidasF6",
+							dao.buscaDadosPartidas(6));
+					request.setAttribute("apostasRealizadasF6",
+							dao.buscaApostasRealizadasAdmin(6));
+
+
 					request.setAttribute("dataHoje", new SimpleDateFormat(
 							"yyyy-MM-dd").format(Calendar.getInstance()
 							.getTime()));
@@ -111,7 +117,7 @@ public class CopaServlet extends HttpServlet {
 					request.setAttribute("apostasRealizadas",
 							dao.buscaApostasRealizadas(usuario, 1));
 
-					/*request.setAttribute("dadosPartidasF2",
+					request.setAttribute("dadosPartidasF2",
 							dao.buscaDadosPartidas(2));
 					request.setAttribute("apostasRealizadasF2",
 							dao.buscaApostasRealizadas(usuario, 2));
@@ -129,7 +135,12 @@ public class CopaServlet extends HttpServlet {
 					request.setAttribute("dadosPartidasF5",
 							dao.buscaDadosPartidas(5));
 					request.setAttribute("apostasRealizadasF5",
-							dao.buscaApostasRealizadas(usuario, 5));*/
+							dao.buscaApostasRealizadas(usuario, 5));
+					
+					request.setAttribute("dadosPartidasF6",
+							dao.buscaDadosPartidas(6));
+					request.setAttribute("apostasRealizadasF6",
+							dao.buscaApostasRealizadas(usuario, 6));
 
 					request.setAttribute("dataHoje", new SimpleDateFormat(
 							"yyyy-MM-dd").format(Calendar.getInstance()
