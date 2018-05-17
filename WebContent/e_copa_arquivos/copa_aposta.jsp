@@ -1898,7 +1898,7 @@
 			
 			
 			<%if(usuario.getPermissaoBean() == 1){%>
-			<table  id="cadastroUser" border=0 cellpadding=0 cellspacing=0 width=326 style="margin-left: 40px;" >
+			<table  id="cadastroUser" border=0 cellpadding=0 cellspacing=0 width=326 style="margin-left: 140px;" >
 				<col width=29
 					style='mso-width-source: userset; mso-width-alt: 1060; width: 22pt'>
 				<col width=16
@@ -2029,7 +2029,7 @@
 					<td height=20 style='height: 15.0pt'></td>
 					<td class=xl77>&nbsp;</td>
 					<td></td>
-					<td colspan=6 class=xl105>SENHA:<input type="text" name="nSenhaAdmin" value="caixa123" id="senha"></td>
+					<td colspan=6 class=xl105>SENHA:<input type="text" name="nSenhaAdmin" value="copa2018" id="senha"></td>
 					<td colspan=2 style='mso-ignore: colspan'></td>
 					<td class=xl77>&nbsp;</td>
 				</tr>
@@ -2126,41 +2126,41 @@
 			
 			<br><br><br>
 			<br><br><br>
-			<div style="margin-left: 70px;">
+			<div style="margin-left: 170px;">
 				<input type="button" value ="Gravar Resultado Real" onClick="gravaValoresAdmin();">
 			</div>
 			<br>
-			<div style="margin-left: 70px;">
+			<div style="margin-left: 170px;">
 				<input type="button" value ="Criar novo usuário" onClick='abrirTelaCriacao();'>
 			</div>
 			<br>
-			<div style="margin-left: 70px;">
+			<div style="margin-left: 170px;">
 				<input type="button"  value ="Visualizar todas as apostas" onClick='visualizarTodasApostas()'>
 			</div>
 			<br>
 			<%}else{%>
 			<br><br><br>
 			<br><br><br>
-			<div style="margin-left: 70px;">
+			<div style="margin-left: 170px;">
 				<input type="button"  value ="Gravar aposta!" onClick="gravaValores();">
 			</div>
 			<br>
 			<%}%>
 			<br><br><br><br>
-			<div style="margin-left: 70px;">
+			<div style="margin-left: 170px;">
 				<input type="button"  value ="Voltar ao menu" onClick='window.location.href = "http://192.168.1.108:8082/ProjetoCaixa/e_copa_arquivos/copa_menu.htm";'>
 			</div>
 			<br>
-			<div style="margin-left: 70px;">
+			<div style="margin-left: 170px;">
 				<input type="button"  value ="Visualizar sua senha" onClick='visualizarDados()'>
 			</div>
 			<br><br><br><br><br>
-			<div style="margin-left: 70px;">
+			<div style="margin-left: 170px;">
 				<input type="button"  value ="Alterar sua senha" onClick='mostraQuadroAlterarSenha()'>
 			</div>
 			
 			<br><br>
-			<table  id="mudarSenha" border=0 cellpadding=0 cellspacing=0 width=326 style="margin-left: 40px;" >
+			<table  id="mudarSenha" border=0 cellpadding=0 cellspacing=0 width=326 style="margin-left: 160px;" >
 				<col width=29
 					style='mso-width-source: userset; mso-width-alt: 1060; width: 22pt'>
 				<col width=16
