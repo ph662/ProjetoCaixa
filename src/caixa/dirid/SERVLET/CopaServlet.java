@@ -61,7 +61,7 @@ public class CopaServlet extends HttpServlet {
 
 			if (usuario.getLogin().equals("false")) {
 
-				response.sendRedirect("http://192.168.1.108:8082/ProjetoCaixa/e_copa_arquivos/copa_login.jsp?error=s");
+				response.sendRedirect("e_copa_arquivos/copa_login.jsp?error=s");
 
 			} else {
 				if (usuario.getPermissaoBean() == 1) {

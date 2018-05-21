@@ -61,7 +61,7 @@ public class EuroServlet extends HttpServlet {
 
 			if (usuario.getLogin().equals("false")) {
 
-				response.sendRedirect("http://192.168.1.108:8082/ProjetoCaixa/euro_arquivos/euro_login.jsp?error=s");
+				response.sendRedirect("euro_arquivos/euro_login.jsp?error=s");
 
 			} else {
 				if (usuario.getPermissaoBean() == 1) {

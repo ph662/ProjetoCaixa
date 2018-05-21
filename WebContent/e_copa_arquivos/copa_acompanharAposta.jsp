@@ -101,7 +101,7 @@
 		
 		var num = "";
 		sessionStorage.setItem("numeroAceitacao", num); 
-		window.open('http://192.168.1.108:8082/ProjetoCaixa/copaServlet?tipo=verTodasApostas','_blank','scrollbars=yes,resizable=yes,top=100,left=70,width=1000,height=500');
+		window.open('copaServlet?tipo=verTodasApostas','_blank','scrollbars=yes,resizable=yes,top=100,left=70,width=1000,height=500');
 		
 	}
 	
@@ -109,7 +109,7 @@
 </head>
 
 <body>
-	<a href="http://192.168.1.108:8082/ProjetoCaixa/e_copa_arquivos/copa_menu.htm">Menu</a>
+	<a href="e_copa_arquivos/copa_menu.htm">Menu</a>
 	<br>
 	<br>
 	<div style="margin-left: 70px;">

@@ -88,7 +88,7 @@
 	<script type="text/javascript">
 		$(function() {
 			//alert('Página em manutenção, as apostas não serão gravadas, aguarde um momento!');
-			if('<%=senha%>' == 'copa123'){
+			if('<%=senha%>' == 'copa2018'){
 				alert('Lembre-se de alterar a sua senha!');
 			}
 		});
@@ -117,14 +117,14 @@
 					if(novaSenha == novaSenhaRepeat){
 						
 						$.ajax({
-							url: "http://192.168.1.108:8082/ProjetoCaixa/copaServlet?tipo=alterarSenha&novaSenha="+novaSenhaRepeat+"&id="+idUser,
+							url: "copaServlet?tipo=alterarSenha&novaSenha="+novaSenhaRepeat+"&id="+idUser,
 							global: false,
 							type: "POST",
 							cache: false
 						});
 						
 						alert('Senha alterada com sucesso!');
-						window.location.href = "http://192.168.1.108:8082/ProjetoCaixa/e_copa_arquivos/copa_menu.htm";
+						window.location.href = "e_copa_arquivos/copa_menu.htm";
 						//$('#senhaAtual').val(''); 
 						//$('#novaSenha').val('');
 						//$('#novaSenhaRepeat').val('');
@@ -153,7 +153,7 @@
 		<%if(usuario.getPermissaoBean() == 1){%>
 		
 				function gravaValoresAdmin(){
-					var url="http://192.168.1.108:8082/ProjetoCaixa/copaServlet";
+					var url="copaServlet";
 					var value="id="+<%=usuario.getIdBean()%>;
 					
 					var input, index;
@@ -187,7 +187,7 @@
 					request.send(value);
 					
 					alert('Valores gravados com sucesso, o resultado final foi calculado!');
-					//window.location.href = "http://192.168.1.108:8082/ProjetoCaixa/e_copa_arquivos/copa_menu.htm";
+					//window.location.href = "e_copa_arquivos/copa_menu.htm";
 				}
 				
 				function abrirTelaCriacao(){
@@ -204,7 +204,7 @@
 					
 					var num = "";
 	    			sessionStorage.setItem("numeroAceitacao", num); 
-	    			window.open('http://192.168.1.108:8082/ProjetoCaixa/copaServlet?tipo=verTodasApostas','_blank','scrollbars=yes,resizable=yes,top=100,left=70,width=1000,height=500');
+	    			window.open('copaServlet?tipo=verTodasApostas','_blank','scrollbars=yes,resizable=yes,top=100,left=70,width=1000,height=500');
 					
 				}
 				
@@ -220,7 +220,7 @@
 					}else{
 						
 						$.ajax({
-							url: "http://192.168.1.108:8082/ProjetoCaixa/copaServlet?tipo=cadastrarUsuario&nLoginAdmin="+login+"&nNomeAdmin="+nome+"&nSenhaAdmin="+senha,
+							url: "copaServlet?tipo=cadastrarUsuario&nLoginAdmin="+login+"&nNomeAdmin="+nome+"&nSenhaAdmin="+senha,
 							global: false,
 							type: "POST",
 							cache: false
@@ -241,7 +241,7 @@
 				
 		<%}else{%>
 				function gravaValores(){
-					var url="http://192.168.1.108:8082/ProjetoCaixa/copaServlet";
+					var url="copaServlet";
 					var value="id="+<%=usuario.getIdBean()%>;
 					
 					var input, index;
@@ -276,7 +276,7 @@
 					request.send(value);
 					
 					alert('Valores gravados com sucesso!');
-					window.location.href = "http://192.168.1.108:8082/ProjetoCaixa/e_copa_arquivos/copa_menu.htm";
+					window.location.href = "e_copa_arquivos/copa_menu.htm";
 				}
 	<%}%>
 	</script>
@@ -2148,7 +2148,7 @@
 			<%}%>
 			<br><br><br><br>
 			<div style="margin-left: 170px;">
-				<input type="button"  value ="Voltar ao menu" onClick='window.location.href = "http://192.168.1.108:8082/ProjetoCaixa/e_copa_arquivos/copa_menu.htm";'>
+				<input type="button"  value ="Voltar ao menu" onClick='window.location.href = "e_copa_arquivos/copa_menu.htm";'>
 			</div>
 			<br>
 			<div style="margin-left: 170px;">
